@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4f46e5">
+<title>English Notebook</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>📒 English Notebook</h1>
+  <div class="stats"><span id="stats"></span> · <span id="auth"></span></div>
+</header>
+
+<nav>
+  <button data-tab="add" class="active">➕ Thêm</button>
+  <button data-tab="library">📚 Thư viện</button>
+  <button data-tab="review">🧠 Ôn tập <span id="dueBadge" class="badge"></span></button>
+</nav>
+
+<main>
+  <section id="tab-add" class="tab active">
+    <form id="addForm">
+      <input type="hidden" id="editId">
+      <div class="row">
+        <label>Loại
+          <select id="fType">
+            <option value="word">Từ (word)</option>
+            <option value="phrase">Cụm từ (phrase)</option>
+            <option value="sentence">Câu (sentence)</option>
+          </select>
+        </label>
+        <label class="grow">Tiếng Anh *
+          <input id="fText" required autocomplete="off" placeholder="e.g. find out / I'll look into it">
+        </label>
+      </div>
+      <label>Nghĩa tiếng Việt *
+        <input id="fMeaning" required autocomplete="off" placeholder="tìm ra / mình sẽ xem xét">
+      </label>
+      <div id="sentenceOnly" hidden>
+        <label>Câu gốc (tiếng Việt / ngữ cảnh)
+          <input id="fOriginal" autocomplete="off" placeholder="Check lại câu hỏi đi, tôi thấy đâu có gì khó hiểu đâu.">
+        </label>
+        <label>Cụm từ rút ra từ câu (mỗi dòng: english = nghĩa)
+          <textarea id="fExpr" rows="3" placeholder="check again = kiểm tra lại&#10;hard to understand = khó hiểu"></textarea>
+        </label>
+      </div>
+      <label>Ví dụ (example)
+        <textarea id="fExample" rows="2" placeholder="Can you help me find out why the API fails?"></textarea>
+      </label>
+      <label>Ghi chú (note)
+        <input id="fNote" autocomplete="off" placeholder="phát âm, lỗi hay gặp, ngữ cảnh...">
+      </label>
+      <label>Tags (cách nhau bằng dấu phẩy)
+        <input id="fTags" autocomplete="off" placeholder="work, git, meeting">
+      </label>
+      <div class="row">
+        <button type="submit" class="primary" id="saveBtn">Lưu</button>
+        <button type="button" id="cancelEdit" hidden>Huỷ sửa</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="tab-library" class="tab">
+    <div class="row">
+      <input id="q" class="grow" type="search" placeholder="Tìm kiếm...">
+      <select id="fltType">
+        <option value="">Tất cả</option>
+        <option value="word">Từ</option>
+        <option value="phrase">Cụm từ</option>
+        <option value="sentence">Câu</option>
+      </select>
+    </div>
+    <div id="tagBar" class="tags"></div>
+    <ul id="list" class="list"></ul>
+    <div class="row tools">
+      <button id="exportBtn">⬇ Xuất JSON</button>
+      <label class="btn">⬆ Nhập JSON<input id="importFile" type="file" accept="application/json" hidden></label>
+    </div>
+  </section>
+
+  <section id="tab-review" class="tab">
+    <div id="reviewBox"></div>
+  </section>
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
