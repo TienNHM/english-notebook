@@ -8,12 +8,13 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
+<script>try{var t=localStorage.getItem("english-notebook-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1 class="logo">📒 English Notebook</h1>
-  <div class="pills"><span id="stats" class="pill"></span><span id="auth"></span></div>
+  <div class="pills"><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
 </header>
 
 <nav>

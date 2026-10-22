@@ -103,6 +103,26 @@ async function importInbox() {
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) importInbox(); });
 
+// ---------- theme: system -> light -> dark ----------
+const THEME_KEY = "english-notebook-theme";
+const THEMES = { system: ["🖥", "Theo hệ thống"], light: ["☀️", "Sáng"], dark: ["🌙", "Tối"] };
+function getTheme() {
+  try { const t = localStorage.getItem(THEME_KEY); return t === "light" || t === "dark" ? t : "system"; } catch { return "system"; }
+}
+function applyTheme(t) {
+  const root = document.documentElement;
+  if (t === "system") delete root.dataset.theme; else root.dataset.theme = t;
+  try { t === "system" ? localStorage.removeItem(THEME_KEY) : localStorage.setItem(THEME_KEY, t); } catch {}
+  const btn = $("#themeBtn");
+  btn.textContent = THEMES[t][0];
+  btn.title = btn.ariaLabel = `Giao diện: ${THEMES[t][1]}`;
+}
+$("#themeBtn").onclick = () => {
+  const order = ["system", "light", "dark"], next = order[(order.indexOf(getTheme()) + 1) % 3];
+  applyTheme(next); toast(`Giao diện: ${THEMES[next][1]}`);
+};
+applyTheme(getTheme());
+
 // ---------- tabs ----------
 function showTab(name) {
   $$("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
