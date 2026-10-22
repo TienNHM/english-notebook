@@ -1,11 +1,8 @@
-// Paste your Firebase web config here (Firebase console > Project settings > Your apps > Web app).
-// While this is null the app runs in local-only mode (no login, data stays in this browser).
-//
-// Example:
-// export const firebaseConfig = {
-//   apiKey: "...",
-//   authDomain: "your-project.firebaseapp.com",
-//   projectId: "your-project",
-//   appId: "..."
-// };
-export const firebaseConfig = null;
+// Firebase web config (public identifiers, not secrets: access is controlled by firestore.rules).
+// Set to null to run local-only (no login, data stays in this browser).
+export const firebaseConfig = {
+  apiKey: "AIzaSyDqXhccFWD7Id3KexTxdOC7k6_8Eq9u2x8",
+  authDomain: "tiennhm-english-notebook.firebaseapp.com",
+  projectId: "tiennhm-english-notebook",
+  appId: "1:628826559800:web:0d13c43165a5dc58ea5dcd",
+};
