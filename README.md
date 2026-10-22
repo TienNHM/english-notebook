@@ -5,12 +5,25 @@ Save words, phrases and sentences (with the Vietnamese meaning and the original 
 
 **Live demo:** https://english-notebook.tiennhm.io.vn
 
-An installable PWA in plain HTML, CSS and JavaScript. No build step, works offline, optional Google login with cloud sync.
+An installable PWA in plain HTML, CSS and JavaScript. No build step, works offline, optional Google login with cloud sync, optional Claude Code integration.
 
 <p align="center">
   <img src="docs/screenshots/library-light.png" alt="Library (light theme)" width="48%">
   <img src="docs/screenshots/library-dark.png" alt="Library (dark theme)" width="48%">
 </p>
+
+## Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Quick start](#quick-start)
+- [How to use the app](#how-to-use-the-app)
+- [Set up Google login and cloud sync](#set-up-google-login-and-cloud-sync)
+- [Publish with GitHub Pages and a custom domain](#publish-with-github-pages-and-a-custom-domain)
+- [Save from Claude Code (MCP)](#save-from-claude-code-mcp)
+- [Data, privacy and security](#data-privacy-and-security)
+- [Troubleshooting](#troubleshooting)
+- [Project structure and development notes](#project-structure-and-development-notes)
 
 ## Features
 
@@ -21,7 +34,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
 - **Offline first**: works without internet and can be installed from the browser.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
-- **Claude Code integration** (optional): an MCP server saves words and sentences for you. See [english-notebook-mcp](https://github.com/TienNHM/english-notebook-mcp).
+- **Claude Code integration** (optional): an MCP server saves words and sentences for you.
 - Export / import JSON.
 
 ## Screenshots
@@ -41,50 +54,195 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 
 <p align="center"><img src="docs/screenshots/mobile-library.jpg" alt="Library on a phone" width="30%"></p>
 
-## Run locally
+## Quick start
+
+You need Python 3 (or any static file server). Nothing else.
 
 ```bash
+git clone https://github.com/TienNHM/english-notebook.git
+cd english-notebook
 python -m http.server 5173 --directory .
 ```
 
 Open http://localhost:5173. In Chrome or Edge, use "Install" in the address bar to add it as an app.
 
+This is **local-only mode**: no login, and your data lives in your browser (`localStorage`). Use **Xuất JSON** in the Library tab to back it up.
+
 The service worker (offline mode) needs `http://` or `https://`. Opening `index.html` directly still works, but without offline install.
 
-## Turn on Google login and sync (optional)
+Pick how far you want to go:
 
-Without this the app is local-only.
+| Goal | What to do |
+|---|---|
+| Just try it | Quick start above |
+| Same data on all devices | [Google login and cloud sync](#set-up-google-login-and-cloud-sync) |
+| Use it from a phone, anywhere | [GitHub Pages](#publish-with-github-pages-and-a-custom-domain) (needs the cloud sync step too) |
+| Let Claude save words for you | [Claude Code (MCP)](#save-from-claude-code-mcp) |
 
-1. Create a project at https://console.firebase.google.com and add a **Web app**.
-2. **Authentication → Sign-in method**: enable **Google**.
-3. **Firestore Database → Create database** (production mode).
-4. Copy the web config into `firebase-config.js`.
-5. Deploy the security rules (`firestore.rules`, each user can only read and write their own items):
+## How to use the app
+
+### Add
+
+1. Open **➕ Thêm** and choose a type: **Từ** (word), **Cụm từ** (phrase) or **Câu** (sentence).
+2. Fill in the English text and the Vietnamese meaning. Example, note and tags are optional.
+3. For a **sentence**, two extra fields appear:
+   - **Câu gốc**: the original sentence, for example the Vietnamese you wanted to say.
+   - **Cụm từ rút ra**: one expression per line as `english = nghĩa`. Each line becomes a separate phrase card linked to the sentence.
+4. Press **Lưu**. Adding something that already exists asks for confirmation.
+
+### Library
+
+- Search matches English, meaning, example, note and the original sentence.
+- Filter by type with the dropdown, or by tag by clicking a `#tag`.
+- 🔊 reads the English text aloud (your browser's voice), ✏️ edits, 🗑 deletes. Deleting a sentence also deletes the expressions linked to it (it asks first).
+
+### Review
+
+- **🧠 Ôn tập** shows the cards that are due. The badge on the tab is how many.
+- Think of the meaning, press **Xem nghĩa**, then rate yourself:
+
+| Button | What happens |
+|---|---|
+| **Quên** | Back to box 0, comes again in 10 minutes (and again in this session) |
+| **Nhớ** | Up 1 box |
+| **Dễ** | Up 2 boxes |
+
+Boxes 0 to 5 come back after 0, 1, 3, 7, 14 and 30 days.
+Cards that came from a sentence show the sentence under the answer.
+
+### Theme
+
+The round button in the header cycles **System → Light → Dark**. Your choice is saved in the browser.
+
+## Set up Google login and cloud sync
+
+Without this the app is local-only. With it, you sign in with Google and every device shows the same items. Firestore keeps an offline cache, so adding and reviewing works without internet and syncs later.
+
+The free **Spark** plan is enough for personal use (no credit card; free daily quota of about 50,000 reads and 20,000 writes). Check the current limits on the [Firebase pricing page](https://firebase.google.com/pricing).
+
+1. **Create a project** at https://console.firebase.google.com (Google Analytics is not needed).
+2. **Add a Web app**: Project overview → `</>` → register it (no Firebase Hosting needed). Copy the config.
+3. **Put the config in `firebase-config.js`** (these web keys are public identifiers, not secrets):
+
+   ```js
+   export const firebaseConfig = {
+     apiKey: "...",
+     authDomain: "<project-id>.firebaseapp.com",
+     projectId: "<project-id>",
+     appId: "...",
+   };
+   ```
+4. **Turn on Google sign-in**: Build → Authentication → Get started → Sign-in method → **Google** → Enable → choose a support email → Save.
+5. **Create the database**: Build → Firestore Database → Create database → pick a region near you → **production mode**.
+6. **Deploy the security rules** from `firestore.rules`. Each signed-in user can only read and write their own items (`users/{uid}/items/{id}`):
 
    ```bash
-   npx firebase-tools deploy --only firestore:rules --project <your-project-id>
+   npx firebase-tools login
+   npx firebase-tools deploy --only firestore:rules --project <project-id>
    ```
-6. Authentication → Settings → **Authorized domains**: add the domain you host on (`localhost` is allowed by default).
+   You can also paste the content of `firestore.rules` in Firestore → Rules → Publish.
+7. **Authorized domains**: Authentication → Settings → Authorized domains. Add every domain you host the app on. `localhost` is already there.
+8. Reload the app. The header now shows **Google** and **Facebook** buttons. Sign in with Google.
 
-Items are stored at `users/{uid}/items/{id}`. Firestore keeps an offline cache, so adding and reviewing works without internet and syncs later. On the first login, local items are uploaded to your account.
+On your first login, items that were already in this browser are uploaded to your account.
 
-The Firebase web config is not a secret. Access is controlled by the security rules.
+### Facebook login (optional, not required)
 
-## Deploy
+The Facebook button needs extra setup, so skip it if you only need Google.
 
-`.github/workflows/pages.yml` publishes only the app files to GitHub Pages on every push to `master`.
-In **Settings → Pages**, set **Source** to **GitHub Actions**. For a custom domain, add a `CNAME` DNS record to `<user>.github.io` and set the domain in the same page.
+1. Create an app at https://developers.facebook.com. Copy **App ID** and **App Secret** (Settings → Basic).
+2. Firebase → Authentication → Sign-in method → **Facebook** → Enable → paste them → copy the **OAuth redirect URI** that Firebase shows.
+3. In the Facebook app: Facebook Login → Settings → **Valid OAuth Redirect URIs** → paste it → save.
+4. While the Facebook app is in *Development* mode, only you and the testers you add can sign in.
 
-## Claude Code integration (MCP)
+## Publish with GitHub Pages and a custom domain
 
-The MCP server writes new items to `inbox.json` next to the app. The app imports them when it opens (each item once). This works only when the app is served from this folder on the same PC (`localhost`), not on the hosted site.
+The workflow `.github/workflows/pages.yml` publishes only the app files on every push to `master`. README, rules and screenshots are not published.
 
-## Project structure
+1. Push the repo to GitHub. On the free plan, GitHub Pages needs a **public** repo.
+2. **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Push to `master` (or run the workflow from the Actions tab). The site appears at `https://<user>.github.io/<repo>/`.
+
+### Custom domain (for example `english-notebook.example.com`)
+
+1. In your DNS provider add one record:
+
+   | Type | Name | Value |
+   |---|---|---|
+   | `CNAME` | `english-notebook` | `<user>.github.io` |
+
+   The value is your GitHub **username**, not the repo name. If you use Cloudflare, start with **DNS only** (grey cloud).
+2. **Settings → Pages → Custom domain**: type the domain and save. GitHub adds a `CNAME` file to the repo (run `git pull`).
+3. Wait for the DNS check to pass (minutes, sometimes hours), then tick **Enforce HTTPS**.
+4. **Add the domain to Firebase** → Authentication → Settings → Authorized domains. Without this, Google login on the live site fails with `auth/unauthorized-domain`.
+
+## Save from Claude Code (MCP)
+
+The MCP server [english-notebook-mcp](https://github.com/TienNHM/english-notebook-mcp) lets Claude Code save words and sentences while you work. It has three tools: `add_vocabulary`, `add_sentence` (with linked expressions) and `list_inbox` (to avoid duplicates).
+
+Short version, using **Firestore mode** so the items show up on every device and on the hosted site:
+
+1. Create a service account key (Firebase console → Project settings → Service accounts → Generate new private key). Save the JSON **outside any git repo and outside synced folders**. It has full admin access to the project: never commit it, never paste it in a chat.
+2. Find your user id: Authentication → Users, or `npx firebase-tools auth:export users.json --project <project-id>` and read `localId`.
+3. Register the server (one line, run once):
+
+   ```bash
+   claude mcp add --scope user --env ENGLISH_NOTEBOOK_SERVICE_ACCOUNT="C:\path\to\key.json" --env ENGLISH_NOTEBOOK_UID="<your uid>" english-notebook -- node C:\path\to\english-notebook-mcp\server.mjs
+   ```
+4. Restart Claude Code and check with `claude mcp list`.
+
+Without the two environment variables the server uses **inbox mode**: it writes `inbox.json` next to this app and the app imports it when it opens. That works only on `localhost` from this folder, not on the hosted site.
+
+To make Claude save automatically, add a rule to your `CLAUDE.md`, for example:
+
+> When I ask for help in Vietnamese, after answering call `add_sentence` with the natural English version
+> and 2-3 useful expressions (tag: work). Do not save things I did not ask about.
+
+Full details and troubleshooting are in the [MCP README](https://github.com/TienNHM/english-notebook-mcp#readme).
+
+## Data, privacy and security
+
+| Mode | Where your data is |
+|---|---|
+| Local-only | In your browser (`localStorage`). Clearing site data deletes it. Use **Xuất JSON** to back up. |
+| Signed in | In your Firestore at `users/<uid>/items`. Other people cannot read it because of `firestore.rules`. |
+
+- The Firebase web config in `firebase-config.js` is **not a secret**. The security rules protect the data.
+- The service account key (MCP Firestore mode) **is** a secret. Keep it out of git and out of synced or shared folders. If you think it leaked, delete it in the Firebase console (Service accounts → Manage → Keys) and create a new one.
+- `inbox.json` is in `.gitignore` because it holds your personal vocabulary.
+- **Xuất JSON / Nhập JSON** give you a plain backup you control. Import skips items that already exist (same id).
+
+## Troubleshooting
+
+| Problem | Likely cause and fix |
+|---|---|
+| Header shows only "Local" | `firebase-config.js` is still `null`, or the browser cached the old file. Hard refresh (Ctrl+F5). |
+| `auth/unauthorized-domain` when signing in | Add the site's domain in Authentication → Settings → Authorized domains. |
+| Popup closes or is blocked | Allow popups for the site and try again. |
+| `Missing or insufficient permissions` / `permission-denied` | The rules are not deployed, or they do not match `users/{uid}/items/{id}`. Redeploy `firestore.rules`. |
+| `Cloud Firestore API has not been used...` | Create the database in the console first (Build → Firestore Database → Create database). |
+| Facebook login says the app is not available | The Facebook app is in Development mode. Add yourself as a tester or publish the app. |
+| Items saved by Claude do not show on the live site | You are in inbox mode. Set up Firestore mode (see above). |
+| `inbox.json` 404 in the console | Harmless: the app looks for it at start-up and it does not exist. |
+| Site shows an old version after a deploy | Hard refresh. The service worker is "network first", so a normal reload usually already gets the new files. |
+| GitHub Actions deploy does not start | Settings → Pages → Source must be **GitHub Actions**, and the workflow file must be on `master`. |
+| `Enforce HTTPS` is greyed out | The DNS check has not passed yet. Wait, and check the `CNAME` record. |
+
+## Project structure and development notes
 
 | File | Purpose |
 |---|---|
-| `index.html`, `style.css` | Markup and neo-brutalism styles |
-| `app.js` | UI, library, review, theme, import / export |
-| `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when configured) |
+| `index.html`, `style.css` | Markup and neo-brutalism styles (light and dark tokens at the top of the CSS) |
+| `app.js` | UI, library, review, theme, import / export, inbox import |
+| `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
 | `sw.js`, `manifest.webmanifest`, `icon.svg` | Offline cache and installable app |
 | `firestore.rules`, `firebase.json` | Firestore security rules and CLI config |
+| `.github/workflows/pages.yml` | Publishes the app files to GitHub Pages |
+| `docs/screenshots/` | Images used in this README |
+
+Things to remember when you change the code:
+
+- **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
+- After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
+- Item shape (same in `localStorage` and Firestore): `id, type, text, meaning, example, note, original, sourceId, source, tags, box, due, created, reviews`.
+- No build step and no dependencies in the app itself. The Firebase SDK is loaded from `gstatic.com` only when sync is configured.
