@@ -663,7 +663,7 @@ $("#importFile").onchange = async e => {
 
 // ---------- PWA: service worker + install button ----------
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {}); // always check the server for a new sw.js
 }
 let installEvent = null; // Chrome / Edge / Android: the browser hands us a prompt we can show on a button press
 const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;

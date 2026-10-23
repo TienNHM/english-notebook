@@ -278,7 +278,7 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 | Facebook login says the app is not available | The Facebook app is in Development mode. Add yourself as a tester or publish the app. |
 | Items saved by Claude do not show on the live site | You are in inbox mode. Set up Firestore mode (see above). |
 | `inbox.json` 404 in the console | Harmless: the app looks for it at start-up and it does not exist. |
-| Site shows an old version after a deploy | Hard refresh. The service worker is "network first", so a normal reload usually already gets the new files. |
+| Site shows an old version after a deploy | Close and reopen the app (or the tab), then hard refresh (Ctrl+F5). The service worker asks the server for every file (no 4-hour browser cache), but the CDN can still hold a changed file for a few minutes after a deploy, and Chrome may reuse a file already loaded in the same open tab. |
 | GitHub Actions deploy does not start | Settings → Pages → Source must be **GitHub Actions**, and the workflow file must be on `master`. |
 | `Enforce HTTPS` is greyed out | The DNS check has not passed yet. Wait, and check the `CNAME` record. |
 
@@ -305,6 +305,7 @@ Things to remember when you change the code:
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
 - **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
 - **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.
+- **Caching (important)**: GitHub Pages sends `Cache-Control: max-age=14400` (4 hours). A plain `fetch(request)` in the service worker would trust that cache and serve old files after a deploy, mixed with new ones. So `sw.js` installs with `cache: "reload"` and fetches same-origin files with `cache: "no-cache"` (the server answers `304` when nothing changed), and `app.js` registers it with `updateViaCache: "none"`. Keep this when you edit `sw.js`. To test it, serve a copy of the app with a `max-age=14400` header, change a file, and reload in a **new tab**.
 - **Installability checklist**: HTTPS, a manifest with `name`, `start_url`, `display: standalone` and 192 + 512 PNG icons (plus a `maskable` one), and a service worker with a `fetch` handler. If you change an icon, redraw the SVG, render it to PNG at the sizes above (draw the SVG on a canvas and use `canvas.toBlob`), and keep the file names in `sw.js` and the workflow in sync.
 - To redraw `og-image.png`, call `drawShareCard(canvas, {}, { wide: true, promo: true })` from `share.js` and save the canvas as a PNG.
 - After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
