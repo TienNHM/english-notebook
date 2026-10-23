@@ -67,3 +67,53 @@ export async function del(uid, id) {
   const s = await load();
   return s.fs.deleteDoc(s.fs.doc(col(s, uid), id));
 }
+
+// ---------- shared vaults: shares/{shareId} and shares/{shareId}/items/{itemId} (see firestore.rules) ----------
+// These always talk to the server (never the offline cache), so a deleted or expired share cannot look alive.
+const BATCH = 400; // Firestore allows 500 writes per batch
+
+// meta = { id, name, from, createdAt, expiresAt, includes: { original, note } }, items = cleaned cards (see vault.js)
+export async function createShare(uid, meta, items) {
+  const { fs, db } = await load();
+  await fs.setDoc(fs.doc(db, "shares", meta.id), {
+    owner: uid, name: meta.name, from: meta.from || "", createdAt: meta.createdAt, expiresAt: meta.expiresAt,
+    count: items.length, includes: meta.includes,
+  });
+  try {
+    for (let i = 0; i < items.length; i += BATCH) {
+      const b = fs.writeBatch(db);
+      for (const it of items.slice(i, i + BATCH)) b.set(fs.doc(db, "shares", meta.id, "items", it.id), it);
+      await b.commit();
+    }
+  } catch (e) { await deleteShare(uid, meta.id).catch(() => {}); throw e; } // never leave a half-written share behind
+}
+
+// Returns { id, name, from, createdAt, expiresAt, count, includes, items } or null. Throws "permission-denied" when the id
+// does not exist or has expired (Firestore does not say which, on purpose).
+export async function getShare(id) {
+  const { fs, db } = await load();
+  const snap = await fs.getDocFromServer(fs.doc(db, "shares", id));
+  if (!snap.exists()) return null;
+  // limit: a share is capped at 1000 cards, but nothing in the rules counts the cards, so never download more than that
+  const q = fs.query(fs.collection(db, "shares", id, "items"), fs.limit(1001));
+  const items = (await fs.getDocsFromServer(q)).docs.map(d => d.data());
+  return { id, ...snap.data(), items };
+}
+
+export async function listMyShares(uid) {
+  const { fs, db } = await load();
+  const q = fs.query(fs.collection(db, "shares"), fs.where("owner", "==", uid));
+  return (await fs.getDocsFromServer(q)).docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+// Cards first, then the share itself (the rules need the share to exist while its cards are being deleted).
+export async function deleteShare(uid, id) {
+  const { fs, db } = await load();
+  const docs = (await fs.getDocsFromServer(fs.collection(db, "shares", id, "items"))).docs;
+  for (let i = 0; i < docs.length; i += BATCH) {
+    const b = fs.writeBatch(db);
+    docs.slice(i, i + BATCH).forEach(d => b.delete(d.ref));
+    await b.commit();
+  }
+  await fs.deleteDoc(fs.doc(db, "shares", id));
+}

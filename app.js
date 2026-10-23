@@ -1,6 +1,7 @@
 import * as cloud from "./cloud.js";
 import * as P from "./progress.js";
 import * as S from "./share.js";
+import { initVault } from "./vault-ui.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -72,6 +73,8 @@ function loadProgress() {
 let items = loadLocal();
 let progress = loadProgress();
 let user = null, unsub = null, unsubP = null;
+let authKnown = !cloud.enabled; // false until Firebase has told us whether someone is signed in
+let vaultUi = null;             // the share / import screens (set up at the bottom of this file)
 const migrated = new Set(), migratedP = new Set();
 let activeTag = "";
 let queue = [], current = null, revealed = false, reviewTotal = 0, reviewDone = 0;
@@ -152,7 +155,7 @@ $("#auth").onclick = async e => {
 function onUser(u) {
   if (unsub) { unsub(); unsub = null; }
   if (unsubP) { unsubP(); unsubP = null; }
-  user = u; renderAuth();
+  user = u; authKnown = true; renderAuth(); vaultUi?.onUser();
   if (!u) {
     items = loadLocal(); progress = loadProgress(); progressReady = true;
     renderAll(); settle(); renderPills(); renderRewards(); return;
@@ -183,7 +186,7 @@ function onUser(u) {
     importInbox();
   }, syncErr).then(f => { unsub = f; }).catch(syncErr);
 }
-if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); progressReady = true; settle(); });
+if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); authKnown = true; progressReady = true; settle(); vaultUi?.onUser(); });
 
 // ---------- inbox.json (filled by the MCP server, e.g. from Claude Code) ----------
 const IMPORTED_KEY = "english-notebook-imported";
@@ -753,6 +756,14 @@ settle();
 renderPills();
 renderRewards();
 importInbox();
+// ---------- sharing a vocabulary vault between accounts (see vault.js and vault-ui.js) ----------
+vaultUi = initVault({
+  getItems: () => items, getUser: () => user, authKnown: () => authKnown,
+  addItems: list => { items.unshift(...list); commit(list); awardBadges(false); }, // imported cards are new cards for this account
+  toast, goLibrary: () => showTab("library"),
+});
+vaultUi.handleUrl(); // a link like /?import=CODE opens the import screen
+
 // Home-screen shortcuts open a tab directly: /?tab=review, /?tab=add, /?tab=rewards, /?tab=library
 const startTab = new URLSearchParams(location.search).get("tab");
 if (["add", "library", "review", "rewards"].includes(startTab)) showTab(startTab);

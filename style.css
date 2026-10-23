@@ -319,6 +319,22 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .sw-glass span{position:relative}
 .sw-gradient{background:linear-gradient(135deg,#0b3f2e,#1a6e50);color:#ecd28a;box-shadow:0 8px 20px -8px rgba(15,80,60,.6)}
 
+/* ---------- sharing a vault: share and import dialogs ---------- */
+.vf{border:var(--bw2) solid var(--ink);border-radius:var(--r);padding:8px 12px 10px;margin:0 0 12px}
+.vf legend{font:var(--fw) .72rem var(--mono);text-transform:uppercase;letter-spacing:var(--ls);padding:0 6px}
+.chk{display:flex;align-items:flex-start;gap:8px;font:600 .9rem var(--font);text-transform:none;letter-spacing:0;margin:6px 0}
+.chk input{width:auto;margin:3px 0 0;flex:none;accent-color:var(--violet)}
+.vsum{font-weight:700;margin:6px 0 12px}
+.vsum.bad{color:var(--text);background:var(--red);color:var(--on);border-radius:var(--rs);padding:6px 10px}
+.linkbox{margin:14px 0}
+.linkbox input{margin:8px 0}
+.mine-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--ink)}
+.mine-row .actions{display:flex;gap:6px}
+.prev{list-style:none;margin:0 0 12px;padding:8px 12px;border:var(--bw2) dashed var(--ink);border-radius:var(--r);display:grid;gap:4px}
+#vaultBody .primary,#importBody .primary{width:100%;margin-top:8px}
+#importClose,#vaultClose{display:block;width:100%;margin-top:12px}
+#vaultBody .btnrow,#importBody .btnrow{margin-top:8px}
+
 /* ---------- celebration ---------- */
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
 .overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);-webkit-backdrop-filter:var(--overlay-blur);backdrop-filter:var(--overlay-blur);display:grid;place-items:center;padding:16px}

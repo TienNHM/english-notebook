@@ -111,6 +111,8 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <div id="tagBar" class="tags"></div>
     <ul id="list" class="list"></ul>
     <div class="row tools">
+      <button id="vaultShareBtn" type="button" hidden>🔗 Chia sẻ kho</button>
+      <button id="vaultImportBtn" type="button" hidden>📥 Nhập từ link</button>
       <button id="exportBtn">⬇ Xuất JSON</button>
       <label class="btn">⬆ Nhập JSON<input id="importFile" type="file" accept="application/json" hidden></label>
     </div>
@@ -134,6 +136,22 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
       <button id="celShare" type="button">📣 Chia sẻ</button>
       <button class="primary" id="celClose" type="button">Tiếp tục</button>
     </div>
+  </div>
+</div>
+
+<div id="vaultDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="vaultTitle">
+    <h2 id="vaultTitle">🔗 Chia sẻ kho từ vựng</h2>
+    <div id="vaultBody"></div>
+    <button class="primary" id="vaultClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<div id="importDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+    <h2 id="importTitle">📥 Nhập kho được chia sẻ</h2>
+    <div id="importBody"></div>
+    <button id="importClose" type="button">Đóng</button>
   </div>
 </div>
 

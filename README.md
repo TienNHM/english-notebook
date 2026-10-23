@@ -33,6 +33,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Review**: Leitner boxes (1, 3, 7, 14 and 30 days). Rate each card with Quên / Nhớ / Dễ.
 - **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
 - **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
+- **Share your vocabulary with another account**: create a link, and the other person signs in with Google, previews the cards and imports a copy. Your study progress is never shared, links expire, and you can delete them at any time.
 - **Lively motion**: bouncy page, card and reward animations (count-up numbers, flickering 🔥, floating "+XP", shaking card on Quên, confetti). It follows your system "reduce motion" setting, and you can force it on or off in the app.
 - **4 visual styles** (Neo-brutalism, Solid, Glass, Gradient), each in light and dark, plus a system mode. Bottom tab bar on phones.
 - **Installable PWA**: install it on your phone or PC like a normal app (own icon, full screen, home-screen shortcuts), and it opens without internet.
@@ -155,6 +156,28 @@ Open **🏆 Thưởng → 📣 Chia sẻ thành tích**, or press **📣 Chia s�
 - **📋 Chép chữ** copies the text and the link. 
 - **Privacy**: the card is drawn in your browser. It contains only numbers and badge icons: no name, no email. Nothing is uploaded when you open the dialog; data leaves your device only when you post it.
 - **Link preview**: `index.html` has Open Graph and Twitter Card tags that use `og-image.png` (1200×630). Social sites cache previews, so after you change the image use the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/) to refresh it. If you host the app on another domain, change the URLs in the `<meta>` tags and `SITE_URL` in `share.js`.
+
+### Share your vocabulary with another account
+
+Needs Google sign-in and cloud sync (both people must be signed in). In **📚 Thư viện**:
+
+**To share (the sender)**
+1. Press **🔗 Chia sẻ kho**.
+2. Choose what to share: card types, tags (no tag chosen = all), a name, and how long the link works (7, 30 or 90 days). You see how many cards will be shared (up to 1000 per link).
+3. Press **🔗 Tạo link**. Copy the link (or the 22-character code) and send it however you like.
+4. The list **Link đã tạo** shows your links. **🗑** deletes a link at once: nobody can use it any more.
+
+**To receive**
+1. Open the link (or press **📥 Nhập từ link** and paste the link or code), and sign in with Google if asked.
+2. You see a preview: the name, how many cards, the card types, and how many you already have.
+3. Press **📥 Nhập**. You get an independent **copy**: new cards that start from box 0 and are due now, tagged `#shared`. Cards you already have are skipped (you can switch this off). Expressions stay linked to their sentence.
+
+**Privacy and safety**
+- **Study progress** (boxes, due dates, review counts, streak, XP) is **never** shared, only the card content.
+- The **original sentence** and the **note** can contain private work text, so they are **off by default**. Your **name** is hidden unless you tick the box.
+- A share has an **unguessable** 22-character id. Only people who are signed in and know the id can read it, and it works until it expires or you delete it. Nobody can list or search shares. Anyone who has the link can read the shared cards, so send it only to people you trust.
+- Deleting a link does not remove cards that someone has already imported (they are their own copy). Importing never changes the sender's notebook.
+- It copies cards once. It is not a live shared deck: later changes are not synced between the two notebooks.
 
 ### Motion and animations
 
@@ -285,6 +308,7 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 - The service account key (MCP Firestore mode) **is** a secret. Keep it out of git and out of synced or shared folders. If you think it leaked, delete it in the Firebase console (Service accounts → Manage → Keys) and create a new one.
 - `inbox.json` is in `.gitignore` because it holds your personal vocabulary.
 - **Xuất JSON / Nhập JSON** give you a plain backup you control. Import skips items that already exist (same id).
+- **Shared vaults**: see "Share your vocabulary with another account" above for what a link exposes and how to delete it.
 
 ## Troubleshooting
 
@@ -297,6 +321,8 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 | `Cloud Firestore API has not been used...` | Create the database in the console first (Build → Firestore Database → Create database). |
 | Facebook login says the app is not available | The Facebook app is in Development mode. Add yourself as a tester or publish the app. |
 | Items saved by Claude do not show on the live site | You are in inbox mode. Set up Firestore mode (see above). |
+| "Không tìm thấy kho này" when importing | The link expired, the owner deleted it, or the code was copied incompletely (it has exactly 22 characters). Ask the sender for a new link. |
+| "Bị từ chối" when creating a link | You are signed out, or the clock of your device is wrong by more than about a day. Sign in again and check the date and time. |
 | `inbox.json` 404 in the console | Harmless: the app looks for it at start-up and it does not exist. |
 | Site shows an old version after a deploy | Close and reopen the app (or the tab), then hard refresh (Ctrl+F5). The service worker asks the server for every file (no 4-hour browser cache), but the CDN can still hold a changed file for a few minutes after a deploy, and Chrome may reuse a file already loaded in the same open tab. |
 | GitHub Actions deploy does not start | Settings → Pages → Source must be **GitHub Actions**, and the workflow file must be on `master`. |
@@ -310,8 +336,9 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 | `app.js` | UI, library, review, rewards screen, theme, import / export, inbox import |
 | `progress.js` | Streak, freeze, XP, level and badge logic (pure functions, no DOM) |
 | `share.js` | Share text, social links and the share-card drawing (canvas) |
+| `vault.js`, `vault-ui.js` | Sharing a vocabulary vault between accounts: the logic (what to share, how to import, ids, links) and the two screens |
 | `og-image.png` | Link preview image (1200×630) used by the Open Graph tags |
-| `tests/` | Unit tests for `progress.js` and `share.js` |
+| `tests/` | Unit tests for `progress.js`, `share.js` and `vault.js`, and a security-rules test (`rules.test.mjs`) that is run by hand |
 | `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
 | `fonts/` | Be Vietnam Pro font files (WOFF2) and its licence |
 | `sw.js`, `manifest.webmanifest` | Offline cache, offline fallback and installable-app manifest (name, colours, shortcuts) |
@@ -324,10 +351,11 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 Things to remember when you change the code:
 
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
-- **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
+- **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs`, `node tests/share.test.mjs` and `node tests/vault.test.mjs` (Node 18+, no install).
 - **Styles are design tokens.** `style.css` has one block of CSS variables per style and mode (`html[data-style=…][data-scheme=…]`): colours, border widths (`--bw`), radii, shadows (`--sh*`), hover and press movement (`--lift`, `--press`), page background (`--bg-image`) and the browser-bar colour (`--tc`). Components use only these tokens, never fixed colours or shadows. To add a style: add its two token blocks (a block must set *every* token, or the Neo default shows through), add it to `STYLES` in `app.js`, to the `<script>` in `<head>` of `index.html`, and add a `.sw-<name>` preview swatch. Text on coloured surfaces uses `--on`; panels on a coloured card use `--answer-bg` and `--answer-fg`.
 - **Colours:** keep the palette restrained. Use `--primary` for the one brand colour, `--gold` for rewards, and the muted tones for categories. Avoid pure saturated colours and purple-to-pink gradients, they look generic. Strong text uses `--fw` (800 in neo, 700 elsewhere) and small upper-case labels use `--ls`.
 - **Review layout:** the page is a full-height flex column (`body` > `header`, `nav`, `main`), and in the Review tab `#reviewBox` and `.card` grow to fill `main`. Keep the rating buttons in the DOM from the start (`.grade.pending` only hides them), so the card does not change height when the answer is revealed.
+- **Sharing vaults (security-sensitive):** the data lives in `shares/{id}` and `shares/{id}/items/{itemId}`, protected by the rules in `firestore.rules` (deploy them with the CLI, see above). Always change the rules together with `tests/rules.test.mjs` and run it against the project: it checks both what is allowed and, more importantly, what must be denied. Share ids come from `crypto.getRandomValues`, and `toShared()` is the only place that decides which fields leave an account, so keep progress fields out of it. The client reads shares with `getDocFromServer`, never from the offline cache.
 - **Fonts:** only weights 500 to 800 are hosted. To add a weight, download the two WOFF2 files, add the two `@font-face` rules in `style.css`, and list the files in `sw.js` (the workflow already copies the whole `fonts/` folder).
 - **Check contrast** after changing colours. Aim for WCAG AA: 4.5:1 for normal text and 3:1 for large text, in every style and in both modes, including pop-ups and the Rewards tab. (When this was written all 8 combinations passed, 2,268 measurements.)
 - **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.

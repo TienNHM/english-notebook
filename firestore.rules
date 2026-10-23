@@ -9,5 +9,43 @@ service cloud.firestore {
     match /users/{uid}/meta/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+
+    // Shared vaults: a snapshot of vocabulary cards that its owner publishes under an unguessable id (22 random characters).
+    // Anyone who is signed in and knows the id can read it until it expires or the owner deletes it.
+    // Nobody can list all shares: a query only works when it is filtered to the caller's own shares.
+    match /shares/{shareId} {
+      allow get: if request.auth != null
+        && (resource.data.expiresAt > request.time.toMillis() || resource.data.owner == request.auth.uid);
+      allow list: if request.auth != null && resource.data.owner == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['owner', 'name', 'from', 'createdAt', 'expiresAt', 'count', 'includes'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.from is string && request.resource.data.from.size() <= 80
+        && request.resource.data.count is int && request.resource.data.count >= 1 && request.resource.data.count <= 1000
+        && request.resource.data.expiresAt is int
+        && request.resource.data.expiresAt > request.time.toMillis()
+        && request.resource.data.expiresAt <= request.time.toMillis() + 91 * 86400000;
+      allow delete: if request.auth != null && resource.data.owner == request.auth.uid;
+
+      // The cards of a share: only the owner can write them; readers must know the id and the share must still be valid.
+      match /items/{itemId} {
+        allow get, list: if request.auth != null
+          && (get(/databases/$(db)/documents/shares/$(shareId)).data.expiresAt > request.time.toMillis()
+              || get(/databases/$(db)/documents/shares/$(shareId)).data.owner == request.auth.uid);
+        allow create: if request.auth != null
+          && get(/databases/$(db)/documents/shares/$(shareId)).data.owner == request.auth.uid
+          && request.resource.data.keys().hasOnly(['id', 'type', 'text', 'meaning', 'example', 'note', 'original', 'sourceId', 'tags'])
+          && request.resource.data.type in ['word', 'phrase', 'sentence']
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500
+          && request.resource.data.meaning is string && request.resource.data.meaning.size() > 0 && request.resource.data.meaning.size() <= 1000
+          && request.resource.data.example.size() <= 1000
+          && request.resource.data.note.size() <= 1000
+          && request.resource.data.original.size() <= 1000
+          && request.resource.data.tags is list && request.resource.data.tags.size() <= 10;
+        allow delete: if request.auth != null
+          && get(/databases/$(db)/documents/shares/$(shareId)).data.owner == request.auth.uid;
+      }
+    }
   }
 }
