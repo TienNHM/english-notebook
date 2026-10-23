@@ -1,0 +1,15 @@
+name = "english-notebook-agent-api"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "tiennhm-english-notebook"
+ALLOWED_ORIGIN = "https://english-notebook.tiennhm.io.vn"
+DAILY_LIMIT = "200"
+
+# Create with: npx wrangler kv namespace create TOKENS   then paste the id below.
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secret (never in this file):  npx wrangler secret put SERVICE_ACCOUNT   (paste the whole service account JSON)
