@@ -33,6 +33,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Review**: Leitner boxes (1, 3, 7, 14 and 30 days). Rate each card with Quên / Nhớ / Dễ.
 - **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
 - **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
+- **Lively motion**: bouncy page, card and reward animations (count-up numbers, flickering 🔥, floating "+XP", shaking card on Quên, confetti). It follows your system "reduce motion" setting, and you can force it on or off in the app.
 - **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
 - **Offline first**: works without internet and can be installed from the browser.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
@@ -133,6 +134,13 @@ Open **🏆 Thưởng → 📣 Chia sẻ thành tích**, or press **📣 Chia s�
 - **📋 Chép chữ** copies the text and the link. 
 - **Privacy**: the card is drawn in your browser. It contains only numbers and badge icons: no name, no email. Nothing is uploaded when you open the dialog; data leaves your device only when you post it.
 - **Link preview**: `index.html` has Open Graph and Twitter Card tags that use `og-image.png` (1200×630). Social sites cache previews, so after you change the image use the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/) to refresh it. If you host the app on another domain, change the URLs in the `<meta>` tags and `SITE_URL` in `share.js`.
+
+### Motion and animations
+
+- The logo drops in and the tabs rise one by one; Library cards come in one after another, a card you just added flashes, and a deleted card slides away.
+- In **Review**, each new card slides in, **Quên** shakes it, the answer pops open, and `+3 XP` floats up. In **🏆 Thưởng** the numbers count up, the badge shine sweeps over unlocked badges, and the 🔥 flickers. Changing the theme fades the colours.
+- **Accessibility**: by default the app follows your operating system. If "reduce motion" (Windows: *Animation effects* off; macOS: *Reduce motion*) is on, all animations are off.
+- To override it, open **🏆 Thưởng → Hiệu ứng chuyển động** and choose **Theo hệ thống** (default), **Luôn bật** or **Tắt**. The choice is saved in your browser. If your system has motion off, the app shows a one-time hint about this switch.
 
 ### Theme
 
@@ -274,6 +282,7 @@ Things to remember when you change the code:
 
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
 - **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
+- **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.
 - To redraw `og-image.png`, call `drawShareCard(canvas, {}, { wide: true, promo: true })` from `share.js` and save the canvas as a PNG.
 - After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
 - Item shape (same in `localStorage` and Firestore): `id, type, text, meaning, example, note, original, sourceId, source, tags, box, due, created, reviews`.

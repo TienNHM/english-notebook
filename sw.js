@@ -1,4 +1,4 @@
-const CACHE = "english-notebook-v4";
+const CACHE = "english-notebook-v5";
 const FILES = ["./", "index.html", "style.css", "app.js", "progress.js", "share.js", "cloud.js", "firebase-config.js", "manifest.webmanifest", "icon.svg"];
 const SDK = "https://www.gstatic.com/firebasejs/";
 

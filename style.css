@@ -190,6 +190,86 @@ button.chip.on{background:var(--violet);color:var(--on)}
   background:var(--green);color:var(--on);font-weight:800;border:var(--bw) solid var(--ink);border-radius:10px;box-shadow:var(--sh);padding:10px 18px;transition:.2s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* ---------- motion ----------
+   Snappy and bouncy, using only transform and opacity. Animations use "backwards" fill, so
+   they never leave a transform behind (hover and active styles keep working).
+   Everything here is switched off by the motion rules at the end of this file (system "reduce motion", or the in-app switch). */
+:root{--bounce:cubic-bezier(.34,1.56,.64,1)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes drop{0%{opacity:0;transform:translateY(-34px) rotate(-7deg)}60%{opacity:1;transform:translateY(5px) rotate(-.5deg)}100%{transform:translateY(0) rotate(-1.5deg)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(46px) rotate(2.5deg)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:none}15%{transform:translateX(-10px) rotate(-1.5deg)}35%{transform:translateX(9px) rotate(1.2deg)}55%{transform:translateX(-6px)}75%{transform:translateX(4px)}}
+@keyframes reveal{from{opacity:0;transform:scale(.88) translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes grow{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes popin{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+@keyframes spinpop{from{opacity:0;transform:scale(.2) rotate(-200deg)}to{opacity:1;transform:none}}
+@keyframes ring{0%{box-shadow:0 0 0 0 var(--violet)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes flicker{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.14,1.2) rotate(-6deg)}60%{transform:scale(.94,1.05) rotate(5deg)}}
+@keyframes shine{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
+@keyframes floatup{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
+@keyframes leave{to{opacity:0;transform:translateX(-40px) scale(.94)}}
+@keyframes flash{0%{background:var(--yellow)}100%{background:var(--card)}}
+@keyframes saved{0%{transform:none}40%{transform:scale(1.015)}100%{transform:none}}
+@keyframes tabpop{0%{transform:scale(.9)}60%{transform:scale(1.07) translate(-1px,-1px)}100%{transform:translate(-1px,-1px)}}
+@keyframes modalIn{from{opacity:0;transform:scale(.8) translateY(24px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.logo{animation:drop .75s var(--bounce) backwards;transition:transform .2s var(--bounce)}
+.logo:hover{transform:rotate(1.5deg) scale(1.04)}
+.pills>*{animation:rise .5s var(--bounce) .2s backwards}
+nav button{animation:rise .45s var(--bounce) backwards}
+nav button:nth-child(1){animation-delay:.1s}
+nav button:nth-child(2){animation-delay:.17s}
+nav button:nth-child(3){animation-delay:.24s}
+nav button:nth-child(4){animation-delay:.31s}
+nav button.active{animation:tabpop .34s var(--bounce)}
+
+#addForm.saved{animation:saved .45s var(--bounce)}
+.list.stagger .item{animation:rise .42s var(--bounce) backwards;animation-delay:calc(min(var(--i,0),10) * 45ms)}
+.list .item.new{animation:rise .5s var(--bounce) backwards,flash 1.6s ease-out .1s}
+.list .item.leaving{animation:leave .26s ease-in forwards;pointer-events:none} /* same weight as .list.stagger .item, and later, so it wins */
+
+.card.fx-slide{animation:slideIn .34s var(--bounce)}
+.card.fx-shake{animation:shake .45s ease-in-out}
+.card .answer{animation:reveal .32s var(--bounce)}
+.grade button{animation:rise .3s var(--bounce) backwards}
+.grade button:nth-child(2){animation-delay:.05s}
+.grade button:nth-child(3){animation-delay:.1s}
+.bar i{animation:grow .6s cubic-bezier(.2,.8,.2,1) backwards}
+.dot{animation:popin .4s var(--bounce) backwards;animation-delay:calc(var(--k,0) * 55ms)}
+.dot.today{animation:popin .4s var(--bounce) backwards,ring 1.8s ease-out .6s infinite;animation-delay:calc(var(--k,0) * 55ms),.6s}
+#reviewBox.settled .dot{animation:none}
+#reviewBox.settled .dot.today{animation:ring 1.8s ease-out infinite}
+
+.flame{display:inline-block;transform-origin:50% 85%;animation:flicker 1.9s ease-in-out infinite}
+.stat{animation:rise .45s var(--bounce) backwards}
+.stat:nth-child(2){animation-delay:.06s}
+.stat:nth-child(3){animation-delay:.12s}
+.stat:nth-child(4){animation-delay:.18s}
+.trophy{transition:transform .18s var(--bounce);animation:popin .42s var(--bounce) backwards;animation-delay:calc(var(--i,0) * 35ms)}
+.trophy.got{position:relative;overflow:hidden}
+.trophy.got:hover{transform:rotate(-2deg) scale(1.05)}
+.trophy.got::after{content:"";position:absolute;top:0;bottom:0;left:0;width:35%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-120%);animation:shine 1.2s ease-out .5s backwards} /* parked off the card when not animating */
+
+.overlay{animation:fade .2s ease-out}
+.modal{animation:modalIn .4s var(--bounce)}
+#celBody>*{animation:rise .45s var(--bounce) backwards}
+#celBody>:nth-child(1){animation-delay:.2s}
+#celBody>:nth-child(2){animation-delay:.3s}
+#celBody>:nth-child(3){animation-delay:.4s}
+#celBody>:nth-child(4){animation-delay:.5s}
+#celBody>:nth-child(n+5){animation-delay:.6s}
+.cel-badge .ico{display:inline-block;animation:spinpop .7s var(--bounce) .45s backwards}
+#toast{transition:opacity .2s,transform .4s var(--bounce)}
+.xpfloat{position:fixed;z-index:35;pointer-events:none;font:800 1.5rem var(--font);color:var(--on);background:var(--green);
+  border:var(--bw) solid var(--ink);border-radius:999px;padding:2px 16px;box-shadow:var(--sh);animation:floatup 1s ease-out forwards}
+
+/* smooth colour change when the theme button is pressed (the class is added by app.js for a moment) */
+html[data-motion=on].theming *{transition:background-color .4s,color .4s,border-color .4s,box-shadow .4s!important}
+@media (prefers-reduced-motion:no-preference){
+  html:not([data-motion=off]).theming *{transition:background-color .4s,color .4s,border-color .4s,box-shadow .4s!important}
+}
+
 /* ---------- mobile: bottom tab bar ---------- */
 @media (max-width:640px){
   nav{position:fixed;top:auto;bottom:0;left:0;right:0;max-width:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:var(--bw) solid var(--ink);gap:8px}
@@ -201,4 +281,8 @@ button.chip.on{background:var(--violet);color:var(--on)}
   #addForm{padding:16px}
   .item .actions{width:100%;justify-content:flex-end}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Motion switch: "Theo hệ thống" (default) follows the system setting; data-motion="on" forces motion on, "off" forces it off. */
+@media (prefers-reduced-motion:reduce){
+  html:not([data-motion=on]) *,html:not([data-motion=on]) *::before,html:not([data-motion=on]) *::after{transition:none!important;animation:none!important}
+}
+html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{transition:none!important;animation:none!important}

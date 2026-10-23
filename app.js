@@ -11,6 +11,43 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+// Motion: "on" / "off" forced by the user (Thưởng tab), otherwise follow the system "reduce motion" setting.
+const MOTION_KEY = "english-notebook-motion";
+const getMotion = () => { try { const m = localStorage.getItem(MOTION_KEY); return m === "on" || m === "off" ? m : "system"; } catch { return "system"; } };
+const systemReducesMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduced = () => { const m = getMotion(); return m === "off" || (m === "system" && systemReducesMotion()); };
+function applyMotion(m) {
+  const root = document.documentElement;
+  if (m === "system") delete root.dataset.motion; else root.dataset.motion = m;
+  try { m === "system" ? localStorage.removeItem(MOTION_KEY) : localStorage.setItem(MOTION_KEY, m); } catch {}
+}
+
+// Numbers that count up (streak, XP...). Only animates when the value changed since it was last shown.
+const shownCounts = {};
+function runCounts(root) {
+  for (const el of root.querySelectorAll("[data-count]")) {
+    const to = +el.dataset.count, key = el.dataset.k || "", from = shownCounts[key] ?? 0;
+    shownCounts[key] = to;
+    if (from === to || reduced()) { el.textContent = to; continue; }
+    const t0 = performance.now(), dur = 650;
+    (function step(now) {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - (1 - p) ** 3;
+      el.textContent = Math.round(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+}
+// "+3 XP" that floats up from the review card.
+function floatText(msg) {
+  if (reduced()) { toast(msg); return; }
+  const r = ($(".card") || $("#reviewBox")).getBoundingClientRect(), el = document.createElement("div");
+  el.className = "xpfloat"; el.textContent = msg;
+  el.style.left = `${r.left + r.width / 2}px`; el.style.top = `${Math.max(70, r.top + 20)}px`;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+}
+function flashForm() {
+  const f = $("#addForm"); f.classList.remove("saved"); void f.offsetWidth; f.classList.add("saved");
+}
 
 // Item shape (same in localStorage and Firestore):
 // id, type(word|phrase|sentence), text, meaning, example, note, original (source sentence in Vietnamese),
@@ -38,6 +75,8 @@ let user = null, unsub = null, unsubP = null;
 const migrated = new Set(), migratedP = new Set();
 let activeTag = "";
 let queue = [], current = null, revealed = false, reviewTotal = 0, reviewDone = 0;
+let listAnim = true, cardFx = "slide", reviewFirst = true; // one-shot flags for the animations
+const justAdded = new Set();
 
 const isDue = it => it.due <= Date.now();
 
@@ -93,7 +132,7 @@ function awardBadges(modal) {
 function renderPills() {
   const s = P.streakInfo(progress, today()), lv = P.levelInfo(P.totalXp(progress));
   $("#rewardPills").innerHTML =
-    `<span class="pill streak${s.atRisk ? " risk" : ""}" title="${s.atRisk ? "Ôn đủ mục tiêu hôm nay để giữ streak" : "Streak hiện tại"}">🔥 ${s.current}</span> ` +
+    `<span class="pill streak${s.atRisk ? " risk" : ""}" title="${s.atRisk ? "Ôn đủ mục tiêu hôm nay để giữ streak" : "Streak hiện tại"}"><span class="flame">🔥</span> ${s.current}</span> ` +
     `<span class="pill lvl" title="${esc(lv.title)}">⭐ Lv ${lv.level}</span>`;
 }
 
@@ -183,6 +222,7 @@ function applyTheme(t) {
 }
 $("#themeBtn").onclick = () => {
   const order = ["system", "light", "dark"], next = order[(order.indexOf(getTheme()) + 1) % 3];
+  const root = document.documentElement; root.classList.add("theming"); setTimeout(() => root.classList.remove("theming"), 500);
   applyTheme(next); toast(`Giao diện: ${THEMES[next][1]}`);
 };
 applyTheme(getTheme());
@@ -192,8 +232,11 @@ function showTab(name) {
   $$("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
   $$(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
   if (name === "review") startReview();
-  if (name === "library") renderList();
-  if (name === "rewards") renderRewards();
+  if (name === "library") { listAnim = true; renderList(); }
+  if (name === "rewards") {
+    for (const k of Object.keys(shownCounts)) if (k !== "streak") delete shownCounts[k]; // count up again when the tab is opened
+    renderRewards();
+  }
 }
 $$("nav button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
 
@@ -259,6 +302,8 @@ form.onsubmit = e => {
   resetForm();
   commit(changed);
   toast(id ? "Đã cập nhật ✓" : changed.length > 1 ? `Đã lưu ${changed.length} thẻ ✓` : "Đã lưu ✓");
+  changed.forEach(c => justAdded.add(c.id)); // flash them when the Library is opened
+  flashForm();
   awardBadges(true);
   $("#fText").focus();
 };
@@ -290,11 +335,15 @@ function renderList() {
   const shown = items.filter(i =>
     (!ft || i.type === ft) && (!activeTag || i.tags.includes(activeTag)) &&
     (!q || [i.text, i.meaning, i.example, i.note, i.original].join(" ").toLowerCase().includes(q)));
-  $("#list").innerHTML = shown.length ? shown.map(i => {
+  const inLibrary = $("#tab-library").classList.contains("active");
+  const fresh = new Set(justAdded);
+  $("#list").classList.toggle("stagger", listAnim && inLibrary);
+  if (inLibrary) { listAnim = false; justAdded.clear(); }
+  $("#list").innerHTML = shown.length ? shown.map((i, idx) => {
     const parent = i.sourceId && items.find(p => p.id === i.sourceId);
     const kids = items.filter(k => k.sourceId === i.id).length;
     return `
-    <li class="item" data-id="${i.id}" data-type="${i.type}">
+    <li class="item${fresh.has(i.id) ? " new" : ""}" data-id="${i.id}" data-type="${i.type}" style="--i:${idx}">
       <div class="en">${esc(i.text)}</div>
       <div class="vi">${esc(i.meaning)}</div>
       ${i.original ? `<div class="note">🇻🇳 Câu gốc: ${esc(i.original)}</div>` : ""}
@@ -331,8 +380,11 @@ $("#list").onclick = e => {
     const kids = items.filter(k => k.sourceId === it.id);
     if (!confirm(`Xoá "${it.text}"${kids.length ? ` và ${kids.length} cụm liên quan` : ""}?`)) return;
     const ids = new Set([it.id, ...kids.map(k => k.id)]);
-    items = items.filter(i => !ids.has(i.id));
-    commit([], [...ids]);
+    $$("#list .item").filter(el => ids.has(el.dataset.id)).forEach(el => el.classList.add("leaving")); // slide away first
+    setTimeout(() => {
+      items = items.filter(i => !ids.has(i.id));
+      commit([], [...ids]);
+    }, reduced() ? 0 : 270);
   }
 };
 
@@ -340,6 +392,7 @@ $("#list").onclick = e => {
 function startReview() {
   queue = items.filter(isDue).sort((a, b) => a.due - b.due);
   reviewTotal = queue.length; reviewDone = 0;
+  reviewFirst = true; cardFx = "slide";
   next();
 }
 function next() {
@@ -350,6 +403,7 @@ function startPractice() {
   const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
   queue = items.filter(i => !isDue(i)).sort((a, b) => a.due - b.due).slice(0, Math.max(left, 1));
   reviewTotal = queue.length; reviewDone = 0;
+  cardFx = "slide";
   next();
 }
 const WEEKDAY = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
@@ -358,7 +412,7 @@ function dotsHtml() {
   for (let i = 6; i >= 0; i--) {
     const k = P.addDays(t, -i), d = progress.days[k], [y, m, dd] = k.split("-").map(Number);
     const cls = d?.f ? "on" : d?.z ? "ice" : k === t ? "today" : "";
-    out.push(`<span class="dot-wrap"><span class="dot ${cls}" title="${k}">${d?.f ? "✓" : d?.z ? "🧊" : ""}</span><small>${WEEKDAY[new Date(y, m - 1, dd).getDay()]}</small></span>`);
+    out.push(`<span class="dot-wrap" style="--k:${6 - i}"><span class="dot ${cls}" title="${k}">${d?.f ? "✓" : d?.z ? "🧊" : ""}</span><small>${WEEKDAY[new Date(y, m - 1, dd).getDay()]}</small></span>`);
   }
   return `<div class="dots">${out.join("")}</div>`;
 }
@@ -367,7 +421,7 @@ function dailyHtml() {
   const n = P.todayCount(progress, t), met = !!progress.days[t]?.f, pct = Math.min(100, Math.round(n / goal * 100));
   return `<div class="daily">
     <div class="daily-top">
-      <div class="streak-big">🔥 <b>${s.current}</b> ngày</div>
+      <div class="streak-big"><span class="flame">🔥</span> <b data-count="${s.current}" data-k="streak">${s.current}</b> ngày</div>
       <div class="muted-sm">🧊 ${P.freezesAvailable(progress)} băng</div>
     </div>
     ${s.atRisk ? `<div class="warn">Ôn đủ mục tiêu hôm nay để giữ streak!</div>` : ""}
@@ -378,6 +432,8 @@ function dailyHtml() {
 }
 function renderReview() {
   const box = $("#reviewBox");
+  box.classList.toggle("settled", !reviewFirst); // week dots only pop in the first time the tab is shown
+  const fx = cardFx; cardFx = ""; reviewFirst = false;
   if (!current) {
     const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
     const spare = items.filter(i => !isDue(i)).length;
@@ -387,6 +443,7 @@ function renderReview() {
         ? `<div class="empty">Hết thẻ đến hạn, nhưng còn <b>${left}</b> thẻ nữa để đạt mục tiêu hôm nay.<br><br><button class="primary" id="practiceBtn">💪 Ôn thêm ${Math.min(left, spare)} thẻ</button></div>`
         : `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục.</div>`);
     const pb = $("#practiceBtn"); if (pb) pb.onclick = startPractice;
+    runCounts(box);
     return;
   }
   const c = current;
@@ -394,7 +451,7 @@ function renderReview() {
   box.innerHTML = dailyHtml() + `
     <div class="progress">Còn ${queue.length + 1} mục · box ${c.box}</div>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${reviewTotal}" aria-valuenow="${reviewDone}"><i style="width:${reviewTotal ? Math.round(reviewDone / reviewTotal * 100) : 0}%"></i></div>
-    <div class="card" data-type="${c.type}">
+    <div class="card${fx ? " fx-" + fx : ""}" data-type="${c.type}">
       <div class="big">${esc(c.text)}</div>
       <div><button class="small" id="rSpeak">🔊 Nghe</button></div>
       ${revealed ? `<div class="answer">
@@ -412,6 +469,7 @@ function renderReview() {
   $("#rSpeak").onclick = () => speak(c.text);
   const show = $("#rShow"); if (show) show.onclick = () => { revealed = true; renderReview(); };
   $$(".grade button").forEach(b => b.onclick = () => grade(+b.dataset.g));
+  runCounts(box);
 }
 function grade(g) {
   const c = current;
@@ -424,9 +482,10 @@ function grade(g) {
   else reviewDone++;
   const r = P.recordReview(progress, g, ctxNow());
   progress = r.p; saveProgress();
+  cardFx = g === 0 ? "shake" : "slide"; // Quên shakes the next card, a recall slides it in
   next();
   if (r.ev.goalReached || r.ev.badges.length || r.ev.levelUp) celebrate(r.ev);
-  else toast(`+${r.ev.xp} XP`);
+  else floatText(`+${r.ev.xp} XP`);
 }
 
 // ---------- rewards tab ----------
@@ -437,15 +496,15 @@ function renderRewards() {
   box.innerHTML = `
     <button class="primary" id="shareBtn" type="button">📣 Chia sẻ thành tích</button>
     <div class="daily level">
-      <div class="daily-top"><div class="streak-big">⭐ Lv <b>${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm">${lv.xp} XP</div></div>
+      <div class="daily-top"><div class="streak-big">⭐ Lv <b data-count="${lv.level}" data-k="level">${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm"><span data-count="${lv.xp}" data-k="xp">${lv.xp}</span> XP</div></div>
       <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${lv.pct}"><i style="width:${lv.pct}%"></i></div>
       <div class="muted-sm">Còn ${lv.next - lv.xp} XP để lên cấp ${lv.level + 1}</div>
     </div>
     <div class="statgrid">
-      <div class="stat"><b>🔥 ${s.current}</b><small>Streak hiện tại</small></div>
-      <div class="stat"><b>🏅 ${s.best}</b><small>Streak dài nhất</small></div>
+      <div class="stat"><b><span class="flame">🔥</span> <span data-count="${s.current}" data-k="r-streak">${s.current}</span></b><small>Streak hiện tại</small></div>
+      <div class="stat"><b>🏅 <span data-count="${s.best}" data-k="r-best">${s.best}</span></b><small>Streak dài nhất</small></div>
       <div class="stat"><b>🧊 ${P.freezesAvailable(progress)}/${P.MAX_FREEZES}</b><small>Băng cứu streak</small></div>
-      <div class="stat"><b>✅ ${st.reviews}</b><small>Lần nhớ đúng</small></div>
+      <div class="stat"><b>✅ <span data-count="${st.reviews}" data-k="r-reviews">${st.reviews}</span></b><small>Lần nhớ đúng</small></div>
     </div>
     <div class="daily">
       <label class="goalsel">Mục tiêu mỗi ngày (số thẻ)
@@ -454,15 +513,27 @@ function renderRewards() {
       <div class="muted-sm">Ôn đủ số thẻ này mỗi ngày để giữ streak. Nhớ/Dễ mới được tính; Quên thì không. Cứ ${P.FREEZE_EVERY} ngày streak được 1 băng 🧊 (tối đa ${P.MAX_FREEZES}) tự cứu streak khi bạn lỡ 1 ngày.</div>
       <div class="muted-sm">XP: Quên +1 · Nhớ +3 · Dễ +5 · đạt mục tiêu ngày +${P.GOAL_BONUS_XP}.</div>
     </div>
+    <div class="daily">
+      <label class="goalsel">Hiệu ứng chuyển động
+        <select id="motionSel">${[["system", "Theo hệ thống"], ["on", "Luôn bật"], ["off", "Tắt"]].map(([v, l]) => `<option value="${v}"${v === getMotion() ? " selected" : ""}>${l}</option>`).join("")}</select>
+      </label>
+      <div class="muted-sm">${systemReducesMotion() ? "Hệ thống của bạn đang bật \"giảm chuyển động\" nên chế độ \"Theo hệ thống\" sẽ không có hiệu ứng. Chọn \"Luôn bật\" để xem hiệu ứng." : "\"Theo hệ thống\" sẽ tự tắt hiệu ứng nếu bạn bật \"giảm chuyển động\" trong hệ điều hành."}</div>
+    </div>
     <h3 class="sect">Huy hiệu (${Object.keys(progress.badges).length}/${P.BADGES.length})</h3>
-    <div class="trophies">${P.BADGES.map(b => {
+    <div class="trophies">${P.BADGES.map((b, idx) => {
       const got = progress.badges[b.id];
-      return `<div class="trophy${got ? " got" : ""}" title="${esc(b.desc)}">
+      return `<div class="trophy${got ? " got" : ""}" style="--i:${idx}" title="${esc(b.desc)}">
         <span class="ico">${got ? b.icon : "🔒"}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
     }).join("")}</div>`;
+  runCounts(box);
 }
 $("#rewardsBox").onclick = e => { if (e.target.closest("#shareBtn")) openShare(); };
 $("#rewardsBox").onchange = e => {
+  if (e.target.id === "motionSel") {
+    applyMotion(e.target.value); renderRewards();
+    toast(e.target.value === "on" ? "Đã bật hiệu ứng ✨" : e.target.value === "off" ? "Đã tắt hiệu ứng" : "Hiệu ứng: theo hệ thống");
+    return;
+  }
   if (e.target.id !== "goalSel") return;
   progress = { ...progress, goal: +e.target.value, updated: Date.now() };
   saveProgress(); toast(`Mục tiêu: ${progress.goal} thẻ/ngày`);
@@ -535,7 +606,7 @@ $("#shareGrid").onclick = async e => {
 };
 
 function confetti() {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (reduced()) return;
   const cv = $("#confetti"), cx = cv.getContext("2d");
   cv.width = innerWidth; cv.height = innerHeight;
   const cols = ["#ffd93d", "#ff7eb6", "#6bc5ff", "#79e08a", "#b69cff", "#ff5c5c"];
@@ -592,6 +663,13 @@ $("#importFile").onchange = async e => {
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+// One-time hint: the system turns motion off, so the animations stay hidden until the user switches them on.
+try {
+  if (getMotion() === "system" && systemReducesMotion() && !localStorage.getItem("english-notebook-motion-hint")) {
+    localStorage.setItem("english-notebook-motion-hint", "1");
+    setTimeout(() => toast("Hệ thống đang tắt chuyển động. Bật hiệu ứng ở 🏆 Thưởng → Hiệu ứng."), 1200);
+  }
+} catch {}
 renderAuth();
 toggleSentence();
 renderAll();
