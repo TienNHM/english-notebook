@@ -288,10 +288,15 @@ Short version, using **Firestore mode** so the items show up on every device and
 
 Without the two environment variables the server uses **inbox mode**: it writes `inbox.json` next to this app and the app imports it when it opens. That works only on `localhost` from this folder, not on the hosted site.
 
-To make Claude save automatically, add a rule to your `CLAUDE.md`, for example:
+### Install the English Coach skill (to use the app with an AI agent)
 
-> When I ask for help in Vietnamese, after answering call `add_sentence` with the natural English version
-> and 2-3 useful expressions (tag: work). Do not save things I did not ask about.
+The MCP server only gives the agent the tools. The **English Coach skill** tells the agent to correct your English, answer in simple English + Vietnamese, and save the sentence and expressions to your notebook after each Vietnamese request. Install it for your agent:
+
+- **Claude Code**: copy `skills/english-coach` from the MCP repo to `~/.claude/skills/english-coach`.
+- **Cursor**: copy `agents/cursor/english-coach.mdc` to `.cursor/rules/` in your project.
+- **Codex, Copilot, Windsurf and others**: paste `agents/AGENTS.snippet.md` into your `AGENTS.md`.
+
+Steps for every agent, and the MCP JSON config for non-Claude agents, are in the [MCP README](https://github.com/TienNHM/english-notebook-mcp#install-the-english-coach-skill-needed-to-use-the-app-with-an-ai-agent). Say "skip coach" to turn it off for one message.
 
 Full details and troubleshooting are in the [MCP README](https://github.com/TienNHM/english-notebook-mcp#readme).
 
