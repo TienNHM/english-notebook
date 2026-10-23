@@ -50,6 +50,19 @@ export async function put(uid, item) {
   return s.fs.setDoc(s.fs.doc(col(s, uid), item.id), item);
 }
 
+// Streak / XP / badges live in one document: users/{uid}/meta/progress
+const progressDoc = (s, uid) => s.fs.doc(s.db, "users", uid, "meta", "progress");
+
+export async function watchProgress(uid, cb, onError) {
+  const s = await load();
+  return s.fs.onSnapshot(progressDoc(s, uid), snap => cb(snap.exists() ? snap.data() : null), onError);
+}
+
+export async function putProgress(uid, progress) {
+  const s = await load();
+  return s.fs.setDoc(progressDoc(s, uid), progress);
+}
+
 export async function del(uid, id) {
   const s = await load();
   return s.fs.deleteDoc(s.fs.doc(col(s, uid), id));

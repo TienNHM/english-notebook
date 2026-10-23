@@ -31,6 +31,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Context cards**: save a sentence with the original (Vietnamese) sentence, then list the expressions in it (`check again = kiểm tra lại`). Every expression becomes its own card that stays linked to the sentence.
 - **Library**: search, filter by type or tag, text-to-speech, edit, delete.
 - **Review**: Leitner boxes (1, 3, 7, 14 and 30 days). Rate each card with Quên / Nhớ / Dễ.
+- **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
 - **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
 - **Offline first**: works without internet and can be installed from the browser.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
@@ -110,6 +111,17 @@ Pick how far you want to go:
 Boxes 0 to 5 come back after 0, 1, 3, 7, 14 and 30 days.
 Cards that came from a sentence show the sentence under the answer.
 
+### Daily goal, streak and rewards
+
+- The panel at the top of **🧠 Ôn tập** shows today's goal (default **10 cards**, change it in **🏆 Thưởng**: 5, 10, 15, 20 or 30), your 🔥 streak and the last 7 days.
+- Only **Nhớ** and **Dễ** count toward the goal. **Quên** gives a little XP but does not count. If you have fewer cards than the goal, the goal is the number of cards you have.
+- **Streak 🔥**: the number of days in a row you reached the goal. If you have not finished today yet, yesterday's streak is kept and the 🔥 pill turns red as a warning.
+- **Freeze 🧊**: every time your streak reaches a multiple of 7 days you earn one (you can hold 2). If you miss exactly one day and have a freeze, it is used automatically and your streak continues. Missing more days than you have freezes breaks the streak.
+- **Practice mode 💪**: if no cards are due but you have not reached the goal, press "Ôn thêm" to review cards that are not due yet (soonest first). So you can always keep your streak.
+- **XP and levels**: Quên +1, Nhớ +3, Dễ +5, and +20 bonus when you reach the daily goal. Level = `floor(sqrt(XP / 30)) + 1`.
+- **Badges**: 15 badges for streaks (3, 7, 14, 30, 100 days), number of recalls (50, 200, 1000), library size (10, 50, 100 cards), 10 sentences, and a card in box 5. A celebration with confetti appears when you reach the goal, level up or unlock a badge (it is skipped if your system asks for reduced motion).
+- Days are counted in your **local time zone**.
+
 ### Theme
 
 The round button in the header cycles **System → Light → Dark**. Your choice is saved in the browser.
@@ -134,7 +146,7 @@ The free **Spark** plan is enough for personal use (no credit card; free daily q
    ```
 4. **Turn on Google sign-in**: Build → Authentication → Get started → Sign-in method → **Google** → Enable → choose a support email → Save.
 5. **Create the database**: Build → Firestore Database → Create database → pick a region near you → **production mode**.
-6. **Deploy the security rules** from `firestore.rules`. Each signed-in user can only read and write their own items (`users/{uid}/items/{id}`):
+6. **Deploy the security rules** from `firestore.rules`. Each signed-in user can only read and write their own data (`users/{uid}/items/{id}` for cards and `users/{uid}/meta/{id}` for streak and rewards). Redeploy them whenever `firestore.rules` changes:
 
    ```bash
    npx firebase-tools login
@@ -205,7 +217,9 @@ Full details and troubleshooting are in the [MCP README](https://github.com/Tien
 | Mode | Where your data is |
 |---|---|
 | Local-only | In your browser (`localStorage`). Clearing site data deletes it. Use **Xuất JSON** to back up. |
-| Signed in | In your Firestore at `users/<uid>/items`. Other people cannot read it because of `firestore.rules`. |
+| Signed in | In your Firestore: cards at `users/<uid>/items`, streak / XP / badges at `users/<uid>/meta/progress`. Other people cannot read them because of `firestore.rules`. |
+
+Streak, XP and badges are stored with your cards (in the browser, or in Firestore when you are signed in), so they sync between devices. If two devices have different progress, they are merged and nothing is lost (the larger number wins for each day).
 
 - The Firebase web config in `firebase-config.js` is **not a secret**. The security rules protect the data.
 - The service account key (MCP Firestore mode) **is** a secret. Keep it out of git and out of synced or shared folders. If you think it leaked, delete it in the Firebase console (Service accounts → Manage → Keys) and create a new one.
@@ -233,7 +247,8 @@ Full details and troubleshooting are in the [MCP README](https://github.com/Tien
 | File | Purpose |
 |---|---|
 | `index.html`, `style.css` | Markup and neo-brutalism styles (light and dark tokens at the top of the CSS) |
-| `app.js` | UI, library, review, theme, import / export, inbox import |
+| `app.js` | UI, library, review, rewards screen, theme, import / export, inbox import |
+| `progress.js` | Streak, freeze, XP, level and badge logic (pure functions, no DOM) |
 | `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
 | `sw.js`, `manifest.webmanifest`, `icon.svg` | Offline cache and installable app |
 | `firestore.rules`, `firebase.json` | Firestore security rules and CLI config |
@@ -243,6 +258,8 @@ Full details and troubleshooting are in the [MCP README](https://github.com/Tien
 Things to remember when you change the code:
 
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
+- **Tests**: the streak, freeze, XP and badge logic has unit tests. Run `node tests/progress.test.mjs` (Node 18+, no install).
 - After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
 - Item shape (same in `localStorage` and Firestore): `id, type, text, meaning, example, note, original, sourceId, source, tags, box, due, created, reviews`.
+- Progress shape: `{ days: { "YYYY-MM-DD": { n, xp, f (goal met), z (saved by a freeze) } }, badges: { id: unlockedAt }, fe (freezes earned), goal, updated }`. Streak, level and freezes left are calculated from it, so the merge of two devices is always safe.
 - No build step and no dependencies in the app itself. The Firebase SDK is loaded from `gstatic.com` only when sync is configured.

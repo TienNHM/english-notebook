@@ -1,6 +1,8 @@
 import * as cloud from "./cloud.js";
+import * as P from "./progress.js";
 
 const KEY = "english-notebook-v1";
+const PROG_KEY = "english-notebook-progress";
 const DAY = 86400000;
 const INTERVALS = [0, 1, 3, 7, 14, 30]; // days per Leitner box (0..5)
 
@@ -25,9 +27,14 @@ function loadLocal() {
   try { return (JSON.parse(localStorage.getItem(KEY)) || []).map(norm); } catch { return []; }
 }
 
+function loadProgress() {
+  try { return P.normProgress(JSON.parse(localStorage.getItem(PROG_KEY))); } catch { return P.emptyProgress(); }
+}
+
 let items = loadLocal();
-let user = null, unsub = null;
-const migrated = new Set();
+let progress = loadProgress();
+let user = null, unsub = null, unsubP = null;
+const migrated = new Set(), migratedP = new Set();
 let activeTag = "";
 let queue = [], current = null, revealed = false, reviewTotal = 0, reviewDone = 0;
 
@@ -52,6 +59,43 @@ function commit(changed = [], removedIds = []) {
   renderAll();
 }
 
+// ---------- progress: streak, xp, badges ----------
+const today = () => P.dayKey();
+const ctxNow = () => ({
+  items: items.length, sentences: items.filter(i => i.type === "sentence").length,
+  maxBox: items.reduce((m, i) => Math.max(m, i.box), 0),
+});
+function saveProgress() {
+  progress = P.prune(progress, today());
+  try { localStorage.setItem(PROG_KEY, JSON.stringify(progress)); } catch {}
+  if (user) cloud.putProgress(user.uid, progress).catch(syncErr);
+  renderPills(); renderRewards();
+}
+// Spend freezes to bridge missed days (called at start-up, on return to the tab, after a sync).
+// When sync is on, wait until the cloud progress has been merged, so a stale device never spends a freeze by mistake.
+let progressReady = !cloud.enabled;
+function settle() {
+  if (!progressReady) return;
+  const r = P.settleFreezes(progress, today());
+  if (!r.used) return;
+  progress = { ...r.p, updated: Date.now() };
+  saveProgress();
+  toast(`🧊 Đã dùng ${r.used} băng để giữ streak`);
+}
+function awardBadges(modal) {
+  const r = P.checkBadges(progress, ctxNow());
+  if (!r.badges.length) return;
+  progress = r.p; saveProgress();
+  if (modal) celebrate({ xp: 0, goalReached: false, badges: r.badges, levelUp: null, freeze: false, streak: 0 });
+  else toast(`🏅 Huy hiệu mới: ${r.badges.map(b => b.name).join(", ")}`);
+}
+function renderPills() {
+  const s = P.streakInfo(progress, today()), lv = P.levelInfo(P.totalXp(progress));
+  $("#rewardPills").innerHTML =
+    `<span class="pill streak${s.atRisk ? " risk" : ""}" title="${s.atRisk ? "Ôn đủ mục tiêu hôm nay để giữ streak" : "Streak hiện tại"}">🔥 ${s.current}</span> ` +
+    `<span class="pill lvl" title="${esc(lv.title)}">⭐ Lv ${lv.level}</span>`;
+}
+
 // ---------- auth ----------
 function renderAuth() {
   const el = $("#auth");
@@ -67,8 +111,23 @@ $("#auth").onclick = async e => {
 };
 function onUser(u) {
   if (unsub) { unsub(); unsub = null; }
+  if (unsubP) { unsubP(); unsubP = null; }
   user = u; renderAuth();
-  if (!u) { items = loadLocal(); renderAll(); return; }
+  if (!u) {
+    items = loadLocal(); progress = loadProgress(); progressReady = true;
+    renderAll(); settle(); renderPills(); renderRewards(); return;
+  }
+  progressReady = false;
+  cloud.watchProgress(u.uid, doc => {
+    progressReady = true;
+    progress = P.mergeProgress(P.normProgress(doc), progress); // never lose either side
+    if (!migratedP.has(u.uid)) { // first sync on this device: upload local progress, but never an empty record
+      migratedP.add(u.uid);
+      if (Object.keys(progress.days).length || Object.keys(progress.badges).length) cloud.putProgress(u.uid, progress).catch(syncErr);
+    }
+    try { localStorage.setItem(PROG_KEY, JSON.stringify(progress)); } catch {}
+    settle(); renderPills(); renderRewards();
+  }, syncErr).then(f => { unsubP = f; }).catch(syncErr);
   cloud.watch(u.uid, docs => {
     const remote = docs.map(norm);
     if (!migrated.has(u.uid)) { // first login: upload local items that the cloud does not have yet
@@ -78,10 +137,11 @@ function onUser(u) {
     }
     items = remote.sort((a, b) => b.created - a.created);
     renderAll();
+    if (progressReady) awardBadges(false);
     importInbox();
   }, syncErr).then(f => { unsub = f; }).catch(syncErr);
 }
-if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); });
+if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); progressReady = true; settle(); });
 
 // ---------- inbox.json (filled by the MCP server, e.g. from Claude Code) ----------
 const IMPORTED_KEY = "english-notebook-imported";
@@ -98,10 +158,13 @@ async function importInbox() {
     const added = fresh.filter(d => !have.has(d.id)).map(norm);
     fresh.forEach(d => done.add(d.id));
     try { localStorage.setItem(IMPORTED_KEY, JSON.stringify([...done])); } catch {}
-    if (added.length) { items.unshift(...added); commit(added); toast(`Đã nhập ${added.length} mục từ Claude ✓`); }
+    if (added.length) { items.unshift(...added); commit(added); toast(`Đã nhập ${added.length} mục từ Claude ✓`); awardBadges(false); }
   } catch { /* no inbox, offline, or bad JSON: ignore */ }
 }
-document.addEventListener("visibilitychange", () => { if (!document.hidden) importInbox(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  importInbox(); settle(); renderPills(); renderRewards();
+});
 
 // ---------- theme: system -> light -> dark ----------
 const THEME_KEY = "english-notebook-theme";
@@ -129,6 +192,7 @@ function showTab(name) {
   $$(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
   if (name === "review") startReview();
   if (name === "library") renderList();
+  if (name === "rewards") renderRewards();
 }
 $$("nav button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
 
@@ -194,6 +258,7 @@ form.onsubmit = e => {
   resetForm();
   commit(changed);
   toast(id ? "Đã cập nhật ✓" : changed.length > 1 ? `Đã lưu ${changed.length} thẻ ✓` : "Đã lưu ✓");
+  awardBadges(true);
   $("#fText").focus();
 };
 const data_original = () => $("#fType").value === "sentence" ? $("#fOriginal").value.trim() : "";
@@ -279,15 +344,53 @@ function startReview() {
 function next() {
   current = queue.shift() || null; revealed = false; renderReview();
 }
+// Nothing is due but the daily goal is not reached yet: practise cards that are not due, soonest first.
+function startPractice() {
+  const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
+  queue = items.filter(i => !isDue(i)).sort((a, b) => a.due - b.due).slice(0, Math.max(left, 1));
+  reviewTotal = queue.length; reviewDone = 0;
+  next();
+}
+const WEEKDAY = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+function dotsHtml() {
+  const t = today(), out = [];
+  for (let i = 6; i >= 0; i--) {
+    const k = P.addDays(t, -i), d = progress.days[k], [y, m, dd] = k.split("-").map(Number);
+    const cls = d?.f ? "on" : d?.z ? "ice" : k === t ? "today" : "";
+    out.push(`<span class="dot-wrap"><span class="dot ${cls}" title="${k}">${d?.f ? "✓" : d?.z ? "🧊" : ""}</span><small>${WEEKDAY[new Date(y, m - 1, dd).getDay()]}</small></span>`);
+  }
+  return `<div class="dots">${out.join("")}</div>`;
+}
+function dailyHtml() {
+  const t = today(), s = P.streakInfo(progress, t), goal = P.effectiveGoal(progress, items.length);
+  const n = P.todayCount(progress, t), met = !!progress.days[t]?.f, pct = Math.min(100, Math.round(n / goal * 100));
+  return `<div class="daily">
+    <div class="daily-top">
+      <div class="streak-big">🔥 <b>${s.current}</b> ngày</div>
+      <div class="muted-sm">🧊 ${P.freezesAvailable(progress)} băng</div>
+    </div>
+    ${s.atRisk ? `<div class="warn">Ôn đủ mục tiêu hôm nay để giữ streak!</div>` : ""}
+    <div class="goalrow"><span>Mục tiêu hôm nay</span><b>${Math.min(n, goal)}/${goal}${met ? " ✅" : ""}</b></div>
+    <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(n, goal)}"><i style="width:${pct}%"></i></div>
+    ${dotsHtml()}
+  </div>`;
+}
 function renderReview() {
   const box = $("#reviewBox");
   if (!current) {
-    box.innerHTML = `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục.</div>`;
+    const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
+    const spare = items.filter(i => !isDue(i)).length;
+    box.innerHTML = dailyHtml() + (!items.length
+      ? `<div class="empty">Chưa có thẻ nào. Hãy thêm vài thẻ ở tab ➕ Thêm.</div>`
+      : left > 0 && spare > 0
+        ? `<div class="empty">Hết thẻ đến hạn, nhưng còn <b>${left}</b> thẻ nữa để đạt mục tiêu hôm nay.<br><br><button class="primary" id="practiceBtn">💪 Ôn thêm ${Math.min(left, spare)} thẻ</button></div>`
+        : `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục.</div>`);
+    const pb = $("#practiceBtn"); if (pb) pb.onclick = startPractice;
     return;
   }
   const c = current;
   const parent = c.sourceId && items.find(p => p.id === c.sourceId);
-  box.innerHTML = `
+  box.innerHTML = dailyHtml() + `
     <div class="progress">Còn ${queue.length + 1} mục · box ${c.box}</div>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${reviewTotal}" aria-valuenow="${reviewDone}"><i style="width:${reviewTotal ? Math.round(reviewDone / reviewTotal * 100) : 0}%"></i></div>
     <div class="card" data-type="${c.type}">
@@ -318,7 +421,89 @@ function grade(g) {
   renderStats();
   if (g === 0) queue.push(c); // see it again in this session
   else reviewDone++;
+  const r = P.recordReview(progress, g, ctxNow());
+  progress = r.p; saveProgress();
   next();
+  if (r.ev.goalReached || r.ev.badges.length || r.ev.levelUp) celebrate(r.ev);
+  else toast(`+${r.ev.xp} XP`);
+}
+
+// ---------- rewards tab ----------
+function renderRewards() {
+  const box = $("#rewardsBox"); if (!box) return;
+  const t = today(), s = P.streakInfo(progress, t), lv = P.levelInfo(P.totalXp(progress));
+  const st = P.stats(progress, t, ctxNow());
+  box.innerHTML = `
+    <div class="daily level">
+      <div class="daily-top"><div class="streak-big">⭐ Lv <b>${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm">${lv.xp} XP</div></div>
+      <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${lv.pct}"><i style="width:${lv.pct}%"></i></div>
+      <div class="muted-sm">Còn ${lv.next - lv.xp} XP để lên cấp ${lv.level + 1}</div>
+    </div>
+    <div class="statgrid">
+      <div class="stat"><b>🔥 ${s.current}</b><small>Streak hiện tại</small></div>
+      <div class="stat"><b>🏅 ${s.best}</b><small>Streak dài nhất</small></div>
+      <div class="stat"><b>🧊 ${P.freezesAvailable(progress)}/${P.MAX_FREEZES}</b><small>Băng cứu streak</small></div>
+      <div class="stat"><b>✅ ${st.reviews}</b><small>Lần nhớ đúng</small></div>
+    </div>
+    <div class="daily">
+      <label class="goalsel">Mục tiêu mỗi ngày (số thẻ)
+        <select id="goalSel">${P.GOALS.map(g => `<option value="${g}"${g === progress.goal ? " selected" : ""}>${g} thẻ</option>`).join("")}</select>
+      </label>
+      <div class="muted-sm">Ôn đủ số thẻ này mỗi ngày để giữ streak. Nhớ/Dễ mới được tính; Quên thì không. Cứ ${P.FREEZE_EVERY} ngày streak được 1 băng 🧊 (tối đa ${P.MAX_FREEZES}) tự cứu streak khi bạn lỡ 1 ngày.</div>
+      <div class="muted-sm">XP: Quên +1 · Nhớ +3 · Dễ +5 · đạt mục tiêu ngày +${P.GOAL_BONUS_XP}.</div>
+    </div>
+    <h3 class="sect">Huy hiệu (${Object.keys(progress.badges).length}/${P.BADGES.length})</h3>
+    <div class="trophies">${P.BADGES.map(b => {
+      const got = progress.badges[b.id];
+      return `<div class="trophy${got ? " got" : ""}" title="${esc(b.desc)}">
+        <span class="ico">${got ? b.icon : "🔒"}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
+    }).join("")}</div>`;
+}
+$("#rewardsBox").onchange = e => {
+  if (e.target.id !== "goalSel") return;
+  progress = { ...progress, goal: +e.target.value, updated: Date.now() };
+  saveProgress(); toast(`Mục tiêu: ${progress.goal} thẻ/ngày`);
+};
+
+// ---------- celebration ----------
+function celebrate(ev) {
+  const lines = [];
+  if (ev.xp) lines.push(`<div class="cel-line">+${ev.xp} XP</div>`);
+  if (ev.goalReached) lines.push(`<div class="cel-line">🔥 Streak: <b>${ev.streak}</b> ngày</div>`);
+  if (ev.freeze) lines.push(`<div class="cel-line">🧊 Bạn nhận 1 băng cứu streak!</div>`);
+  if (ev.levelUp) lines.push(`<div class="cel-line">⭐ Lên <b>Lv ${ev.levelUp.level}</b> · ${esc(ev.levelUp.title)}</div>`);
+  for (const b of ev.badges) lines.push(`<div class="cel-badge"><span class="ico">${b.icon}</span><span><b>${esc(b.name)}</b><br><small>${esc(b.desc)}</small></span></div>`);
+  $("#celTitle").textContent = ev.goalReached ? "🎉 Hoàn thành mục tiêu hôm nay!" : ev.levelUp ? "⬆️ Lên cấp!" : "🏅 Huy hiệu mới!";
+  $("#celBody").innerHTML = lines.join("");
+  $("#celebrate").hidden = false; $("#celClose").focus();
+  confetti();
+}
+$("#celClose").onclick = () => { $("#celebrate").hidden = true; };
+$("#celebrate").onclick = e => { if (e.target.id === "celebrate") $("#celebrate").hidden = true; };
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#celebrate").hidden = true; });
+
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = $("#confetti"), cx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#ffd93d", "#ff7eb6", "#6bc5ff", "#79e08a", "#b69cff", "#ff5c5c"];
+  const ps = Array.from({ length: 140 }, () => ({
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.4, w: 6 + Math.random() * 8, h: 8 + Math.random() * 10,
+    vx: -2 + Math.random() * 4, vy: 2 + Math.random() * 4, r: Math.random() * 6, vr: -0.2 + Math.random() * 0.4,
+    c: cols[(Math.random() * cols.length) | 0],
+  }));
+  let f = 0;
+  (function tick() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    for (const p of ps) {
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cx.strokeStyle = "#111"; cx.lineWidth = 1.5; cx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cx.restore();
+    }
+    if (++f < 160) requestAnimationFrame(tick); else cx.clearRect(0, 0, cv.width, cv.height);
+  })();
 }
 
 // ---------- stats ----------
@@ -346,6 +531,7 @@ $("#importFile").onchange = async e => {
     items.push(...added);
     commit(added);
     alert(`Đã nhập ${added.length} mục.`);
+    awardBadges(true);
   } catch { alert("File JSON không hợp lệ."); }
   e.target.value = "";
 };
@@ -357,4 +543,7 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
 renderAuth();
 toggleSentence();
 renderAll();
+settle();
+renderPills();
+renderRewards();
 importInbox();

@@ -128,6 +128,53 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .grade .good{background:var(--yellow);color:var(--on)}
 .grade .easy{background:var(--green);color:var(--on)}
 
+/* ---------- daily goal, streak, rewards ---------- */
+.pill.streak{background:var(--yellow)}
+.pill.streak.risk{background:var(--red);animation:wiggle 1.6s ease-in-out infinite}
+.pill.lvl{background:var(--violet)}
+@keyframes wiggle{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+.daily{background:var(--card);border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:18px}
+.daily-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.streak-big{font-size:1.25rem;font-weight:800}
+.streak-big b{font-size:1.9rem;letter-spacing:-.03em}
+.muted-sm{font:600 .78rem var(--mono);color:var(--muted);margin-top:6px}
+.daily-top .muted-sm{margin:0}
+.warn{margin-top:8px;font-weight:800;color:var(--on);background:var(--red);border:2px solid var(--ink);border-radius:8px;padding:4px 10px;display:inline-block}
+.goalrow{display:flex;justify-content:space-between;margin-top:12px;font-weight:700}
+.bar.goal{margin:6px 0 12px;height:18px}
+.bar.goal i{background:var(--yellow)}
+.dots{display:flex;justify-content:space-between;gap:6px}
+.dot-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.dot-wrap small{font:700 .66rem var(--mono);color:var(--muted)}
+.dot{width:32px;height:32px;border:var(--bw) solid var(--ink);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:var(--paper);color:var(--text)}
+.dot.on{background:var(--green);color:var(--on)}
+.dot.ice{background:var(--blue);color:var(--on)}
+.dot.today{border-style:dashed;background:var(--card)}
+.daily.level .bar.goal i{background:var(--violet)}
+.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;display:flex;flex-direction:column}
+.stat b{font-size:1.4rem}
+.stat small{font:700 .72rem var(--mono);color:var(--muted)}
+.goalsel{margin-bottom:6px}
+.goalsel select{max-width:200px;font-weight:800;cursor:pointer}
+.sect{font-size:1.1rem;margin:22px 0 12px}
+.trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.trophy{background:var(--card);border:var(--bw) solid var(--ink);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:2px;opacity:.55;filter:grayscale(1)}
+.trophy .ico{font-size:1.8rem}
+.trophy small{font:600 .72rem var(--mono);color:var(--muted)}
+.trophy.got{opacity:1;filter:none;background:var(--yellow);color:var(--on);box-shadow:var(--sh)}
+.trophy.got small{color:inherit;opacity:.8}
+
+/* ---------- celebration ---------- */
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40}
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px}
+.modal{width:min(420px,100%);background:var(--yellow);color:var(--on);border:var(--bw) solid var(--ink);border-radius:20px;box-shadow:var(--sh-lg);padding:22px;text-align:center;animation:pop .2s ease-out}
+.modal h2{margin:0 0 12px;font-size:1.4rem;letter-spacing:-.01em}
+.cel-line{font-weight:800;font-size:1.05rem;margin:6px 0}
+.cel-badge{display:flex;gap:12px;align-items:center;text-align:left;background:var(--card);color:var(--text);border:var(--bw) solid var(--ink);border-radius:var(--r);padding:10px 12px;margin:10px 0}
+.cel-badge .ico{font-size:2rem}
+.modal .primary{margin-top:14px;width:100%}
+
 /* ---------- toast ---------- */
 #toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:20;
   background:var(--green);color:var(--on);font-weight:800;border:var(--bw) solid var(--ink);border-radius:10px;box-shadow:var(--sh);padding:10px 18px;transition:.2s}
@@ -137,7 +184,9 @@ button.chip.on{background:var(--violet);color:var(--on)}
 @media (max-width:640px){
   nav{position:fixed;top:auto;bottom:0;left:0;right:0;max-width:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:var(--bw) solid var(--ink);gap:8px}
   nav::before{display:none}
-  nav button{padding:10px 4px;font-size:.88rem}
+  nav{gap:6px}
+  nav button{padding:10px 2px;font-size:.78rem;white-space:nowrap}
+  .badge{margin-left:2px;min-width:18px;padding:0 4px}
   main{padding-bottom:110px}
   #addForm{padding:16px}
   .item .actions{width:100%;justify-content:flex-end}

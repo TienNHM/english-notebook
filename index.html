@@ -14,13 +14,14 @@
 <body>
 <header>
   <h1 class="logo">📒 English Notebook</h1>
-  <div class="pills"><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
+  <div class="pills"><span id="rewardPills"></span><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
 </header>
 
 <nav>
   <button data-tab="add" class="active">➕ Thêm</button>
   <button data-tab="library">📚 Thư viện</button>
   <button data-tab="review">🧠 Ôn tập<span id="dueBadge" class="badge"></span></button>
+  <button data-tab="rewards">🏆 Thưởng</button>
 </nav>
 
 <main>
@@ -88,8 +89,20 @@
   <section id="tab-review" class="tab">
     <div id="reviewBox"></div>
   </section>
+
+  <section id="tab-rewards" class="tab">
+    <div id="rewardsBox"></div>
+  </section>
 </main>
 
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="celebrate" class="overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="celTitle">
+    <h2 id="celTitle"></h2>
+    <div id="celBody"></div>
+    <button class="primary" id="celClose" type="button">Tiếp tục</button>
+  </div>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script type="module" src="app.js"></script>
 </body>
