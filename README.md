@@ -34,7 +34,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
 - **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
 - **Lively motion**: bouncy page, card and reward animations (count-up numbers, flickering 🔥, floating "+XP", shaking card on Quên, confetti). It follows your system "reduce motion" setting, and you can force it on or off in the app.
-- **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
+- **4 visual styles** (Neo-brutalism, Solid, Glass, Gradient), each in light and dark, plus a system mode. Bottom tab bar on phones.
 - **Installable PWA**: install it on your phone or PC like a normal app (own icon, full screen, home-screen shortcuts), and it opens without internet.
 - **Offline first**: works without internet and syncs when you are back online.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
@@ -162,9 +162,22 @@ Open **🏆 Thưởng → 📣 Chia sẻ thành tích**, or press **📣 Chia s�
 - **Accessibility**: by default the app follows your operating system. If "reduce motion" (Windows: *Animation effects* off; macOS: *Reduce motion*) is on, all animations are off.
 - To override it, open **🏆 Thưởng → Hiệu ứng chuyển động** and choose **Theo hệ thống** (default), **Luôn bật** or **Tắt**. The choice is saved in your browser. If your system has motion off, the app shows a one-time hint about this switch.
 
-### Theme
+### Style and colour mode
 
-The round button in the header cycles **System → Light → Dark**. Your choice is saved in the browser.
+Two separate choices, both saved in your browser (per device):
+
+- **Style** (how it looks): press **🎨** in the header to go to the next style, or open **🏆 Thưởng → Phong cách giao diện** and pick one from the previews.
+
+  | Style | Look |
+  |---|---|
+  | 🧱 **Neo-brutalism** (default) | Thick black borders, hard offset shadows, flat bright colours, dotted paper background |
+  | ⬜ **Solid** | Flat and clean: thin borders, soft shadows, calm pastel accents |
+  | 🪟 **Glass** | Frosted translucent panels over a colourful blurred background (needs a browser with `backdrop-filter`; others see slightly more opaque panels) |
+  | 🌈 **Gradient** | Soft gradient background, rounded cards and a vivid purple-to-pink gradient on the main accents |
+
+- **Colour mode** (light or dark): the round button next to it cycles **System → Light → Dark**. Every style has both a light and a dark version.
+
+The browser bar / status bar colour follows the style and mode. The share card and the link-preview image always use the Neo-brutalism look, because that is the app's brand.
 
 ## Set up Google login and cloud sync
 
@@ -304,6 +317,8 @@ Things to remember when you change the code:
 
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
 - **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
+- **Styles are design tokens.** `style.css` has one block of CSS variables per style and mode (`html[data-style=…][data-scheme=…]`): colours, border widths (`--bw`), radii, shadows (`--sh*`), hover and press movement (`--lift`, `--press`), page background (`--bg-image`) and the browser-bar colour (`--tc`). Components use only these tokens, never fixed colours or shadows. To add a style: add its two token blocks (a block must set *every* token, or the Neo default shows through), add it to `STYLES` in `app.js`, to the `<script>` in `<head>` of `index.html`, and add a `.sw-<name>` preview swatch. Text on coloured surfaces uses `--on`; panels on a coloured card use `--answer-bg` and `--answer-fg`.
+- **Check contrast** after changing colours. Aim for WCAG AA: 4.5:1 for normal text and 3:1 for large text, in every style and in both modes, including pop-ups and the Rewards tab. (When this was written all 8 combinations passed, 2,252 measurements.)
 - **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.
 - **Caching (important)**: GitHub Pages sends `Cache-Control: max-age=14400` (4 hours). A plain `fetch(request)` in the service worker would trust that cache and serve old files after a deploy, mixed with new ones. So `sw.js` installs with `cache: "reload"` and fetches same-origin files with `cache: "no-cache"` (the server answers `304` when nothing changed), and `app.js` registers it with `updateViaCache: "none"`. Keep this when you edit `sw.js`. To test it, serve a copy of the app with a `max-age=14400` header, change a file, and reload in a **new tab**.
 - **Installability checklist**: HTTPS, a manifest with `name`, `start_url`, `display: standalone` and 192 + 512 PNG icons (plus a `maskable` one), and a service worker with a `fetch` handler. If you change an icon, redraw the SVG, render it to PNG at the sizes above (draw the SVG on a canvas and use `canvas.toBlob`), and keep the file names in `sw.js` and the workflow in sync.

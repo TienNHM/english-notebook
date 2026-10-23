@@ -26,13 +26,22 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script>try{var d=document.documentElement,t=localStorage.getItem("english-notebook-theme"),m=localStorage.getItem("english-notebook-motion");if(t==="light"||t==="dark")d.dataset.theme=t;if(m==="on"||m==="off")d.dataset.motion=m}catch(e){}</script>
+<script>
+/* Set the look before the first paint, so there is no flash: data-scheme (light|dark), data-style (neo|solid|glass|gradient), data-motion. */
+(function(){var d=document.documentElement,t,m,s;
+try{t=localStorage.getItem("english-notebook-theme");m=localStorage.getItem("english-notebook-motion");s=localStorage.getItem("english-notebook-style")}catch(e){}
+if(t==="light"||t==="dark")d.dataset.theme=t;
+if(m==="on"||m==="off")d.dataset.motion=m;
+d.dataset.style=(s==="solid"||s==="glass"||s==="gradient")?s:"neo";
+d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+})();
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1 class="logo">📒 English Notebook</h1>
-  <div class="pills"><button id="installBtn" class="small" type="button" hidden>📲 Cài app</button><span id="rewardPills"></span><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
+  <div class="pills"><button id="installBtn" class="small" type="button" hidden>📲 Cài app</button><span id="rewardPills"></span><span id="stats" class="pill"></span><span id="auth"></span><button id="styleBtn" class="small" type="button" title="Đổi phong cách giao diện">🎨</button><button id="themeBtn" class="small" type="button"></button></div>
 </header>
 
 <nav>

@@ -208,11 +208,37 @@ document.addEventListener("visibilitychange", () => {
   importInbox(); settle(); renderPills(); renderRewards();
 });
 
-// ---------- theme: system -> light -> dark ----------
+// ---------- look: colour MODE (system / light / dark) and visual STYLE (neo / solid / glass / gradient) ----------
+// The two are independent. The page sets data-scheme ("light" | "dark") and data-style on <html>; style.css does the rest.
 const THEME_KEY = "english-notebook-theme";
 const THEMES = { system: ["🖥", "Theo hệ thống"], light: ["☀️", "Sáng"], dark: ["🌙", "Tối"] };
+const STYLE_KEY = "english-notebook-style";
+const STYLES = {
+  neo: ["🧱", "Neo-brutalism", "Viền dày, bóng cứng, màu phẳng"],
+  solid: ["⬜", "Solid", "Phẳng, sạch, viền mảnh, bóng mềm"],
+  glass: ["🪟", "Glass", "Kính mờ trên nền nhiều màu"],
+  gradient: ["🌈", "Gradient", "Màu chuyển sắc, bo tròn"],
+};
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
 function getTheme() {
   try { const t = localStorage.getItem(THEME_KEY); return t === "light" || t === "dark" ? t : "system"; } catch { return "system"; }
+}
+function getStyle() {
+  try { const s = localStorage.getItem(STYLE_KEY); return Object.hasOwn(STYLES, s) ? s : "neo"; } catch { return "neo"; }
+}
+// Short cross-fade of colours when the look changes (class removed again by a timer).
+function fadeColors() {
+  const root = document.documentElement; root.classList.add("theming"); setTimeout(() => root.classList.remove("theming"), 500);
+}
+// The browser bar / status bar colour follows the current style and mode (each style defines --tc).
+function syncThemeColor() {
+  const tc = getComputedStyle(document.documentElement).getPropertyValue("--tc").trim();
+  if (tc) $$('meta[name="theme-color"]').forEach(m => { m.content = tc; });
+}
+function resolveScheme() {
+  const t = getTheme();
+  document.documentElement.dataset.scheme = t === "system" ? (darkQuery.matches ? "dark" : "light") : t;
+  syncThemeColor();
 }
 function applyTheme(t) {
   const root = document.documentElement;
@@ -220,14 +246,28 @@ function applyTheme(t) {
   try { t === "system" ? localStorage.removeItem(THEME_KEY) : localStorage.setItem(THEME_KEY, t); } catch {}
   const btn = $("#themeBtn");
   btn.textContent = THEMES[t][0];
-  btn.title = btn.ariaLabel = `Giao diện: ${THEMES[t][1]}`;
+  btn.title = btn.ariaLabel = `Chế độ màu: ${THEMES[t][1]}`;
+  resolveScheme();
+}
+function applyStyle(s) {
+  document.documentElement.dataset.style = s;
+  try { s === "neo" ? localStorage.removeItem(STYLE_KEY) : localStorage.setItem(STYLE_KEY, s); } catch {}
+  $("#styleBtn").title = $("#styleBtn").ariaLabel = `Phong cách: ${STYLES[s][1]} (bấm để đổi)`;
+  syncThemeColor();
 }
 $("#themeBtn").onclick = () => {
   const order = ["system", "light", "dark"], next = order[(order.indexOf(getTheme()) + 1) % 3];
-  const root = document.documentElement; root.classList.add("theming"); setTimeout(() => root.classList.remove("theming"), 500);
-  applyTheme(next); toast(`Giao diện: ${THEMES[next][1]}`);
+  fadeColors(); applyTheme(next); toast(`Chế độ màu: ${THEMES[next][1]}`);
 };
+function chooseStyle(s) {
+  fadeColors(); applyStyle(s); renderRewards(); toast(`${STYLES[s][0]} Phong cách: ${STYLES[s][1]}`);
+}
+$("#styleBtn").onclick = () => {
+  const keys = Object.keys(STYLES); chooseStyle(keys[(keys.indexOf(getStyle()) + 1) % keys.length]);
+};
+darkQuery.addEventListener("change", () => { if (getTheme() === "system") resolveScheme(); });
 applyTheme(getTheme());
+applyStyle(getStyle());
 
 // ---------- tabs ----------
 function showTab(name) {
@@ -497,6 +537,14 @@ function renderRewards() {
   const st = P.stats(progress, t, ctxNow());
   box.innerHTML = `
     <button class="primary" id="shareBtn" type="button">📣 Chia sẻ thành tích</button>
+    <div class="daily">
+      <div class="streak-big">🎨 Phong cách giao diện</div>
+      <div class="muted-sm">Chọn kiểu hiển thị. Không phụ thuộc chế độ sáng / tối (nút ${THEMES[getTheme()][0]} ở đầu trang). Lưu trên thiết bị này.</div>
+      <div class="stylepick" id="stylePick">${Object.entries(STYLES).map(([k, [ico, name, desc]]) => `
+        <button type="button" data-style="${k}" aria-pressed="${k === getStyle()}">
+          <span class="sw sw-${k}"><span>Aa</span></span><b>${ico} ${esc(name)}</b><small>${esc(desc)}</small>
+        </button>`).join("")}</div>
+    </div>
     <div class="daily level">
       <div class="daily-top"><div class="streak-big">⭐ Lv <b data-count="${lv.level}" data-k="level">${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm"><span data-count="${lv.xp}" data-k="xp">${lv.xp}</span> XP</div></div>
       <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${lv.pct}"><i style="width:${lv.pct}%"></i></div>
@@ -525,11 +573,15 @@ function renderRewards() {
     <div class="trophies">${P.BADGES.map((b, idx) => {
       const got = progress.badges[b.id];
       return `<div class="trophy${got ? " got" : ""}" style="--i:${idx}" title="${esc(b.desc)}">
-        <span class="ico">${got ? b.icon : "🔒"}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
+        <span class="ico" aria-hidden="true">${got ? b.icon : "🔒"}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
     }).join("")}</div>`;
   runCounts(box);
 }
-$("#rewardsBox").onclick = e => { if (e.target.closest("#shareBtn")) openShare(); };
+$("#rewardsBox").onclick = e => {
+  if (e.target.closest("#shareBtn")) openShare();
+  const pick = e.target.closest("#stylePick [data-style]"); // (not just [data-style]: <html> has that attribute too)
+  if (pick && pick.dataset.style !== getStyle()) chooseStyle(pick.dataset.style);
+};
 $("#rewardsBox").onchange = e => {
   if (e.target.id === "motionSel") {
     applyMotion(e.target.value); renderRewards();
