@@ -75,7 +75,7 @@ let user = null, unsub = null, unsubP = null;
 const migrated = new Set(), migratedP = new Set();
 let activeTag = "";
 let queue = [], current = null, revealed = false, reviewTotal = 0, reviewDone = 0;
-let listAnim = true, cardFx = "slide", reviewFirst = true; // one-shot flags for the animations
+let listAnim = true, cardFx = "slide"; // one-shot flags for the animations
 const justAdded = new Set();
 
 const isDue = it => it.due <= Date.now();
@@ -276,7 +276,7 @@ function showTab(name) {
   if (name === "review") startReview();
   if (name === "library") { listAnim = true; renderList(); }
   if (name === "rewards") {
-    for (const k of Object.keys(shownCounts)) if (k !== "streak") delete shownCounts[k]; // count up again when the tab is opened
+    for (const k of Object.keys(shownCounts)) delete shownCounts[k]; // count up again when the tab is opened
     renderRewards();
   }
 }
@@ -434,7 +434,7 @@ $("#list").onclick = e => {
 function startReview() {
   queue = items.filter(isDue).sort((a, b) => a.due - b.due);
   reviewTotal = queue.length; reviewDone = 0;
-  reviewFirst = true; cardFx = "slide";
+  cardFx = "slide";
   next();
 }
 function next() {
@@ -472,26 +472,29 @@ function dailyHtml() {
     ${dotsHtml()}
   </div>`;
 }
+// "🎯 2/5 hôm nay": the only trace of the daily goal on the Review screen (the full streak panel is in the Thưởng tab)
+function goalLine() {
+  const t = today(), goal = P.effectiveGoal(progress, items.length), n = Math.min(P.todayCount(progress, t), goal);
+  return `🎯 ${n}/${goal} hôm nay${progress.days[t]?.f ? " ✅" : ""}`;
+}
 function renderReview() {
   const box = $("#reviewBox");
-  box.classList.toggle("settled", !reviewFirst); // week dots only pop in the first time the tab is shown
-  const fx = cardFx; cardFx = ""; reviewFirst = false;
+  const fx = cardFx; cardFx = "";
   if (!current) {
     const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
     const spare = items.filter(i => !isDue(i)).length;
-    box.innerHTML = dailyHtml() + (!items.length
+    box.innerHTML = (!items.length
       ? `<div class="empty">Chưa có thẻ nào. Hãy thêm vài thẻ ở tab ➕ Thêm.</div>`
       : left > 0 && spare > 0
         ? `<div class="empty">Hết thẻ đến hạn, nhưng còn <b>${left}</b> thẻ nữa để đạt mục tiêu hôm nay.<br><br><button class="primary" id="practiceBtn">💪 Ôn thêm ${Math.min(left, spare)} thẻ</button></div>`
-        : `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục.</div>`);
+        : `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục · ${goalLine()}</div>`);
     const pb = $("#practiceBtn"); if (pb) pb.onclick = startPractice;
-    runCounts(box);
     return;
   }
   const c = current;
   const parent = c.sourceId && items.find(p => p.id === c.sourceId);
-  box.innerHTML = dailyHtml() + `
-    <div class="progress">Còn ${queue.length + 1} mục · box ${c.box}</div>
+  box.innerHTML = `
+    <div class="progress">Còn ${queue.length + 1} mục · box ${c.box} · ${goalLine()}</div>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${reviewTotal}" aria-valuenow="${reviewDone}"><i style="width:${reviewTotal ? Math.round(reviewDone / reviewTotal * 100) : 0}%"></i></div>
     <div class="card${fx ? " fx-" + fx : ""}" data-type="${c.type}">
       <div class="big">${esc(c.text)}</div>
@@ -504,14 +507,13 @@ function renderReview() {
           ${c.note ? `<div class="note">📝 ${esc(c.note)}</div>` : ""}
         </div>` : `<div><button id="rShow" class="primary">Xem nghĩa</button></div>`}
     </div>
-    ${revealed ? `<div class="grade">
+    <div class="grade${revealed ? "" : " pending"}">
       <button class="again" data-g="0">Quên</button>
       <button class="good" data-g="1">Nhớ</button>
-      <button class="easy" data-g="2">Dễ</button></div>` : ""}`;
+      <button class="easy" data-g="2">Dễ</button></div>`;
   $("#rSpeak").onclick = () => speak(c.text);
   const show = $("#rShow"); if (show) show.onclick = () => { revealed = true; renderReview(); };
   $$(".grade button").forEach(b => b.onclick = () => grade(+b.dataset.g));
-  runCounts(box);
 }
 function grade(g) {
   const c = current;
@@ -535,7 +537,7 @@ function renderRewards() {
   const box = $("#rewardsBox"); if (!box) return;
   const t = today(), s = P.streakInfo(progress, t), lv = P.levelInfo(P.totalXp(progress));
   const st = P.stats(progress, t, ctxNow());
-  box.innerHTML = `
+  box.innerHTML = dailyHtml() + `
     <button class="primary" id="shareBtn" type="button">📣 Chia sẻ thành tích</button>
     <div class="daily">
       <div class="streak-big">🎨 Phong cách giao diện</div>
