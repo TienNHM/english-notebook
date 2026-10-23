@@ -32,6 +32,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Library**: search, filter by type or tag, text-to-speech, edit, delete.
 - **Review**: Leitner boxes (1, 3, 7, 14 and 30 days). Rate each card with Quên / Nhớ / Dễ.
 - **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
+- **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
 - **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
 - **Offline first**: works without internet and can be installed from the browser.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
@@ -121,6 +122,17 @@ Cards that came from a sentence show the sentence under the answer.
 - **XP and levels**: Quên +1, Nhớ +3, Dễ +5, and +20 bonus when you reach the daily goal. Level = `floor(sqrt(XP / 30)) + 1`.
 - **Badges**: 15 badges for streaks (3, 7, 14, 30, 100 days), number of recalls (50, 200, 1000), library size (10, 50, 100 cards), 10 sentences, and a card in box 5. A celebration with confetti appears when you reach the goal, level up or unlock a badge (it is skipped if your system asks for reduced motion).
 - Days are counted in your **local time zone**.
+
+### Share your achievements
+
+Open **🏆 Thưởng → 📣 Chia sẻ thành tích**, or press **📣 Chia sẻ** in the celebration pop-up.
+
+- The dialog shows a share card (1080×1080) and an editable text, for example `🔥 9-day streak · Level 5 · 108 cards recalled · 6/15 badges on English Notebook! ...`.
+- **📲 Chia sẻ…** (phones and some browsers) opens the system share sheet with the image attached.
+- **Facebook, X, LinkedIn, Telegram** open that site's share page with your text and the link to the app. These sites do not accept an image from a link (and LinkedIn takes only the link), so press **⬇ Tải ảnh** (or **🖼 Chép ảnh**) and attach the image yourself.
+- **📋 Chép chữ** copies the text and the link. 
+- **Privacy**: the card is drawn in your browser. It contains only numbers and badge icons: no name, no email. Nothing is uploaded when you open the dialog; data leaves your device only when you post it.
+- **Link preview**: `index.html` has Open Graph and Twitter Card tags that use `og-image.png` (1200×630). Social sites cache previews, so after you change the image use the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/) to refresh it. If you host the app on another domain, change the URLs in the `<meta>` tags and `SITE_URL` in `share.js`.
 
 ### Theme
 
@@ -249,6 +261,9 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 | `index.html`, `style.css` | Markup and neo-brutalism styles (light and dark tokens at the top of the CSS) |
 | `app.js` | UI, library, review, rewards screen, theme, import / export, inbox import |
 | `progress.js` | Streak, freeze, XP, level and badge logic (pure functions, no DOM) |
+| `share.js` | Share text, social links and the share-card drawing (canvas) |
+| `og-image.png` | Link preview image (1200×630) used by the Open Graph tags |
+| `tests/` | Unit tests for `progress.js` and `share.js` |
 | `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
 | `sw.js`, `manifest.webmanifest`, `icon.svg` | Offline cache and installable app |
 | `firestore.rules`, `firebase.json` | Firestore security rules and CLI config |
@@ -258,7 +273,8 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 Things to remember when you change the code:
 
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
-- **Tests**: the streak, freeze, XP and badge logic has unit tests. Run `node tests/progress.test.mjs` (Node 18+, no install).
+- **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
+- To redraw `og-image.png`, call `drawShareCard(canvas, {}, { wide: true, promo: true })` from `share.js` and save the canvas as a PNG.
 - After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
 - Item shape (same in `localStorage` and Firestore): `id, type, text, meaning, example, note, original, sourceId, source, tags, box, due, created, reviews`.
 - Progress shape: `{ days: { "YYYY-MM-DD": { n, xp, f (goal met), z (saved by a freeze) } }, badges: { id: unlockedAt }, fe (freezes earned), goal, updated }`. Streak, level and freezes left are calculated from it, so the merge of two devices is always safe.

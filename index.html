@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffd93d">
 <title>English Notebook</title>
+<meta name="description" content="Learn English from what you read and write at work. Save words, phrases and sentences, review them with spaced repetition, and keep a daily streak.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="English Notebook">
+<meta property="og:title" content="English Notebook">
+<meta property="og:description" content="Learn English from what you read and write at work. Daily streak, spaced review and context cards.">
+<meta property="og:url" content="https://english-notebook.tiennhm.io.vn/">
+<meta property="og:image" content="https://english-notebook.tiennhm.io.vn/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="English Notebook">
+<meta name="twitter:description" content="Learn English from what you read and write at work.">
+<meta name="twitter:image" content="https://english-notebook.tiennhm.io.vn/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -100,7 +113,32 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="celTitle">
     <h2 id="celTitle"></h2>
     <div id="celBody"></div>
-    <button class="primary" id="celClose" type="button">Tiếp tục</button>
+    <div class="btnrow">
+      <button id="celShare" type="button">📣 Chia sẻ</button>
+      <button class="primary" id="celClose" type="button">Tiếp tục</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <h2 id="shareTitle">📣 Chia sẻ thành tích</h2>
+    <canvas id="shareCanvas" width="1080" height="1080" aria-label="Ảnh thẻ thành tích"></canvas>
+    <label>Nội dung (sửa được)
+      <textarea id="shareText" rows="4"></textarea>
+    </label>
+    <div class="sharegrid" id="shareGrid">
+      <button type="button" data-share="native" hidden>📲 Chia sẻ…</button>
+      <button type="button" data-share="facebook">Facebook</button>
+      <button type="button" data-share="x">X</button>
+      <button type="button" data-share="linkedin">LinkedIn</button>
+      <button type="button" data-share="telegram">Telegram</button>
+      <button type="button" data-share="copy">📋 Chép chữ</button>
+      <button type="button" data-share="copyimg" hidden>🖼 Chép ảnh</button>
+      <button type="button" data-share="download">⬇ Tải ảnh</button>
+    </div>
+    <p class="muted-sm">Ảnh được vẽ ngay trên máy bạn, không có tên hay email và không được tải lên đâu cả. Nút mạng xã hội chỉ mở trang chia sẻ với chữ và link; hãy đính kèm ảnh đã tải. Menu 📲 trên điện thoại thì đính kèm được ảnh.</p>
+    <button class="primary" id="shareClose" type="button">Đóng</button>
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>

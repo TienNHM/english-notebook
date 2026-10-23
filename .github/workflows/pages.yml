@@ -27,7 +27,7 @@ jobs:
       - name: Collect app files
         run: |
           mkdir _site
-          cp index.html app.js progress.js cloud.js firebase-config.js sw.js style.css manifest.webmanifest icon.svg CNAME _site/
+          cp index.html app.js progress.js share.js cloud.js firebase-config.js sw.js style.css manifest.webmanifest icon.svg og-image.png CNAME _site/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

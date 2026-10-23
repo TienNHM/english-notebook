@@ -1,5 +1,6 @@
 import * as cloud from "./cloud.js";
 import * as P from "./progress.js";
+import * as S from "./share.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -434,6 +435,7 @@ function renderRewards() {
   const t = today(), s = P.streakInfo(progress, t), lv = P.levelInfo(P.totalXp(progress));
   const st = P.stats(progress, t, ctxNow());
   box.innerHTML = `
+    <button class="primary" id="shareBtn" type="button">📣 Chia sẻ thành tích</button>
     <div class="daily level">
       <div class="daily-top"><div class="streak-big">⭐ Lv <b>${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm">${lv.xp} XP</div></div>
       <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${lv.pct}"><i style="width:${lv.pct}%"></i></div>
@@ -459,6 +461,7 @@ function renderRewards() {
         <span class="ico">${got ? b.icon : "🔒"}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></div>`;
     }).join("")}</div>`;
 }
+$("#rewardsBox").onclick = e => { if (e.target.closest("#shareBtn")) openShare(); };
 $("#rewardsBox").onchange = e => {
   if (e.target.id !== "goalSel") return;
   progress = { ...progress, goal: +e.target.value, updated: Date.now() };
@@ -479,8 +482,57 @@ function celebrate(ev) {
   confetti();
 }
 $("#celClose").onclick = () => { $("#celebrate").hidden = true; };
+$("#celShare").onclick = () => { $("#celebrate").hidden = true; openShare(); };
 $("#celebrate").onclick = e => { if (e.target.id === "celebrate") $("#celebrate").hidden = true; };
-document.addEventListener("keydown", e => { if (e.key === "Escape") $("#celebrate").hidden = true; });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { $("#celebrate").hidden = true; $("#shareDlg").hidden = true; }
+});
+
+// ---------- share achievements ----------
+function shareStats() {
+  const t = today(), s = P.streakInfo(progress, t), lv = P.levelInfo(P.totalXp(progress)), st = P.stats(progress, t, ctxNow());
+  return {
+    streak: s.current, best: s.best, level: lv.level, xp: lv.xp, reviews: st.reviews, cards: items.length,
+    badges: Object.keys(progress.badges).length, badgesTotal: P.BADGES.length,
+    icons: P.BADGES.filter(b => progress.badges[b.id]).map(b => b.icon),
+  };
+}
+function openShare() {
+  const d = shareStats();
+  $("#shareText").value = S.shareText(d);
+  S.drawShareCard($("#shareCanvas"), d);
+  $('#shareGrid [data-share="native"]').hidden = !navigator.share;
+  $('#shareGrid [data-share="copyimg"]').hidden = !(window.ClipboardItem && navigator.clipboard?.write);
+  $("#shareDlg").hidden = false; $("#shareClose").focus();
+}
+const shareBlob = () => new Promise(res => $("#shareCanvas").toBlob(res, "image/png"));
+const shareFull = () => `${$("#shareText").value.trim()} ${S.SITE_URL}`;
+$("#shareClose").onclick = () => { $("#shareDlg").hidden = true; };
+$("#shareDlg").onclick = e => { if (e.target.id === "shareDlg") $("#shareDlg").hidden = true; };
+$("#shareGrid").onclick = async e => {
+  const kind = e.target.closest("[data-share]")?.dataset.share; if (!kind) return;
+  const text = $("#shareText").value.trim();
+  try {
+    if (kind in S.shareLinks(text)) {
+      window.open(S.shareLinks(text)[kind], "_blank", "noopener,noreferrer");
+    } else if (kind === "copy") {
+      await navigator.clipboard.writeText(shareFull()); toast("Đã chép nội dung ✓");
+    } else if (kind === "copyimg") {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": shareBlob() })]); toast("Đã chép ảnh ✓");
+    } else if (kind === "download") {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(await shareBlob()); a.download = "english-notebook-achievement.png";
+      a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Đã tải ảnh ✓");
+    } else if (kind === "native") {
+      const file = new File([await shareBlob()], "english-notebook.png", { type: "image/png" });
+      const data = { title: "English Notebook", text: shareFull() };
+      if (navigator.canShare?.({ files: [file] })) data.files = [file];
+      await navigator.share(data);
+    }
+  } catch (err) {
+    if (err?.name !== "AbortError") toast("Không thực hiện được. Hãy thử nút Tải ảnh.");
+  }
+};
 
 function confetti() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
