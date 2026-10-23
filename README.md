@@ -170,14 +170,20 @@ Two separate choices, both saved in your browser (per device):
 
   | Style | Look |
   |---|---|
-  | 🧱 **Neo-brutalism** (default) | Thick black borders, hard offset shadows, flat bright colours, dotted paper background |
-  | ⬜ **Solid** | Flat and clean: thin borders, soft shadows, calm pastel accents |
-  | 🪟 **Glass** | Frosted translucent panels over a colourful blurred background (needs a browser with `backdrop-filter`; others see slightly more opaque panels) |
-  | 🌈 **Gradient** | Soft gradient background, rounded cards and a vivid purple-to-pink gradient on the main accents |
+  | 🧱 **Neo-brutalism** (default) | Thick dark borders and hard offset shadows on a dotted ivory background, with a warm curated palette (mustard gold, sage, slate, blush) |
+  | ⬜ **Solid** | Flat and clean: hairline borders, soft warm shadows, an emerald brand colour (antique gold in dark mode) |
+  | 🪟 **Glass** | Frosted translucent panels over a soft sage / champagne / slate glow, and a smoked black-green background in dark mode (needs a browser with `backdrop-filter`; others see slightly more opaque panels) |
+  | ✨ **Gradient** | Tonal gradients in one colour family: deep emerald on an ivory-sage background, antique gold in dark mode |
 
 - **Colour mode** (light or dark): the round button next to it cycles **System → Light → Dark**. Every style has both a light and a dark version.
 
-The browser bar / status bar colour follows the style and mode. The share card and the link-preview image always use the Neo-brutalism look, because that is the app's brand.
+The browser bar / status bar colour follows the style and mode. The share card, the app icon and the link-preview image always use the Neo-brutalism look (mustard gold on ivory), because that is the app's brand.
+
+**Colour idea:** a warm ivory / charcoal base, one deep brand colour, and muted earthy supporting tones, so it looks calm and considered instead of a saturated rainbow. The small colours that tell the card types apart are always muted gold (word), slate (phrase) and blush (sentence).
+
+### Font
+
+The app uses **Be Vietnam Pro** (weights 500 to 800) for all text, because it was designed for Vietnamese and keeps tone marks clear. The font files are **hosted in the app** (`fonts/`, Vietnamese and Latin subsets, about 137 KB in total), so the app does not call Google Fonts, it works offline, and it loads fast. The font is licensed under the SIL Open Font License 1.1 (`fonts/OFL.txt`). If a character is missing, the browser falls back to Segoe UI or the system font.
 
 ## Set up Google login and cloud sync
 
@@ -299,13 +305,14 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 
 | File | Purpose |
 |---|---|
-| `index.html`, `style.css` | Markup and neo-brutalism styles (light and dark tokens at the top of the CSS) |
+| `index.html`, `style.css` | Markup and the four styles (design tokens at the top of the CSS, then the components) |
 | `app.js` | UI, library, review, rewards screen, theme, import / export, inbox import |
 | `progress.js` | Streak, freeze, XP, level and badge logic (pure functions, no DOM) |
 | `share.js` | Share text, social links and the share-card drawing (canvas) |
 | `og-image.png` | Link preview image (1200×630) used by the Open Graph tags |
 | `tests/` | Unit tests for `progress.js` and `share.js` |
 | `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
+| `fonts/` | Be Vietnam Pro font files (WOFF2) and its licence |
 | `sw.js`, `manifest.webmanifest` | Offline cache, offline fallback and installable-app manifest (name, colours, shortcuts) |
 | `icon.svg`, `icon-maskable.svg` | Source drawings of the app icon (the second one is full-bleed for round or squircle masks) |
 | `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | Icons made from the SVGs. Android needs the PNGs, and iPhone does not support SVG icons |
@@ -318,7 +325,9 @@ Things to remember when you change the code:
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
 - **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
 - **Styles are design tokens.** `style.css` has one block of CSS variables per style and mode (`html[data-style=…][data-scheme=…]`): colours, border widths (`--bw`), radii, shadows (`--sh*`), hover and press movement (`--lift`, `--press`), page background (`--bg-image`) and the browser-bar colour (`--tc`). Components use only these tokens, never fixed colours or shadows. To add a style: add its two token blocks (a block must set *every* token, or the Neo default shows through), add it to `STYLES` in `app.js`, to the `<script>` in `<head>` of `index.html`, and add a `.sw-<name>` preview swatch. Text on coloured surfaces uses `--on`; panels on a coloured card use `--answer-bg` and `--answer-fg`.
-- **Check contrast** after changing colours. Aim for WCAG AA: 4.5:1 for normal text and 3:1 for large text, in every style and in both modes, including pop-ups and the Rewards tab. (When this was written all 8 combinations passed, 2,252 measurements.)
+- **Colours:** keep the palette restrained. Use `--primary` for the one brand colour, `--gold` for rewards, and the muted tones for categories. Avoid pure saturated colours and purple-to-pink gradients, they look generic. Strong text uses `--fw` (800 in neo, 700 elsewhere) and small upper-case labels use `--ls`.
+- **Fonts:** only weights 500 to 800 are hosted. To add a weight, download the two WOFF2 files, add the two `@font-face` rules in `style.css`, and list the files in `sw.js` (the workflow already copies the whole `fonts/` folder).
+- **Check contrast** after changing colours. Aim for WCAG AA: 4.5:1 for normal text and 3:1 for large text, in every style and in both modes, including pop-ups and the Rewards tab. (When this was written all 8 combinations passed, 2,268 measurements.)
 - **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.
 - **Caching (important)**: GitHub Pages sends `Cache-Control: max-age=14400` (4 hours). A plain `fetch(request)` in the service worker would trust that cache and serve old files after a deploy, mixed with new ones. So `sw.js` installs with `cache: "reload"` and fetches same-origin files with `cache: "no-cache"` (the server answers `304` when nothing changed), and `app.js` registers it with `updateViaCache: "none"`. Keep this when you edit `sw.js`. To test it, serve a copy of the app with a `max-age=14400` header, change a file, and reload in a **new tab**.
 - **Installability checklist**: HTTPS, a manifest with `name`, `start_url`, `display: standalone` and 192 + 512 PNG icons (plus a `maskable` one), and a service worker with a `fetch` handler. If you change an icon, redraw the SVG, render it to PNG at the sizes above (draw the SVG on a canvas and use `canvas.toBlob`), and keep the file names in `sw.js` and the workflow in sync.

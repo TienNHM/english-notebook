@@ -1,7 +1,8 @@
-const CACHE = "english-notebook-v8";
+const CACHE = "english-notebook-v10";
 const FILES = [
   "./", "index.html", "style.css", "app.js", "progress.js", "share.js", "cloud.js", "firebase-config.js",
   "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png",
+  ...[500, 600, 700, 800].flatMap(w => ["vietnamese", "latin"].map(s => `fonts/be-vietnam-pro-${w}-${s}.woff2`)),
 ];
 const SDK = "https://www.gstatic.com/firebasejs/";
 

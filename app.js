@@ -214,10 +214,10 @@ const THEME_KEY = "english-notebook-theme";
 const THEMES = { system: ["🖥", "Theo hệ thống"], light: ["☀️", "Sáng"], dark: ["🌙", "Tối"] };
 const STYLE_KEY = "english-notebook-style";
 const STYLES = {
-  neo: ["🧱", "Neo-brutalism", "Viền dày, bóng cứng, màu phẳng"],
-  solid: ["⬜", "Solid", "Phẳng, sạch, viền mảnh, bóng mềm"],
-  glass: ["🪟", "Glass", "Kính mờ trên nền nhiều màu"],
-  gradient: ["🌈", "Gradient", "Màu chuyển sắc, bo tròn"],
+  neo: ["🧱", "Neo-brutalism", "Viền dày, bóng cứng, tông ấm"],
+  solid: ["⬜", "Solid", "Phẳng, tinh gọn, xanh ngọc và vàng"],
+  glass: ["🪟", "Glass", "Kính mờ, nền ngả sắc dịu"],
+  gradient: ["✨", "Gradient", "Chuyển sắc cùng tông, bo tròn"],
 };
 const darkQuery = matchMedia("(prefers-color-scheme: dark)");
 function getTheme() {
@@ -622,9 +622,10 @@ function shareStats() {
     icons: P.BADGES.filter(b => progress.badges[b.id]).map(b => b.icon),
   };
 }
-function openShare() {
+async function openShare() {
   const d = shareStats();
   $("#shareText").value = S.shareText(d);
+  await S.loadCardFont(); // so the card is drawn with Be Vietnam Pro, not a fallback font
   S.drawShareCard($("#shareCanvas"), d);
   $('#shareGrid [data-share="native"]').hidden = !navigator.share;
   $('#shareGrid [data-share="copyimg"]').hidden = !(window.ClipboardItem && navigator.clipboard?.write);

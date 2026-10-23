@@ -27,8 +27,15 @@ export function shareLinks(text, url = SITE_URL) {
 }
 
 // ---------- canvas drawing (neo-brutalism, same look as the app) ----------
-const C = { paper: "#fff8e7", ink: "#111111", yellow: "#ffd93d", pink: "#ff7eb6", blue: "#6bc5ff", green: "#79e08a", violet: "#b69cff" };
-const FONT = `system-ui, "Segoe UI", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+const C = { paper: "#f4efe4", ink: "#17140f", yellow: "#e9bf4a", pink: "#e8a999", blue: "#9dbcd6", green: "#9fcb9d", violet: "#bcaed8" };
+const FONT = `"Be Vietnam Pro", system-ui, "Segoe UI", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+
+// A canvas cannot wait for a web font by itself: load the weights the card uses first (resolves anyway after a short time).
+export async function loadCardFont() {
+  if (typeof document === "undefined" || !document.fonts) return;
+  const load = Promise.all([700, 800, 900].map(w => document.fonts.load(`${w} 40px "Be Vietnam Pro"`, "Aa 0123456789")));
+  await Promise.race([load.catch(() => {}), new Promise(r => setTimeout(r, 1500))]);
+}
 const font = (px, w = 800) => `${w} ${px}px ${FONT}`;
 
 function rr(ctx, x, y, w, h, r) {
@@ -58,7 +65,7 @@ function wrap(ctx, s, maxW) {
 }
 function background(ctx, w, h) {
   ctx.fillStyle = C.paper; ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = "rgba(17,17,17,.22)";
+  ctx.fillStyle = "rgba(23,20,15,.15)";
   for (let y = 16; y < h; y += 32) for (let x = 16; x < w; x += 32) { ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 6.3); ctx.fill(); }
 }
 function chip(ctx, label, x, y, h, size, fill) { // returns the width used
@@ -120,11 +127,11 @@ export function drawShareCard(canvas, d, opts = {}) {
 function drawPromo(ctx, W, H) {
   box(ctx, 50, 50, W - 100 - 12, H - 100 - 12, { fill: C.yellow, r: 40, bw: 8, sh: 14 });
   text(ctx, "📒", 150, 170, { size: 110, base: "middle" });
-  text(ctx, "English Notebook", 90, 305, { size: 100, w: 900 });
-  ctx.font = font(40, 700);
-  const lines = wrap(ctx, "Learn English from what you read and write at work.", W - 160);
-  lines.forEach((ln, i) => text(ctx, ln, 92, 380 + i * 54, { size: 40, w: 700 }));
+  text(ctx, "English Notebook", 90, 305, { size: 96, w: 800 });
+  ctx.font = font(35, 700);
+  const lines = wrap(ctx, "Learn English from what you read and write at work.", W - 200);
+  lines.forEach((ln, i) => text(ctx, ln, 92, 378 + i * 50, { size: 35, w: 700 }));
   let x = 92; const y = 470;
-  for (const [label, fill] of [["🔥 Daily streak", C.pink], ["🧠 Spaced review", C.green], ["💬 Context cards", C.blue]]) x += chip(ctx, label, x, y, 70, 32, fill) + 26;
+  for (const [label, fill] of [["🔥 Daily streak", C.pink], ["🧠 Spaced review", C.green], ["💬 Context cards", C.blue]]) x += chip(ctx, label, x, y, 66, 27, fill) + 22;
   text(ctx, SITE_HOST, W - 90, 105, { size: 26, w: 700, align: "right", base: "middle" });
 }
