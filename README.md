@@ -290,6 +290,8 @@ Without the two environment variables the server uses **inbox mode**: it writes 
 
 ### Install the English Coach skill (to use the app with an AI agent)
 
+**Fastest way:** copy the setup prompt from the [MCP README](https://github.com/TienNHM/english-notebook-mcp#quick-start-let-your-ai-agent-set-everything-up) into your AI agent. It installs the MCP server and the skill for you. Or do it by hand:
+
 The MCP server only gives the agent the tools. The **English Coach skill** tells the agent to correct your English, answer in simple English + Vietnamese, and save the sentence and expressions to your notebook after each Vietnamese request. Install it for your agent:
 
 - **Claude Code**: copy `skills/english-coach` from the MCP repo to `~/.claude/skills/english-coach`.
