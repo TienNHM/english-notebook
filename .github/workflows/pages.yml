@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir _site
           cp -r fonts _site/
-          cp index.html app.js progress.js share.js vault.js vault-ui.js cloud.js firebase-config.js sw.js style.css manifest.webmanifest icon.svg icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png og-image.png CNAME _site/
+          cp index.html app.js progress.js share.js vault.js vault-ui.js agent.js agent-ui.js cloud.js firebase-config.js sw.js style.css manifest.webmanifest icon.svg icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png og-image.png CNAME _site/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

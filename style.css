@@ -332,7 +332,7 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .mine-row .actions{display:flex;gap:6px}
 .prev{list-style:none;margin:0 0 12px;padding:8px 12px;border:var(--bw2) dashed var(--ink);border-radius:var(--r);display:grid;gap:4px}
 #vaultBody .primary,#importBody .primary{width:100%;margin-top:8px}
-#importClose,#vaultClose{display:block;width:100%;margin-top:12px}
+#importClose,#vaultClose,#agentClose{display:block;width:100%;margin-top:12px}
 #vaultBody .btnrow,#importBody .btnrow{margin-top:8px}
 
 /* ---------- celebration ---------- */

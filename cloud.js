@@ -26,6 +26,12 @@ export async function onUser(cb) {
   s.auth.onAuthStateChanged(s.au, cb);
 }
 
+// Firebase ID token of the signed-in user (used to prove the login to the agent API Worker). null when signed out.
+export async function idToken() {
+  const s = await load();
+  return s.au.currentUser ? s.au.currentUser.getIdToken() : null;
+}
+
 export async function signIn(name) {
   const s = await load();
   const provider = name === "google" ? new s.auth.GoogleAuthProvider() : new s.auth.FacebookAuthProvider();

@@ -113,6 +113,7 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <div class="row tools">
       <button id="vaultShareBtn" type="button" hidden>🔗 Chia sẻ kho</button>
       <button id="vaultImportBtn" type="button" hidden>📥 Nhập từ link</button>
+      <button id="agentBtn" type="button" hidden>🤖 Kết nối AI agent</button>
       <button id="exportBtn">⬇ Xuất JSON</button>
       <label class="btn">⬆ Nhập JSON<input id="importFile" type="file" accept="application/json" hidden></label>
     </div>
@@ -152,6 +153,14 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <h2 id="importTitle">📥 Nhập kho được chia sẻ</h2>
     <div id="importBody"></div>
     <button id="importClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<div id="agentDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="agentTitle">
+    <h2 id="agentTitle">🤖 Kết nối AI agent</h2>
+    <div id="agentBody"></div>
+    <button id="agentClose" type="button">Đóng</button>
   </div>
 </div>
 

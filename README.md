@@ -275,6 +275,8 @@ The workflow `.github/workflows/pages.yml` publishes only the app files on every
 
 The MCP server [english-notebook-mcp](https://github.com/TienNHM/english-notebook-mcp) lets Claude Code save words and sentences while you work. It has three tools: `add_vocabulary`, `add_sentence` (with linked expressions) and `list_inbox` (to avoid duplicates).
 
+**Version 2 (planned, needs the Worker deployed):** in the app press **Library → 🤖 Kết nối AI agent → Tạo token**, then install the plugin and paste only that token. The Worker is in [`worker/`](worker/README.md); until it is deployed and `agentApiUrl` is set in `firebase-config.js`, use the key mode below.
+
 Short version, using **Firestore mode** so the items show up on every device and on the hosted site:
 
 1. Create a service account key (Firebase console → Project settings → Service accounts → Generate new private key). Save the JSON **outside any git repo and outside synced folders**. It has full admin access to the project: never commit it, never paste it in a chat.

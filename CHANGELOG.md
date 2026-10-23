@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0 (in progress)
+
+- `worker/`: Cloudflare Worker agent API (personal tokens, save words and sentences, daily limit).
+- New screen **Library → 🤖 Kết nối AI agent**: create, list and revoke personal tokens. It stays disabled until `agentApiUrl` in `firebase-config.js` points at the deployed Worker.
+
 ## 1.0.0
 
 First release of English Notebook (PWA).
