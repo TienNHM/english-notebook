@@ -1,11 +1,41 @@
 {
+  "id": "english-notebook",
   "name": "English Notebook",
   "short_name": "EnglishNB",
-  "start_url": "./index.html",
+  "description": "Learn English from what you read and write at work. Save words and sentences, review them, and keep a daily streak.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#4f46e5",
-  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "background_color": "#fff8e7",
+  "theme_color": "#ffd93d",
+  "categories": ["education", "productivity"],
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ôn tập hôm nay",
+      "short_name": "Ôn tập",
+      "url": "./?tab=review&source=shortcut",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Thêm từ mới",
+      "short_name": "Thêm",
+      "url": "./?tab=add&source=shortcut",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Thành tích và streak",
+      "short_name": "Thưởng",
+      "url": "./?tab=rewards&source=shortcut",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

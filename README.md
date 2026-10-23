@@ -35,7 +35,8 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
 - **Lively motion**: bouncy page, card and reward animations (count-up numbers, flickering 🔥, floating "+XP", shaking card on Quên, confetti). It follows your system "reduce motion" setting, and you can force it on or off in the app.
 - **Neo-brutalism UI** with a light, dark and system theme switch. Bottom tab bar on phones.
-- **Offline first**: works without internet and can be installed from the browser.
+- **Installable PWA**: install it on your phone or PC like a normal app (own icon, full screen, home-screen shortcuts), and it opens without internet.
+- **Offline first**: works without internet and syncs when you are back online.
 - **Google login + Firestore sync** (optional). Without it, data stays in your browser.
 - **Claude Code integration** (optional): an MCP server saves words and sentences for you.
 - Export / import JSON.
@@ -81,6 +82,25 @@ Pick how far you want to go:
 | Same data on all devices | [Google login and cloud sync](#set-up-google-login-and-cloud-sync) |
 | Use it from a phone, anywhere | [GitHub Pages](#publish-with-github-pages-and-a-custom-domain) (needs the cloud sync step too) |
 | Let Claude save words for you | [Claude Code (MCP)](#save-from-claude-code-mcp) |
+
+## Install the app on your phone
+
+Open the live site (or your own deployed copy). It must be served over **HTTPS** (GitHub Pages is). Then:
+
+| Device | Steps |
+|---|---|
+| **Android (Chrome, Edge, Samsung Internet)** | Press **📲 Cài app** in the header and confirm. Or use the browser menu **⋮ → Install app** (or **Add to Home screen**). |
+| **iPhone / iPad (Safari)** | Safari has no install prompt. Press **📲 Cài app** to see the steps, or: tap **Share** `⬆︎` → **Add to Home Screen** → **Add**. It must be Safari, not the browser inside another app. |
+| **Windows / macOS / Linux (Chrome, Edge)** | Press **📲 Cài app**, or click the install icon at the right of the address bar. |
+
+What you get after installing:
+
+- An **icon** on the home screen, and the app opens **full screen** without the browser bars.
+- **Long-press the icon** (Android and desktop) for shortcuts: **Ôn tập hôm nay**, **Thêm từ mới**, **Thành tích và streak**.
+- It **opens offline**. Everything you add or review offline is saved on the device (and synced when you sign in and go online).
+- **Updates are automatic.** The app checks for new files each time it opens, so you always get the latest version after a deploy (close and reopen it once if it still looks old).
+
+The **📲 Cài app** button only appears when installing is possible, and it disappears once the app is installed. To remove the app, uninstall it like any other app (long-press the icon).
 
 ## How to use the app
 
@@ -273,7 +293,9 @@ Streak, XP and badges are stored with your cards (in the browser, or in Firestor
 | `og-image.png` | Link preview image (1200×630) used by the Open Graph tags |
 | `tests/` | Unit tests for `progress.js` and `share.js` |
 | `cloud.js`, `firebase-config.js` | Firebase Auth and Firestore (loaded only when `firebase-config.js` is filled in) |
-| `sw.js`, `manifest.webmanifest`, `icon.svg` | Offline cache and installable app |
+| `sw.js`, `manifest.webmanifest` | Offline cache, offline fallback and installable-app manifest (name, colours, shortcuts) |
+| `icon.svg`, `icon-maskable.svg` | Source drawings of the app icon (the second one is full-bleed for round or squircle masks) |
+| `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` | Icons made from the SVGs. Android needs the PNGs, and iPhone does not support SVG icons |
 | `firestore.rules`, `firebase.json` | Firestore security rules and CLI config |
 | `.github/workflows/pages.yml` | Publishes the app files to GitHub Pages |
 | `docs/screenshots/` | Images used in this README |
@@ -283,6 +305,7 @@ Things to remember when you change the code:
 - **Adding a new app file?** Add it to the `FILES` list in `sw.js` (offline cache) **and** to the `cp` line in `.github/workflows/pages.yml`, otherwise it will not be published.
 - **Tests**: the streak, freeze, XP, badge and share logic has unit tests. Run `node tests/progress.test.mjs` and `node tests/share.test.mjs` (Node 18+, no install).
 - **Motion rules**: animate only `transform` and `opacity`, give animations `backwards` fill (so hover styles keep working), and keep every new animation under the motion switch at the end of `style.css` (it also covers `::before` and `::after`). In JavaScript, call `reduced()` before starting an animation. To test motion when your system has "reduce motion" on, set the app switch to **Luôn bật**.
+- **Installability checklist**: HTTPS, a manifest with `name`, `start_url`, `display: standalone` and 192 + 512 PNG icons (plus a `maskable` one), and a service worker with a `fetch` handler. If you change an icon, redraw the SVG, render it to PNG at the sizes above (draw the SVG on a canvas and use `canvas.toBlob`), and keep the file names in `sw.js` and the workflow in sync.
 - To redraw `og-image.png`, call `drawShareCard(canvas, {}, { wide: true, promo: true })` from `share.js` and save the canvas as a PNG.
 - After changing the cached files, you can bump `CACHE` in `sw.js` to force clients to drop the old cache.
 - Item shape (same in `localStorage` and Firestore): `id, type, text, meaning, example, note, original, sourceId, source, tags, box, due, created, reviews`.

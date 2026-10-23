@@ -178,6 +178,8 @@ function onUser(u) {
     items = remote.sort((a, b) => b.created - a.created);
     renderAll();
     if (progressReady) awardBadges(false);
+    // opened straight on the Review tab (shortcut) before the cards arrived: start it now
+    if ($("#tab-review").classList.contains("active") && !current && reviewTotal === 0) startReview();
     importInbox();
   }, syncErr).then(f => { unsub = f; }).catch(syncErr);
 }
@@ -556,7 +558,7 @@ $("#celClose").onclick = () => { $("#celebrate").hidden = true; };
 $("#celShare").onclick = () => { $("#celebrate").hidden = true; openShare(); };
 $("#celebrate").onclick = e => { if (e.target.id === "celebrate") $("#celebrate").hidden = true; };
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { $("#celebrate").hidden = true; $("#shareDlg").hidden = true; }
+  if (e.key === "Escape") { $("#celebrate").hidden = true; $("#shareDlg").hidden = true; $("#installDlg").hidden = true; }
 });
 
 // ---------- share achievements ----------
@@ -659,10 +661,29 @@ $("#importFile").onchange = async e => {
   e.target.value = "";
 };
 
-// ---------- PWA ----------
+// ---------- PWA: service worker + install button ----------
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
+let installEvent = null; // Chrome / Edge / Android: the browser hands us a prompt we can show on a button press
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function renderInstall() {
+  // Show the button only when installing is possible and the app is not already running as an installed app.
+  $("#installBtn").hidden = isStandalone() || !(installEvent || isIos());
+}
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvent = e; renderInstall(); });
+window.addEventListener("appinstalled", () => { installEvent = null; renderInstall(); toast("Đã cài app ✓"); });
+$("#installBtn").onclick = async () => {
+  if (installEvent) {
+    const ev = installEvent; installEvent = null; renderInstall(); // a prompt can be used only once
+    ev.prompt();
+    await ev.userChoice.catch(() => {});
+  } else $("#installDlg").hidden = false; // iPhone / iPad: show the manual steps
+};
+$("#installClose").onclick = () => { $("#installDlg").hidden = true; };
+$("#installDlg").onclick = e => { if (e.target.id === "installDlg") $("#installDlg").hidden = true; };
+renderInstall();
 // One-time hint: the system turns motion off, so the animations stay hidden until the user switches them on.
 try {
   if (getMotion() === "system" && systemReducesMotion() && !localStorage.getItem("english-notebook-motion-hint")) {
@@ -677,3 +698,6 @@ settle();
 renderPills();
 renderRewards();
 importInbox();
+// Home-screen shortcuts open a tab directly: /?tab=review, /?tab=add, /?tab=rewards, /?tab=library
+const startTab = new URLSearchParams(location.search).get("tab");
+if (["add", "library", "review", "rewards"].includes(startTab)) showTab(startTab);

@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffd93d">
+<meta name="theme-color" content="#ffd93d" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17171c" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="English NB">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>English Notebook</title>
 <meta name="description" content="Learn English from what you read and write at work. Save words, phrases and sentences, review them with spaced repetition, and keep a daily streak.">
 <meta property="og:type" content="website">
@@ -20,14 +25,14 @@
 <meta name="twitter:image" content="https://english-notebook.tiennhm.io.vn/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>try{var d=document.documentElement,t=localStorage.getItem("english-notebook-theme"),m=localStorage.getItem("english-notebook-motion");if(t==="light"||t==="dark")d.dataset.theme=t;if(m==="on"||m==="off")d.dataset.motion=m}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1 class="logo">📒 English Notebook</h1>
-  <div class="pills"><span id="rewardPills"></span><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
+  <div class="pills"><button id="installBtn" class="small" type="button" hidden>📲 Cài app</button><span id="rewardPills"></span><span id="stats" class="pill"></span><span id="auth"></span><button id="themeBtn" class="small" type="button"></button></div>
 </header>
 
 <nav>
@@ -117,6 +122,20 @@
       <button id="celShare" type="button">📣 Chia sẻ</button>
       <button class="primary" id="celClose" type="button">Tiếp tục</button>
     </div>
+  </div>
+</div>
+
+<div id="installDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+    <h2 id="installTitle">📲 Cài app lên iPhone / iPad</h2>
+    <p class="muted-sm">Safari không có hộp thoại cài tự động. Làm 3 bước:</p>
+    <ol class="steps">
+      <li>Mở trang này bằng <b>Safari</b> (không dùng trình duyệt trong app khác).</li>
+      <li>Bấm nút <b>Chia sẻ</b> <span class="kbd">⬆︎</span> ở thanh dưới (hoặc trên cùng).</li>
+      <li>Kéo xuống, chọn <b>Thêm vào Màn hình chính</b> rồi bấm <b>Thêm</b>.</li>
+    </ol>
+    <p class="muted-sm">Sau đó mở app từ biểu tượng trên màn hình chính: chạy toàn màn hình và dùng được khi không có mạng.</p>
+    <button class="primary" id="installClose" type="button">Đã hiểu</button>
   </div>
 </div>
 
