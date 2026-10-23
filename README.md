@@ -295,8 +295,8 @@ Without the two environment variables the server uses **inbox mode**: it writes 
 The MCP server only gives the agent the tools. The **English Coach skill** tells the agent to correct your English, answer in simple English + Vietnamese, and save the sentence and expressions to your notebook after each Vietnamese request. Install it for your agent:
 
 - **Claude Code**: copy `skills/english-coach` from the MCP repo to `~/.claude/skills/english-coach`.
-- **Cursor**: copy `agents/cursor/english-coach.mdc` to `.cursor/rules/` in your project.
-- **Codex, Copilot, Windsurf and others**: paste `agents/AGENTS.snippet.md` into your `AGENTS.md`.
+- **Cursor**: copy `rules/cursor/english-coach.mdc` to `.cursor/rules/` in your project.
+- **Codex, Copilot, Windsurf and others**: paste `rules/AGENTS.snippet.md` into your `AGENTS.md`.
 
 Steps for every agent, and the MCP JSON config for non-Claude agents, are in the [MCP README](https://github.com/TienNHM/english-notebook-mcp#install-the-english-coach-skill-needed-to-use-the-app-with-an-ai-agent). Say "skip coach" to turn it off for one message.
 
