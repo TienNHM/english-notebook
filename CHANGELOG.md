@@ -3,6 +3,7 @@
 ## 2.0.0
 
 - `worker/`: Cloudflare Worker agent API (personal tokens, save words and sentences, daily limit).
+- Docs: user guide, architecture (10 diagrams), operations guide in `docs/`.
 - New screen **Library → 🤖 Kết nối AI agent**: create, list and revoke personal tokens. Its address is `agentApiUrl` in `firebase-config.js`.
 
 ## 1.0.0
