@@ -10,6 +10,6 @@ DAILY_LIMIT = "200"
 # Create with: npx wrangler kv namespace create TOKENS   then paste the id below.
 [[kv_namespaces]]
 binding = "TOKENS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "8089b7818aa041cf960008aae2a332d1"
 
 # Secret (never in this file):  npx wrangler secret put SERVICE_ACCOUNT   (paste the whole service account JSON)

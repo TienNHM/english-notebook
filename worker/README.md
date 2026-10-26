@@ -41,3 +41,8 @@ The Firestore REST code was also checked once against the real project with a th
 4. `npx wrangler deploy`. Note the Worker URL (optionally add a custom domain such as `agent-api.tiennhm.io.vn`).
 
 The service account needs the Firestore role it already has. Rotate the key if you think it leaked.
+
+## Notes from the live test
+
+- Deployed and checked end to end with a throwaway user: create token, save sentence, duplicate skipped, list, revoke, CORS header, Firebase token rejected as agent token.
+- **Revocation is not instant.** Workers KV is eventually consistent, so a revoked token can still work for a short time (measured: a few seconds; Cloudflare documents up to about a minute). Strong consistency would need Durable Objects or D1.

@@ -1,4 +1,4 @@
-const CACHE = "english-notebook-v13";
+const CACHE = "english-notebook-v14";
 const FILES = [
   "./", "index.html", "style.css", "app.js", "progress.js", "share.js", "vault.js", "vault-ui.js", "agent.js", "agent-ui.js", "cloud.js", "firebase-config.js",
   "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png",

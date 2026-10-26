@@ -7,5 +7,5 @@ export const firebaseConfig = {
   appId: "1:628826559800:web:0d13c43165a5dc58ea5dcd",
 };
 
-// Address of the agent API Worker (see worker/). Empty = not deployed yet: the "Connect an AI agent" screen says so.
-export const agentApiUrl = "";
+// Address of the agent API Worker (see worker/). Empty = not deployed: the "Connect an AI agent" screen says so.
+export const agentApiUrl = "https://english-notebook-agent-api.tiennhm-it.workers.dev";

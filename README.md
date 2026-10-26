@@ -12,6 +12,8 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
   <img src="docs/screenshots/library-dark.png" alt="Library (dark theme)" width="48%">
 </p>
 
+> 📚 **Documentation:** [User guide](docs/USER-GUIDE.md) (Vietnamese) · [Architecture and diagrams](docs/ARCHITECTURE.md) · [Operations guide](docs/OPERATIONS.md) · [Agent API](worker/README.md)
+
 ## Contents
 
 - [Features](#features)
@@ -275,7 +277,7 @@ The workflow `.github/workflows/pages.yml` publishes only the app files on every
 
 The MCP server [english-notebook-mcp](https://github.com/TienNHM/english-notebook-mcp) lets Claude Code save words and sentences while you work. It has three tools: `add_vocabulary`, `add_sentence` (with linked expressions) and `list_inbox` (to avoid duplicates).
 
-**Version 2 (planned, needs the Worker deployed):** in the app press **Library → 🤖 Kết nối AI agent → Tạo token**, then install the plugin and paste only that token. The Worker is in [`worker/`](worker/README.md); until it is deployed and `agentApiUrl` is set in `firebase-config.js`, use the key mode below.
+**Version 2:** in the app press **Library → 🤖 Kết nối AI agent → Tạo token**, then install the plugin and paste only that token. The Worker code is in [`worker/`](worker/README.md) (self-hosters can deploy their own and set `agentApiUrl`). The key mode below still works for self-hosters.
 
 Short version, using **Firestore mode** so the items show up on every device and on the hosted site:
 
