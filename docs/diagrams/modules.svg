@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="modules-title modules-desc" id="modules-root">
+        <title id="modules-title">PWA module map</title>
+        <desc id="modules-desc">Dependency graph of the PWA: index.html loads app.js, which imports the feature modules; vault, agent and app all depend on cloud.js, the only module that talks to the Firebase SDK. There are no cycles.</desc>
+        <defs>
+      <style>#modules-root { --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #modules-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #modules-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#modules-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="modules-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="modules-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="modules-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+
+        <!-- arrows (behind boxes) -->
+        <path d="M 608,168 V 232" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 944,168 V 252 Q 944,260 936,260 H 688" fill="none" stroke="#5f584b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#modules-arrow)"/>
+        <path d="M 560,288 V 296 Q 560,304 552,304 H 280 Q 272,304 272,312 V 352" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 592,288 V 316 Q 592,324 584,324 H 504 Q 496,324 496,332 V 352" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 624,288 V 316 Q 624,324 632,324 H 712 Q 720,324 720,332 V 352" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 656,288 V 296 Q 656,304 664,304 H 936 Q 944,304 944,312 V 352" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 528,260 H 112 Q 104,260 104,268 V 492 Q 104,500 112,500 H 688" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 728,408 V 472" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 944,408 V 432 Q 944,440 936,440 H 816 Q 808,440 808,448 V 472" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <path d="M 848,500 H 976" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#modules-arrow-link)"/>
+        <!-- arrow labels -->
+        <rect x="614" y="194" width="36" height="12" rx="2" fill="#f4efe4"/>
+        <text x="632" y="203" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">LOADS</text>
+        <rect x="952" y="204" width="44" height="12" rx="2" fill="#f4efe4"/>
+        <text x="974" y="213" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">CACHES</text>
+        <rect x="364" y="480" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="400" y="489" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">LOGIN · SYNC</text>
+        <rect x="882" y="480" width="60" height="12" rx="2" fill="#f4efe4"/>
+        <text x="912" y="489" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">LAZY LOAD</text>
+        <!-- nodes -->
+        <g>
+        <rect x="528" y="112" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="528" y="112" width="160" height="56" rx="6" fill="#5f584b" stroke="#675f50" stroke-width="1" fill-opacity="0.10"/>
+        <rect x="536" y="120" width="40" height="12" rx="2" fill="none" stroke="#675f50" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="556" y="129" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">ENTRY</text>
+        <rect x="648" y="120" width="32" height="12" rx="2" fill="none" stroke="#675f50" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="664" y="129" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">0 in</text>
+        <text x="608" y="148" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">index.html + CSS</text>
+        <text x="608" y="162" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">markup · design tokens</text>
+        </g>
+        <g>
+        <rect x="864" y="112" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="864" y="112" width="160" height="56" rx="6" fill="#5f584b" stroke="#675f50" stroke-width="1" fill-opacity="0.10"/>
+        <rect x="872" y="120" width="40" height="12" rx="2" fill="none" stroke="#675f50" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="892" y="129" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">ENTRY</text>
+        <rect x="984" y="120" width="32" height="12" rx="2" fill="none" stroke="#675f50" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="1000" y="129" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">0 in</text>
+        <text x="944" y="148" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">sw.js</text>
+        <text x="944" y="162" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">offline cache</text>
+        </g>
+        <g>
+        <rect x="528" y="232" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="528" y="232" width="160" height="56" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="536" y="240" width="24" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="548" y="249" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+        <rect x="648" y="240" width="32" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="664" y="249" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">2 in</text>
+        <text x="608" y="268" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">app.js</text>
+        <text x="608" y="282" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">main UI · state · review</text>
+        </g>
+        <g>
+        <rect x="192" y="352" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="192" y="352" width="160" height="56" rx="6" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="200" y="360" width="32" height="12" rx="2" fill="none" stroke="#5f584b" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="216" y="369" fill="#5f584b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">LEAF</text>
+        <rect x="312" y="360" width="32" height="12" rx="2" fill="none" stroke="#5f584b" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="328" y="369" fill="#5f584b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">1 in</text>
+        <text x="272" y="388" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">progress.js</text>
+        <text x="272" y="402" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">streak · XP · badges</text>
+        </g>
+        <g>
+        <rect x="416" y="352" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="416" y="352" width="160" height="56" rx="6" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="424" y="360" width="32" height="12" rx="2" fill="none" stroke="#5f584b" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="440" y="369" fill="#5f584b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">LEAF</text>
+        <rect x="536" y="360" width="32" height="12" rx="2" fill="none" stroke="#5f584b" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="552" y="369" fill="#5f584b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">1 in</text>
+        <text x="496" y="388" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">share.js</text>
+        <text x="496" y="402" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">text · canvas card</text>
+        </g>
+        <g>
+        <rect x="640" y="352" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="640" y="352" width="160" height="56" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="648" y="360" width="28" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="662" y="369" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">MOD</text>
+        <rect x="760" y="360" width="32" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="776" y="369" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">1 in</text>
+        <text x="720" y="388" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">vault</text>
+        <text x="720" y="402" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">vault-ui.js + vault.js</text>
+        </g>
+        <g>
+        <rect x="864" y="352" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="864" y="352" width="160" height="56" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="872" y="360" width="28" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="886" y="369" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">MOD</text>
+        <rect x="984" y="360" width="32" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="1000" y="369" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">1 in</text>
+        <text x="944" y="388" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">agent</text>
+        <text x="944" y="402" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">agent-ui.js + agent.js</text>
+        </g>
+        <g>
+        <rect x="688" y="472" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="688" y="472" width="160" height="56" rx="6" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <rect x="696" y="480" width="44" height="12" rx="2" fill="none" stroke="#14614a" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="718" y="489" fill="#14614a" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SHARED</text>
+        <rect x="808" y="480" width="32" height="12" rx="2" fill="none" stroke="#14614a" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="824" y="489" fill="#14614a" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">3 in</text>
+        <text x="768" y="508" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">cloud.js</text>
+        <text x="768" y="522" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Firebase wrapper</text>
+        </g>
+        <g>
+        <rect x="976" y="472" width="160" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="976" y="472" width="160" height="56" rx="6" fill="#17140f" stroke="#17140f" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <rect x="984" y="480" width="28" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.22"/>
+        <text x="998" y="489" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">EXT</text>
+        <rect x="1096" y="480" width="32" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.22"/>
+        <text x="1112" y="489" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">1 in</text>
+        <text x="1056" y="508" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Firebase SDK</text>
+        <text x="1056" y="522" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">gstatic · lazy load</text>
+        </g>
+        <!-- note -->
+        <text x="48" y="128" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">cloud.js is the only door to Firebase:</text>
+        <text x="48" y="148" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">three modules import it, so a</text>
+        <text x="48" y="168" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">change there touches all of them.</text>
+        <!-- legend -->
+        <line x1="40" y1="632" x2="1240" y2="632" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.10"/>
+        <text x="40" y="648" fill="#5f584b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="40" y="664" width="16" height="12" rx="2" fill="#5f584b" stroke="#675f50" stroke-width="1" fill-opacity="0.10"/>
+        <text x="64" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Entry (nothing imports it)</text>
+        <rect x="264" y="664" width="16" height="12" rx="2" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="288" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Module</text>
+        <rect x="352" y="664" width="16" height="12" rx="2" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <text x="376" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Leaf (imports nothing)</text>
+        <rect x="544" y="664" width="16" height="12" rx="2" fill="#17140f" stroke="#17140f" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="568" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">External</text>
+        <rect x="640" y="664" width="16" height="12" rx="2" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <text x="664" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Most shared</text>
+        <line x1="760" y1="670" x2="788" y2="670" stroke="#5f584b" stroke-width="1.2" marker-end="url(#modules-arrow)"/>
+        <text x="800" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Imports</text>
+        <line x1="872" y1="670" x2="900" y2="670" stroke="#5f584b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#modules-arrow)"/>
+        <text x="912" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Caches</text>
+        <line x1="976" y1="670" x2="1004" y2="670" stroke="#2a5878" stroke-width="1.2" marker-end="url(#modules-arrow-link)"/>
+        <text x="1016" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Loads from CDN</text>
+      </svg>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="trust-boundaries-title trust-boundaries-desc" id="trust-boundaries-root">
+        <title id="trust-boundaries-title">Trust boundaries and credentials</title>
+        <desc id="trust-boundaries-desc">Architecture diagram of three trust zones: untrusted user devices, the Cloudflare Worker that holds the only service account, and Google storage, with the credential that crosses each boundary.</desc>
+        <defs>
+      <style>#trust-boundaries-root { --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #trust-boundaries-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #trust-boundaries-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#trust-boundaries-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="trust-boundaries-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="trust-boundaries-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="trust-boundaries-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+
+        <!-- trust zones -->
+        <rect x="48" y="148" width="360" height="452" rx="8" fill="#17140f" stroke="#17140f" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+        <rect x="64" y="152" width="148" height="12" rx="2" fill="#f4efe4"/>
+        <text x="138" y="161" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">UNTRUSTED · USER DEVICES</text>
+        <rect x="496" y="260" width="288" height="148" rx="8" fill="#17140f" stroke="#17140f" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+        <rect x="512" y="264" width="152" height="12" rx="2" fill="#f4efe4"/>
+        <text x="588" y="273" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">CLOUDFLARE · TRUSTED CODE</text>
+        <rect x="872" y="148" width="360" height="452" rx="8" fill="#17140f" stroke="#17140f" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+        <rect x="888" y="152" width="148" height="12" rx="2" fill="#f4efe4"/>
+        <text x="962" y="161" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">GOOGLE · TRUSTED STORAGE</text>
+        <!-- arrows (behind boxes) -->
+        <path d="M 312,220 H 952" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow-link)"/>
+        <path d="M 312,244 H 412 Q 420,244 420,252 V 320 Q 420,328 428,328 H 544" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow-link)"/>
+        <path d="M 312,484 H 428 Q 436,484 436,476 V 360 Q 436,352 444,352 H 544" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow)"/>
+        <path d="M 736,328 H 812 Q 820,328 820,320 V 252 Q 820,244 828,244 H 952" fill="none" stroke="#5f584b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#trust-boundaries-arrow)"/>
+        <path d="M 736,352 H 836 Q 844,352 844,360 V 476 Q 844,484 852,484 H 952" fill="none" stroke="#14614a" stroke-width="1.4" marker-end="url(#trust-boundaries-arrow-accent)"/>
+        <path d="M 216,196 V 132 Q 216,124 224,124 H 1172 Q 1180,124 1180,132 V 476 Q 1180,484 1172,484 H 1144" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow-link)"/>
+        <!-- arrow labels -->
+        <rect x="596" y="200" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="632" y="209" fill="#2a5878" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">GOOGLE LOGIN</text>
+        <rect x="426" y="282" width="48" height="12" rx="2" fill="#f4efe4"/>
+        <text x="450" y="291" fill="#2a5878" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">ID TOKEN</text>
+        <rect x="444" y="416" width="88" height="12" rx="2" fill="#f4efe4"/>
+        <text x="488" y="425" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">PERSONAL TOKEN</text>
+        <rect x="830" y="282" width="32" height="12" rx="2" fill="#f4efe4"/>
+        <text x="846" y="291" fill="#675f50" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">KEYS</text>
+        <rect x="764" y="412" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="800" y="421" fill="#14614a" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">SERVICE ACCT</text>
+        <rect x="674" y="104" width="52" height="12" rx="2" fill="#f4efe4"/>
+        <text x="700" y="113" fill="#2a5878" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">ID TOKEN</text>
+        <!-- nodes -->
+        <g>
+        <rect x="120" y="196" width="192" height="72" rx="6" fill="#f4efe4"/>
+        <rect x="120" y="196" width="192" height="72" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="128" y="204" width="28" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="142" y="213" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
+        <text x="216" y="240" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">PWA in the browser</text>
+        <text x="216" y="256" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">public code and config</text>
+        </g>
+        <g>
+        <rect x="120" y="448" width="192" height="72" rx="6" fill="#f4efe4"/>
+        <rect x="120" y="448" width="192" height="72" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="128" y="456" width="40" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.40"/>
+        <text x="148" y="465" fill="#17140f" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">AGENT</text>
+        <text x="216" y="492" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">AI agent + MCP server</text>
+        <text x="216" y="508" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">holds a personal token</text>
+        </g>
+        <g>
+        <rect x="544" y="304" width="192" height="72" rx="6" fill="#f4efe4"/>
+        <rect x="544" y="304" width="192" height="72" rx="6" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <rect x="552" y="312" width="28" height="12" rx="2" fill="none" stroke="#14614a" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="566" y="321" fill="#14614a" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+        <text x="640" y="348" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Agent API</text>
+        <text x="640" y="364" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Cloudflare Worker</text>
+        </g>
+        <g>
+        <rect x="952" y="196" width="192" height="72" rx="6" fill="#f4efe4"/>
+        <rect x="952" y="196" width="192" height="72" rx="6" fill="#17140f" stroke="#17140f" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <rect x="960" y="204" width="32" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.22"/>
+        <text x="976" y="213" fill="#675f50" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">AUTH</text>
+        <text x="1048" y="240" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Firebase Auth</text>
+        <text x="1048" y="256" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">signing keys (JWK)</text>
+        </g>
+        <g>
+        <rect x="952" y="448" width="192" height="72" rx="6" fill="#f4efe4"/>
+        <rect x="952" y="448" width="192" height="72" rx="6" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="960" y="456" width="40" height="12" rx="2" fill="none" stroke="#5f584b" stroke-width="0.8" stroke-opacity="0.50"/>
+        <text x="980" y="465" fill="#5f584b" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="1048" y="492" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Firestore</text>
+        <text x="1048" y="508" fill="#5f584b" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">rules by uid</text>
+        </g>
+        <!-- notes -->
+        <text x="72" y="556" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">A leaked token opens one notebook only</text>
+        <text x="72" y="576" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">and can be revoked in the app.</text>
+        <text x="896" y="556" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">Rules: a user reads and writes only</text>
+        <text x="896" y="576" fill="#675f50" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif">users/&lt;own uid&gt;/… in Firestore.</text>
+        <!-- legend -->
+        <line x1="40" y1="632" x2="1240" y2="632" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.10"/>
+        <text x="40" y="648" fill="#5f584b" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="40" y="664" width="16" height="12" rx="2" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <text x="64" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Trusted code</text>
+        <rect x="168" y="664" width="16" height="12" rx="2" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="192" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Untrusted client</text>
+        <rect x="312" y="664" width="16" height="12" rx="2" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <text x="336" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Store</text>
+        <rect x="404" y="664" width="16" height="12" rx="2" fill="#17140f" stroke="#17140f" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="428" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Identity service</text>
+        <line x1="552" y1="670" x2="580" y2="670" stroke="#2a5878" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow-link)"/>
+        <text x="592" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Firebase ID token</text>
+        <line x1="724" y1="670" x2="752" y2="670" stroke="#5f584b" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow)"/>
+        <text x="764" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Personal token</text>
+        <line x1="876" y1="670" x2="904" y2="670" stroke="#14614a" stroke-width="1.2" marker-end="url(#trust-boundaries-arrow-accent)"/>
+        <text x="916" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Service account (secret)</text>
+        <line x1="1080" y1="670" x2="1108" y2="670" stroke="#5f584b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#trust-boundaries-arrow)"/>
+        <text x="1120" y="673" fill="#5f584b" font-size="9" font-family="'Geist', system-ui, sans-serif">Public keys</text>
+      </svg>

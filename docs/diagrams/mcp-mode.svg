@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mcp-mode-title mcp-mode-desc" id="mcp-mode-root">
+        <title id="mcp-mode-title">How the MCP server picks its mode</title>
+        <desc id="mcp-mode-desc">Flowchart of the MCP server start-up: a personal token selects token mode through the Worker API unless key variables are also set; otherwise both key variables select key mode, one alone is an error, and none selects inbox mode.</desc>
+        <defs>
+      <style>#mcp-mode-root { --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #mcp-mode-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #mcp-mode-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#mcp-mode-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="mcp-mode-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="mcp-mode-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="mcp-mode-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+
+        <!-- Arrows (drawn first) -->
+        <line x1="470" y1="84" x2="470" y2="144" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="600" y1="204" x2="660" y2="204" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="470" y1="264" x2="470" y2="324" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="920" y1="204" x2="1020" y2="204" fill="none" stroke="#14614a" stroke-width="1.2" marker-end="url(#mcp-mode-arrow-accent)"/>
+        <line x1="790" y1="264" x2="790" y2="364" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="600" y1="384" x2="690" y2="384" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="340" y1="384" x2="240" y2="384" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <line x1="470" y1="444" x2="470" y2="504" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#mcp-mode-arrow)"/>
+        <!-- Branch labels (6px clear of each arrow) -->
+        <rect x="616" y="186" width="28" height="12" rx="2" fill="#f4efe4"/><text x="630" y="195" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">YES</text>
+        <rect x="476" y="288" width="24" height="12" rx="2" fill="#f4efe4"/><text x="488" y="297" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NO</text>
+        <rect x="958" y="186" width="24" height="12" rx="2" fill="#f4efe4"/><text x="970" y="195" fill="#14614a" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NO</text>
+        <rect x="796" y="308" width="28" height="12" rx="2" fill="#f4efe4"/><text x="810" y="317" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">YES</text>
+        <rect x="617" y="366" width="56" height="12" rx="2" fill="#f4efe4"/><text x="645" y="375" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ONLY ONE</text>
+        <rect x="272" y="366" width="36" height="12" rx="2" fill="#f4efe4"/><text x="290" y="375" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BOTH</text>
+        <rect x="476" y="468" width="56" height="12" rx="2" fill="#f4efe4"/><text x="504" y="477" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">NEITHER</text>
+        <!-- Terminal: MCP server starts -->
+        <rect x="370" y="44" width="200" height="40" rx="20" fill="#f4efe4"/>
+        <rect x="370" y="44" width="200" height="40" rx="20" fill="#17140f" stroke="#675f50" stroke-width="1" fill-opacity="0.06"/>
+        <text x="470" y="68" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">MCP server starts</text>
+        <!-- Decision: Token set? -->
+        <polygon points="470,144 600,204 470,264 340,204" fill="#f4efe4"/>
+        <polygon points="470,144 600,204 470,264 340,204" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="470" y="202" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Token set?</text>
+        <text x="470" y="218" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ENGLISH_NOTEBOOK_TOKEN</text>
+        <!-- Decision: Key variables too? -->
+        <polygon points="790,144 920,204 790,264 660,204" fill="#f4efe4"/>
+        <polygon points="790,144 920,204 790,264 660,204" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="790" y="202" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Key variables too?</text>
+        <text x="790" y="218" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">SERVICE_ACCOUNT · UID</text>
+        <!-- Decision: Key variables set? -->
+        <polygon points="470,324 600,384 470,444 340,384" fill="#f4efe4"/>
+        <polygon points="470,324 600,384 470,444 340,384" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="470" y="382" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Key variables set?</text>
+        <text x="470" y="398" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">SERVICE_ACCOUNT + UID</text>
+        <!-- Terminal: Exit with error -->
+        <rect x="690" y="364" width="200" height="40" rx="20" fill="#f4efe4"/>
+        <rect x="690" y="364" width="200" height="40" rx="20" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <text x="790" y="388" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Exit with error</text>
+        <!-- Outcome: Token mode -->
+        <rect x="1020" y="162" width="200" height="84" rx="6" fill="#f4efe4"/>
+        <rect x="1020" y="162" width="200" height="84" rx="6" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <rect x="1028" y="170" width="36" height="12" rx="2" fill="none" stroke="#14614a" stroke-width="0.8" stroke-opacity="0.5"/>
+        <text x="1046" y="179" fill="#14614a" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MODE</text>
+        <text x="1120" y="206" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Token mode</text>
+        <text x="1120" y="224" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">→ Worker API (HTTPS)</text>
+        <!-- Outcome: Key mode -->
+        <rect x="40" y="342" width="200" height="84" rx="6" fill="#f4efe4"/>
+        <rect x="40" y="342" width="200" height="84" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="48" y="350" width="36" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.4"/>
+        <text x="66" y="359" fill="#17140f" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MODE</text>
+        <text x="140" y="386" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Key mode</text>
+        <text x="140" y="404" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Firestore Admin SDK</text>
+        <!-- Outcome: Inbox mode -->
+        <rect x="370" y="504" width="200" height="84" rx="6" fill="#f4efe4"/>
+        <rect x="370" y="504" width="200" height="84" rx="6" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <rect x="378" y="512" width="36" height="12" rx="2" fill="none" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.3"/>
+        <text x="396" y="521" fill="#5f584b" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MODE</text>
+        <text x="470" y="548" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Inbox mode</text>
+        <text x="470" y="566" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">inbox.json · localhost only</text>
+        <line x1="40" y1="620" x2="1240" y2="620" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.1"/>
+        <text x="40" y="636" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="40" y="643" width="22" height="12" rx="6" fill="#17140f" stroke="#675f50" stroke-width="1" fill-opacity="0.06"/>
+        <text x="70" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Start</text>
+        <rect x="132" y="643" width="22" height="12" rx="6" fill="#17140f" stroke="#5f584b" stroke-width="1" fill-opacity="0.05"/>
+        <text x="162" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">End (error)</text>
+        <polygon points="276,643 288,649 276,655 264,649" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="296" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Decision (reads environment variables)</text>
+        <rect x="520" y="643" width="14" height="10" rx="2" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="540" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Running mode</text>
+        <rect x="652" y="643" width="14" height="10" rx="2" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.08"/>
+        <text x="672" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Recommended (users)</text>
+        <line x1="820" y1="649" x2="848" y2="649" stroke="#14614a" stroke-width="1.2" marker-end="url(#mcp-mode-arrow-accent)"/>
+        <text x="856" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Path to token mode</text>
+        <text x="1000" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Key and inbox modes: self-hosters</text>
+      </svg>

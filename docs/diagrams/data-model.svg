@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="data-model-title data-model-desc" id="data-model-root">
+        <title id="data-model-title">Firestore data model</title>
+        <desc id="data-model-desc">Entity-relationship diagram of the English Notebook Firestore data: a user owns items and one progress document and creates shares that contain shared items; Worker KV keys live outside Firestore.</desc>
+        <defs>
+      <style>#data-model-root { --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #data-model-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #data-model-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#data-model-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="data-model-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="data-model-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="data-model-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+
+        <!-- Relationship lines (drawn first) -->
+        <line x1="360" y1="108" x2="500" y2="108" fill="none" stroke="#5f584b" stroke-width="1"/>
+        <line x1="780" y1="108" x2="920" y2="108" fill="none" stroke="#5f584b" stroke-width="1"/>
+        <line x1="640" y1="160" x2="640" y2="240" fill="none" stroke="#5f584b" stroke-width="1"/>
+        <line x1="1070" y1="280" x2="1070" y2="360" fill="none" stroke="#5f584b" stroke-width="1"/>
+        <path d="M 140,320 V 344 Q 140,352 148,352 H 212 Q 220,352 220,344 V 320" fill="none" stroke="#5f584b" stroke-width="1"/>
+        <!-- Cardinality and relationship labels (6px clear of each line) -->
+        <rect x="368" y="90" width="16" height="12" rx="2" fill="#f4efe4"/><text x="376" y="99" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">N</text><rect x="476" y="90" width="16" height="12" rx="2" fill="#f4efe4"/><text x="484" y="99" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">1</text>
+        <rect x="410" y="90" width="40" height="12" rx="2" fill="#f4efe4"/><text x="430" y="99" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OWNS</text>
+        <rect x="788" y="90" width="16" height="12" rx="2" fill="#f4efe4"/><text x="796" y="99" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">1</text><rect x="896" y="90" width="16" height="12" rx="2" fill="#f4efe4"/><text x="904" y="99" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">N</text>
+        <rect x="822" y="90" width="56" height="12" rx="2" fill="#f4efe4"/><text x="850" y="99" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CREATES</text>
+        <rect x="646" y="166" width="12" height="12" rx="2" fill="#f4efe4"/><text x="652" y="175" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">1</text><rect x="646" y="222" width="12" height="12" rx="2" fill="#f4efe4"/><text x="652" y="231" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">1</text>
+        <rect x="598" y="194" width="36" height="12" rx="2" fill="#f4efe4"/><text x="616" y="203" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HAS</text>
+        <rect x="1076" y="286" width="12" height="12" rx="2" fill="#f4efe4"/><text x="1082" y="295" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">1</text><rect x="1076" y="342" width="12" height="12" rx="2" fill="#f4efe4"/><text x="1082" y="351" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">N</text>
+        <rect x="1000" y="314" width="64" height="12" rx="2" fill="#f4efe4"/><text x="1032" y="323" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CONTAINS</text>
+        <rect x="118" y="324" width="16" height="12" rx="2" fill="#f4efe4"/><text x="126" y="333" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">N</text><rect x="226" y="324" width="28" height="12" rx="2" fill="#f4efe4"/><text x="240" y="333" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">0..1</text>
+        <rect x="138" y="358" width="84" height="12" rx="2" fill="#f4efe4"/><text x="180" y="367" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EXPRESSION OF</text>
+        <!-- Note: Worker KV is not Firestore -->
+        <rect x="60" y="420" width="420" height="100" rx="6" fill="#f4efe4"/>
+        <rect x="60" y="420" width="420" height="100" rx="6" fill="#17140f" stroke="#17140f" stroke-width="1" stroke-dasharray="4,3" fill-opacity="0.02" stroke-opacity="0.2"/>
+        <text x="76" y="440" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">NOT IN FIRESTORE · CLOUDFLARE WORKER KV</text>
+        <text x="76" y="464" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">tok:&lt;sha256&gt;</text>
+        <text x="216" y="464" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">uid, label, created, lastUsed</text>
+        <text x="76" y="484" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">user:&lt;uid&gt;</text>
+        <text x="216" y="484" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">token hashes (max 5 per user)</text>
+        <text x="76" y="504" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">rate:&lt;uid&gt;:&lt;day&gt;</text>
+        <text x="216" y="504" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">new items today (limit 200)</text>
+        <!-- Entity: Item -->
+        <rect x="60" y="60" width="300" height="260" rx="6" fill="#f4efe4"/>
+        <rect x="60" y="60" width="300" height="260" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="60" y="60" width="300" height="40" rx="6" fill="#17140f" stroke="none" fill-opacity="0.04"/>
+        <rect x="60" y="92" width="300" height="8" fill="#17140f" fill-opacity="0.04"/>
+        <line x1="60" y1="100" x2="360" y2="100" stroke="#17140f" stroke-width="1" stroke-opacity="0.22"/>
+        <text x="76" y="76" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+        <text x="76" y="92" fill="#17140f" font-size="14" font-family="'Geist', sans-serif" font-weight="600">Item</text>
+        <text x="344" y="92" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">users/{uid}/items</text>
+        <text x="76" y="120" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace"># id</text>
+        <text x="344" y="120" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="76" y="140" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">type</text>
+        <text x="344" y="140" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">word | phrase | sentence</text>
+        <text x="76" y="160" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">text</text>
+        <text x="344" y="160" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="76" y="180" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">meaning</text>
+        <text x="344" y="180" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="76" y="200" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">→ sourceId</text>
+        <text x="344" y="200" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">id of the sentence</text>
+        <text x="76" y="220" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">source</text>
+        <text x="344" y="220" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">claude | shared | empty</text>
+        <text x="76" y="240" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">tags</text>
+        <text x="344" y="240" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string[]</text>
+        <text x="76" y="260" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">box</text>
+        <text x="344" y="260" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">int 0-5</text>
+        <text x="76" y="280" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">due</text>
+        <text x="344" y="280" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">ms</text>
+        <text x="76" y="300" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">+ example · note · original · created · reviews</text>
+        <!-- Entity: User -->
+        <rect x="500" y="60" width="280" height="100" rx="6" fill="#f4efe4"/>
+        <rect x="500" y="60" width="280" height="100" rx="6" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.04"/>
+        <rect x="500" y="60" width="280" height="40" rx="6" fill="#14614a" stroke="none" fill-opacity="0.1"/>
+        <rect x="500" y="92" width="280" height="8" fill="#14614a" fill-opacity="0.1"/>
+        <line x1="500" y1="100" x2="780" y2="100" stroke="#14614a" stroke-width="1" stroke-opacity="0.4"/>
+        <text x="516" y="76" fill="#14614a" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY · AGGREGATE ROOT</text>
+        <text x="516" y="92" fill="#17140f" font-size="14" font-family="'Geist', sans-serif" font-weight="600">User</text>
+        <text x="764" y="92" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">users/{uid}</text>
+        <text x="516" y="120" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace"># uid</text>
+        <text x="764" y="120" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string (Firebase Auth)</text>
+        <text x="516" y="140" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">only sub-collections, no own fields</text>
+        <!-- Entity: Share -->
+        <rect x="920" y="60" width="300" height="220" rx="6" fill="#f4efe4"/>
+        <rect x="920" y="60" width="300" height="220" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="920" y="60" width="300" height="40" rx="6" fill="#17140f" stroke="none" fill-opacity="0.04"/>
+        <rect x="920" y="92" width="300" height="8" fill="#17140f" fill-opacity="0.04"/>
+        <line x1="920" y1="100" x2="1220" y2="100" stroke="#17140f" stroke-width="1" stroke-opacity="0.22"/>
+        <text x="936" y="76" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+        <text x="936" y="92" fill="#17140f" font-size="14" font-family="'Geist', sans-serif" font-weight="600">Share</text>
+        <text x="1204" y="92" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">shares/{id}</text>
+        <text x="936" y="120" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace"># id</text>
+        <text x="1204" y="120" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string (22 chars)</text>
+        <text x="936" y="140" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">→ owner</text>
+        <text x="1204" y="140" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">uid</text>
+        <text x="936" y="160" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">name</text>
+        <text x="1204" y="160" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="180" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">from</text>
+        <text x="1204" y="180" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="200" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">count</text>
+        <text x="1204" y="200" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+        <text x="936" y="220" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">createdAt</text>
+        <text x="1204" y="220" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">ms</text>
+        <text x="936" y="240" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">expiresAt</text>
+        <text x="1204" y="240" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">ms (7, 30 or 90 d)</text>
+        <text x="936" y="260" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">includes</text>
+        <text x="1204" y="260" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">map: original, note</text>
+        <!-- Entity: Progress -->
+        <rect x="500" y="240" width="280" height="160" rx="6" fill="#f4efe4"/>
+        <rect x="500" y="240" width="280" height="160" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="500" y="240" width="280" height="40" rx="6" fill="#17140f" stroke="none" fill-opacity="0.04"/>
+        <rect x="500" y="272" width="280" height="8" fill="#17140f" fill-opacity="0.04"/>
+        <line x1="500" y1="280" x2="780" y2="280" stroke="#17140f" stroke-width="1" stroke-opacity="0.22"/>
+        <text x="516" y="256" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+        <text x="516" y="272" fill="#17140f" font-size="14" font-family="'Geist', sans-serif" font-weight="600">Progress</text>
+        <text x="764" y="272" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">users/{uid}/meta/progress</text>
+        <text x="516" y="300" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">days</text>
+        <text x="764" y="300" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">map: day → n, xp, f, z</text>
+        <text x="516" y="320" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">badges</text>
+        <text x="764" y="320" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">map: id → unlocked ms</text>
+        <text x="516" y="340" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">fe</text>
+        <text x="764" y="340" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">int (freezes earned)</text>
+        <text x="516" y="360" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">goal</text>
+        <text x="764" y="360" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">int 5-30</text>
+        <text x="516" y="380" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">updated</text>
+        <text x="764" y="380" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">ms</text>
+        <!-- Entity: ShareItem -->
+        <rect x="920" y="360" width="300" height="200" rx="6" fill="#f4efe4"/>
+        <rect x="920" y="360" width="300" height="200" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="920" y="360" width="300" height="40" rx="6" fill="#17140f" stroke="none" fill-opacity="0.04"/>
+        <rect x="920" y="392" width="300" height="8" fill="#17140f" fill-opacity="0.04"/>
+        <line x1="920" y1="400" x2="1220" y2="400" stroke="#17140f" stroke-width="1" stroke-opacity="0.22"/>
+        <text x="936" y="376" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ENTITY</text>
+        <text x="936" y="392" fill="#17140f" font-size="14" font-family="'Geist', sans-serif" font-weight="600">ShareItem</text>
+        <text x="1204" y="392" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">shares/{id}/items</text>
+        <text x="936" y="420" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace"># id</text>
+        <text x="1204" y="420" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="440" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">type</text>
+        <text x="1204" y="440" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">word | phrase | sentence</text>
+        <text x="936" y="460" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">text</text>
+        <text x="1204" y="460" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="480" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">meaning</text>
+        <text x="1204" y="480" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="500" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">example</text>
+        <text x="1204" y="500" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string</text>
+        <text x="936" y="520" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace">tags</text>
+        <text x="1204" y="520" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" text-anchor="end">string[]</text>
+        <text x="936" y="540" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">+ original? · note? · sourceId?</text>
+        <line x1="60" y1="620" x2="1220" y2="620" stroke="#17140f" stroke-width="0.8" stroke-opacity="0.1"/>
+        <text x="60" y="636" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="60" y="644" width="14" height="10" rx="2" fill="#14614a" stroke="#14614a" stroke-width="1" fill-opacity="0.04"/>
+        <text x="80" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Aggregate root</text>
+        <rect x="200" y="644" width="14" height="10" rx="2" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="220" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Entity (Firestore document or sub-collection)</text>
+        <rect x="480" y="644" width="14" height="10" rx="2" fill="#17140f" stroke="#17140f" stroke-width="1" stroke-dasharray="3,2" fill-opacity="0.02" stroke-opacity="0.3"/>
+        <text x="500" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Not in Firestore</text>
+        <text x="620" y="652" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">#</text><text x="634" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Primary key</text>
+        <text x="716" y="652" fill="#17140f" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">→</text><text x="732" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Foreign key (by value)</text>
+        <text x="868" y="652" fill="#5f584b" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">1 / N / 0..1</text><text x="952" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Cardinality</text>
+        <text x="1048" y="652" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">+ …</text><text x="1076" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Fields cut for space</text>
+      </svg>

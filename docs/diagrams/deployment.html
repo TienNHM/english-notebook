@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where it runs and how it ships</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1320px; width: 100%; }
+    /* The SVG holds its readable width (min-width == the viewBox width, so the
+       type ramp is never silently scaled down). This wrapper lets a narrow
+       screen scroll the diagram instead of the whole page. */
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 1280px; display: block; }
+    /* Paper has no scrollbar, so the local scroller would clip instead of
+       scroll. Let the diagram scale down to the sheet: smaller but whole
+       beats sharp but cut off. Must come after the svg rule above - a media
+       query adds no specificity, so a later plain rule would win. */
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Deployment · English Notebook</p>
+    <h1>Where it runs and how it ships</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="deployment-title deployment-desc">
+        <title id="deployment-title">Where it runs and how it ships</title>
+        <desc id="deployment-desc">Deployment diagram: the developer PC pushes to GitHub (Pages publishes the app), deploys the Worker to Cloudflare and the Firestore rules to Firebase, and learners install the plugin from the GitHub repos.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+
+        <!-- Zones (drawn first) -->
+        <rect x="320" y="48" width="624" height="184" rx="8" fill="rgba(23,20,15,0.02)" stroke="rgba(23,20,15,0.2)" stroke-width="0.8" stroke-dasharray="4,4"/>
+        <rect x="336" y="52" width="48" height="12" rx="2" fill="#f4efe4"/>
+        <text x="360" y="61" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">GITHUB</text>
+        <rect x="320" y="276" width="264" height="216" rx="8" fill="rgba(23,20,15,0.02)" stroke="rgba(23,20,15,0.2)" stroke-width="0.8" stroke-dasharray="4,4"/>
+        <rect x="336" y="280" width="68" height="12" rx="2" fill="#f4efe4"/>
+        <text x="370" y="289" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">CLOUDFLARE</text>
+        <rect x="680" y="276" width="264" height="216" rx="8" fill="rgba(23,20,15,0.02)" stroke="rgba(23,20,15,0.2)" stroke-width="0.8" stroke-dasharray="4,4"/>
+        <rect x="696" y="280" width="96" height="12" rx="2" fill="#f4efe4"/>
+        <text x="744" y="289" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">GOOGLE FIREBASE</text>
+        <!-- Deploy and runtime paths -->
+        <path d="M 140,326 V 40 Q 140,32 148,32 H 804 Q 812,32 812,40 V 92" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="704" y1="150" x2="560" y2="150" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="240" y1="368" x2="344" y2="368" fill="none" stroke="#14614a" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <path d="M 140,410 V 508 Q 140,516 148,516 H 804 Q 812,516 812,508 V 436" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="920" y1="150" x2="1040" y2="150" fill="none" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="560" y1="368" x2="704" y2="368" fill="none" stroke="#2a5878" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+        <!-- Path labels -->
+        <rect x="448" y="14" width="56" height="12" rx="2" fill="#f4efe4"/><text x="476" y="23" fill="#2a5878" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GIT PUSH</text>
+        <rect x="602" y="132" width="60" height="12" rx="2" fill="#f4efe4"/><text x="632" y="141" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PAGES.YML</text>
+        <rect x="936" y="132" width="88" height="12" rx="2" fill="#f4efe4"/><text x="980" y="141" fill="#2a5878" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PLUGIN INSTALL</text>
+        <rect x="264" y="350" width="56" height="12" rx="2" fill="#f4efe4"/><text x="292" y="359" fill="#14614a" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WRANGLER</text>
+        <rect x="588" y="350" width="88" height="12" rx="2" fill="#f4efe4"/><text x="632" y="359" fill="#2a5878" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FIRESTORE REST</text>
+        <rect x="438" y="498" width="76" height="12" rx="2" fill="#f4efe4"/><text x="476" y="507" fill="#2a5878" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FIREBASE CLI</text>
+        <!-- Node: Developer PC -->
+        <rect x="40" y="326" width="200" height="84" rx="6" fill="#f4efe4"/>
+        <rect x="40" y="326" width="200" height="84" rx="6" fill="rgba(23,20,15,0.06)" stroke="#675f50" stroke-width="1"/>
+        <rect x="48" y="334" width="28" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.3)" stroke-width="0.8"/>
+        <text x="62" y="343" fill="#5f584b" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PC</text>
+        <text x="140" y="366" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Developer PC</text>
+        <text x="140" y="384" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">git · wrangler · firebase-tools</text>
+        <!-- Node: GitHub Pages -->
+        <rect x="344" y="92" width="216" height="104" rx="6" fill="#f4efe4"/>
+        <rect x="344" y="92" width="216" height="104" rx="6" fill="rgba(23,20,15,0.03)" stroke="rgba(23,20,15,0.3)" stroke-width="1"/>
+        <rect x="352" y="100" width="32" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.22)" stroke-width="0.8"/>
+        <text x="368" y="109" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CDN</text>
+        <text x="452" y="132" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">GitHub Pages</text>
+        <rect x="352" y="144" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="360" y="160" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">app files (cp list)</text>
+        <text x="544" y="160" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">master</text>
+        <text x="360" y="180" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace">not published: worker/ tests/ docs/</text>
+        <!-- Node: GitHub repos -->
+        <rect x="704" y="92" width="216" height="116" rx="6" fill="#f4efe4"/>
+        <rect x="704" y="92" width="216" height="116" rx="6" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <rect x="712" y="100" width="32" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.4)" stroke-width="0.8"/>
+        <text x="728" y="109" fill="#17140f" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">REPO</text>
+        <text x="812" y="132" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">GitHub repos</text>
+        <rect x="712" y="144" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="720" y="160" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">english-notebook</text>
+        <text x="904" y="160" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">master</text>
+        <rect x="712" y="176" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="720" y="192" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">english-notebook-mcp</text>
+        <text x="904" y="192" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">2.0.0</text>
+        <!-- Node: Cloudflare Worker -->
+        <rect x="344" y="320" width="216" height="148" rx="6" fill="#f4efe4"/>
+        <rect x="344" y="320" width="216" height="148" rx="6" fill="rgba(20,97,74,0.08)" stroke="#14614a" stroke-width="1"/>
+        <rect x="352" y="328" width="48" height="12" rx="2" fill="transparent" stroke="rgba(20,97,74,0.5)" stroke-width="0.8"/>
+        <text x="376" y="337" fill="#14614a" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WORKER</text>
+        <text x="452" y="360" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Cloudflare Worker</text>
+        <rect x="352" y="372" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="360" y="388" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">agent API</text>
+        <text x="544" y="388" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">2.0.0</text>
+        <rect x="352" y="404" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="360" y="420" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">KV: TOKENS</text>
+        <text x="544" y="420" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">binding</text>
+        <rect x="352" y="436" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="360" y="452" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">SERVICE_ACCOUNT</text>
+        <text x="544" y="452" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">secret</text>
+        <!-- Node: Firestore -->
+        <rect x="704" y="320" width="216" height="116" rx="6" fill="#f4efe4"/>
+        <rect x="704" y="320" width="216" height="116" rx="6" fill="rgba(23,20,15,0.03)" stroke="rgba(23,20,15,0.3)" stroke-width="1"/>
+        <rect x="712" y="328" width="60" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.22)" stroke-width="0.8"/>
+        <text x="742" y="337" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MANAGED</text>
+        <text x="812" y="360" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Firestore</text>
+        <rect x="712" y="372" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="720" y="388" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">firestore.rules</text>
+        <text x="904" y="388" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">rules</text>
+        <rect x="712" y="404" width="200" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="720" y="420" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">users/* · shares/*</text>
+        <text x="904" y="420" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">data</text>
+        <!-- Node: Learner's PC -->
+        <rect x="1040" y="92" width="200" height="116" rx="6" fill="#f4efe4"/>
+        <rect x="1040" y="92" width="200" height="116" rx="6" fill="rgba(23,20,15,0.06)" stroke="#675f50" stroke-width="1"/>
+        <rect x="1048" y="100" width="28" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.3)" stroke-width="0.8"/>
+        <text x="1062" y="109" fill="#5f584b" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">PC</text>
+        <text x="1140" y="132" fill="#17140f" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Learner's PC</text>
+        <rect x="1048" y="144" width="184" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="1056" y="160" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">MCP server</text>
+        <text x="1224" y="160" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">2.0.0</text>
+        <rect x="1048" y="176" width="184" height="24" rx="4" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="1056" y="192" fill="#17140f" font-size="12" font-family="'Geist', sans-serif">English Coach skill</text>
+        <text x="1224" y="192" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">2.0.0</text>
+        <line x1="40" y1="620" x2="1240" y2="620" stroke="rgba(23,20,15,0.1)" stroke-width="0.8"/>
+        <text x="40" y="636" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+        <rect x="40" y="644" width="14" height="10" rx="2" fill="rgba(20,97,74,0.08)" stroke="#14614a" stroke-width="1"/>
+        <text x="60" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">New in version 2 (focal)</text>
+        <rect x="212" y="644" width="14" height="10" rx="2" fill="#ffffff" stroke="#17140f" stroke-width="1"/>
+        <text x="232" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Repo / infra node</text>
+        <rect x="352" y="644" width="14" height="10" rx="2" fill="rgba(23,20,15,0.03)" stroke="rgba(23,20,15,0.3)" stroke-width="1"/>
+        <text x="372" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">CDN / managed service</text>
+        <rect x="512" y="644" width="14" height="10" rx="2" fill="rgba(23,20,15,0.06)" stroke="#675f50" stroke-width="1"/>
+        <text x="532" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Machine outside the zones</text>
+        <line x1="700" y1="649" x2="724" y2="649" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <text x="732" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Cross-boundary deploy</text>
+        <line x1="860" y1="649" x2="884" y2="649" stroke="#14614a" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <text x="892" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">wrangler deploy</text>
+        <line x1="980" y1="649" x2="1004" y2="649" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="1012" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Inside one zone</text>
+        <line x1="1100" y1="649" x2="1124" y2="649" stroke="#2a5878" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+        <text x="1132" y="652" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Runtime call</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

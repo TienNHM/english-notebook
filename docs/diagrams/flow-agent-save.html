@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The agent saves a sentence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f4efe4;
+      --color-ink:     #17140f;
+      --color-muted:   #5f584b;
+      --color-accent:  #14614a;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1280px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 1280px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">SEQUENCE · English Notebook</p>
+    <h1>The agent saves a sentence</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 864" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="flow-agent-save-title flow-agent-save-desc">
+        <title id="flow-agent-save-title">The agent saves a sentence</title>
+        <desc id="flow-agent-save-desc">Sequence diagram of an AI agent calling the MCP server, which calls the Worker; the Worker looks up the token, checks for duplicates, commits the cards to Firestore and answers with the count.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#5f584b"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#14614a"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2a5878"/></marker>
+          <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#5f584b" stroke-width="1.2"/></marker>
+        </defs>
+        <rect width="100%" height="100%" fill="#f4efe4"/>
+        <line x1="128" y1="88" x2="128" y2="776" stroke="rgba(23,20,15,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="344" y1="88" x2="344" y2="776" stroke="rgba(23,20,15,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="560" y1="88" x2="560" y2="776" stroke="rgba(23,20,15,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="776" y1="88" x2="776" y2="776" stroke="rgba(23,20,15,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="992" y1="88" x2="992" y2="776" stroke="rgba(23,20,15,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="124" y="136" width="8" height="600" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <rect x="340" y="136" width="8" height="600" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <rect x="556" y="192" width="8" height="488" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <rect x="772" y="248" width="8" height="72" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <rect x="772" y="608" width="8" height="16" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <rect x="988" y="440" width="8" height="128" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <line x1="132" y1="144" x2="340" y2="144" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="348" y1="200" x2="556" y2="200" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <line x1="564" y1="256" x2="772" y2="256" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="772" y1="312" x2="564" y2="312" stroke="#5f584b" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <path d="M 564 368 L 594 368 Q 600 368 600 374 L 600 394 Q 600 400 594 400 L 566 400" fill="none" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="564" y1="448" x2="988" y2="448" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="988" y1="504" x2="564" y2="504" stroke="#5f584b" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <line x1="564" y1="560" x2="988" y2="560" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="564" y1="616" x2="772" y2="616" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="556" y1="672" x2="348" y2="672" stroke="#14614a" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <line x1="340" y1="728" x2="132" y2="728" stroke="#5f584b" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="200" y="124" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="236" y="133" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ADD_SENTENCE</text>
+        <rect x="410" y="180" width="84" height="12" rx="2" fill="#f4efe4"/>
+        <text x="452" y="189" fill="#2a5878" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">POST /SENTENCE</text>
+        <rect x="632" y="236" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="245" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LOOKUP TOKEN</text>
+        <rect x="634" y="292" width="68" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="301" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">UID + COUNT</text>
+        <rect x="608" y="378" width="52" height="12" rx="2" fill="#f4efe4"/>
+        <text x="614" y="387" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.06em">VALIDATE</text>
+        <rect x="636" y="428" width="64" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="437" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FIND DUPES</text>
+        <rect x="648" y="484" width="40" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="493" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ITEMS</text>
+        <rect x="632" y="540" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="549" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">COMMIT CARDS</text>
+        <rect x="632" y="596" width="72" height="12" rx="2" fill="#f4efe4"/>
+        <text x="668" y="605" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BUMP COUNTER</text>
+        <rect x="412" y="652" width="80" height="12" rx="2" fill="#f4efe4"/>
+        <text x="452" y="661" fill="#14614a" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ADDED 3 CARDS</text>
+        <rect x="216" y="708" width="40" height="12" rx="2" fill="#f4efe4"/>
+        <text x="236" y="717" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SAVED</text>
+        <text x="1032" y="566" fill="#17140f" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', serif" text-anchor="start">the app shows the new</text>
+        <text x="1032" y="584" fill="#17140f" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Noto Serif', serif" text-anchor="start">cards at once</text>
+        <path d="M 1028 562 Q 1014 558 1000 560" fill="none" stroke="rgba(23,20,15,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="1000" cy="560" r="2" fill="#17140f"/>
+        <rect x="56" y="32" width="144" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="56" y="32" width="144" height="56" rx="6" fill="rgba(95,88,75,0.10)" stroke="#675f50" stroke-width="1"/>
+        <rect x="64" y="40" width="40" height="12" rx="2" fill="transparent" stroke="rgba(103,95,80,0.40)" stroke-width="0.8"/>
+        <text x="84" y="49" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">AGENT</text>
+        <text x="128" y="68" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">AI agent</text>
+        <text x="128" y="82" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">+ Coach skill</text>
+        <rect x="272" y="32" width="144" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="272" y="32" width="144" height="56" rx="6" fill="#fffbf2" stroke="#17140f" stroke-width="1"/>
+        <rect x="280" y="40" width="40" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.30)" stroke-width="0.8"/>
+        <text x="300" y="49" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LOCAL</text>
+        <text x="344" y="68" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">MCP server</text>
+        <text x="344" y="82" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">stdio · Node</text>
+        <rect x="488" y="32" width="144" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="488" y="32" width="144" height="56" rx="6" fill="rgba(20,97,74,0.08)" stroke="#14614a" stroke-width="1"/>
+        <rect x="496" y="40" width="36" height="12" rx="2" fill="transparent" stroke="rgba(20,97,74,0.50)" stroke-width="0.8"/>
+        <text x="514" y="49" fill="#14614a" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EDGE</text>
+        <text x="560" y="68" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Worker</text>
+        <text x="560" y="82" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">agent API</text>
+        <rect x="704" y="32" width="144" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="704" y="32" width="144" height="56" rx="6" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="1"/>
+        <rect x="712" y="40" width="40" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.30)" stroke-width="0.8"/>
+        <text x="732" y="49" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="776" y="68" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">KV</text>
+        <text x="776" y="82" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">TOKENS</text>
+        <rect x="920" y="32" width="144" height="56" rx="6" fill="#f4efe4"/>
+        <rect x="920" y="32" width="144" height="56" rx="6" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="1"/>
+        <rect x="928" y="40" width="40" height="12" rx="2" fill="transparent" stroke="rgba(23,20,15,0.30)" stroke-width="0.8"/>
+        <text x="948" y="49" fill="#675f50" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="992" y="68" fill="#17140f" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Firestore</text>
+        <text x="992" y="82" fill="#5f584b" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">users/uid/items</text>
+        <line x1="56" y1="800" x2="1224" y2="800" stroke="rgba(23,20,15,0.10)" stroke-width="0.8"/>
+        <text x="56" y="820" fill="#5f584b" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+        <line x1="56" y1="842" x2="84" y2="842" stroke="#5f584b" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="92" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Call</text>
+        <line x1="148" y1="842" x2="176" y2="842" stroke="#5f584b" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <text x="184" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Return</text>
+        <rect x="262" y="834" width="8" height="16" fill="rgba(23,20,15,0.06)" stroke="#5f584b" stroke-width="0.8"/>
+        <text x="288" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Active</text>
+        <line x1="356" y1="842" x2="384" y2="842" stroke="#2a5878" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <text x="392" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">HTTPS call</text>
+        <line x1="480" y1="842" x2="508" y2="842" stroke="#14614a" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="516" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Result</text>
+        <rect x="584" y="836" width="20" height="12" rx="2" fill="rgba(20,97,74,0.08)" stroke="#14614a" stroke-width="1"/>
+        <text x="616" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Focal</text>
+        <rect x="676" y="836" width="20" height="12" rx="2" fill="rgba(95,88,75,0.10)" stroke="#675f50" stroke-width="1"/>
+        <text x="708" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Agent</text>
+        <rect x="768" y="836" width="20" height="12" rx="2" fill="#fffbf2" stroke="#17140f" stroke-width="1"/>
+        <text x="800" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Local app</text>
+        <rect x="884" y="836" width="20" height="12" rx="2" fill="rgba(23,20,15,0.05)" stroke="#5f584b" stroke-width="1"/>
+        <text x="916" y="845" fill="#5f584b" font-size="8.5" font-family="'Geist', sans-serif">Storage</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
