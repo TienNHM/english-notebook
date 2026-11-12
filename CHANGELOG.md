@@ -2,6 +2,7 @@
 
 ## 2.1.0
 
+- Review: **🔀 Ngẫu nhiên** button and a *Thứ tự ôn tập* setting (Profile) to shuffle the cards that are due; default stays oldest-due-first.
 - 20 new trophy badges (35 in total): more daily-goal, streak (up to 365 days), review, XP and level milestones, a one-day record, "saved by a freeze", library size up to 1,000 cards, sentences, tags, AI agent helper, and box 5 mastery.
 
 - Menu merged: **Thêm** is now a button inside **Thư viện**; new **Profile** tab holds personal settings (account, look and theme, motion, daily goal, install app, vault sharing, AI agent token, backup). The old `?tab=add` shortcut still works.

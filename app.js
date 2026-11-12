@@ -3,6 +3,7 @@ import * as P from "./progress.js";
 import * as S from "./share.js";
 import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
+import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -438,8 +439,15 @@ $("#list").onclick = e => {
 };
 
 // ---------- review (Leitner) ----------
+const ORDER_KEY = "english-notebook-order";   // review order on this device: "due" (default) or "random"
+const getOrder = () => { try { return normOrder(localStorage.getItem(ORDER_KEY)); } catch { return "due"; } };
+function setOrder(mode) {
+  mode = normOrder(mode);
+  try { mode === "due" ? localStorage.removeItem(ORDER_KEY) : localStorage.setItem(ORDER_KEY, mode); } catch {}
+  queue = orderQueue(queue, mode);   // re-order the cards that are still waiting
+}
 function startReview() {
-  queue = items.filter(isDue).sort((a, b) => a.due - b.due);
+  queue = orderQueue(items.filter(isDue), getOrder());
   reviewTotal = queue.length; reviewDone = 0;
   cardFx = "slide";
   next();
@@ -450,7 +458,7 @@ function next() {
 // Nothing is due but the daily goal is not reached yet: practise cards that are not due, soonest first.
 function startPractice() {
   const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
-  queue = items.filter(i => !isDue(i)).sort((a, b) => a.due - b.due).slice(0, Math.max(left, 1));
+  queue = orderQueue(items.filter(i => !isDue(i)).sort((a, b) => a.due - b.due).slice(0, Math.max(left, 1)), getOrder());
   reviewTotal = queue.length; reviewDone = 0;
   cardFx = "slide";
   next();
@@ -491,7 +499,7 @@ function renderReview() {
     const left = P.effectiveGoal(progress, items.length) - P.todayCount(progress, today());
     const spare = items.filter(i => !isDue(i)).length;
     box.innerHTML = (!items.length
-      ? `<div class="empty">Chưa có thẻ nào. Hãy thêm vài thẻ ở tab ➕ Thêm.</div>`
+      ? `<div class="empty">Chưa có thẻ nào. Hãy thêm vài thẻ bằng nút ➕ Thêm ở tab Thư viện.</div>`
       : left > 0 && spare > 0
         ? `<div class="empty">Hết thẻ đến hạn, nhưng còn <b>${left}</b> thẻ nữa để đạt mục tiêu hôm nay.<br><br><button class="primary" id="practiceBtn">💪 Ôn thêm ${Math.min(left, spare)} thẻ</button></div>`
         : `<div class="empty">🎉 Không còn mục nào cần ôn hôm nay.<br>Tổng: ${items.length} mục · ${goalLine()}</div>`);
@@ -502,6 +510,7 @@ function renderReview() {
   const parent = c.sourceId && items.find(p => p.id === c.sourceId);
   box.innerHTML = `
     <div class="progress">Còn ${queue.length + 1} mục · box ${c.box} · ${goalLine()}</div>
+    <div class="orderbar"><button class="small" id="rOrder" type="button" aria-pressed="${getOrder() === "random"}" title="Đổi thứ tự các thẻ còn lại">🔀 Ngẫu nhiên: ${getOrder() === "random" ? "bật" : "tắt"}</button></div>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${reviewTotal}" aria-valuenow="${reviewDone}"><i style="width:${reviewTotal ? Math.round(reviewDone / reviewTotal * 100) : 0}%"></i></div>
     <div class="card${fx ? " fx-" + fx : ""}" data-type="${c.type}">
       <div class="big">${esc(c.text)}</div>
@@ -519,6 +528,10 @@ function renderReview() {
       <button class="good" data-g="1">Nhớ</button>
       <button class="easy" data-g="2">Dễ</button></div>`;
   $("#rSpeak").onclick = () => speak(c.text);
+  $("#rOrder").onclick = () => {
+    const mode = getOrder() === "random" ? "due" : "random";
+    setOrder(mode); renderReview(); toast(mode === "random" ? "🔀 Thứ tự ngẫu nhiên" : "Thứ tự theo hạn ôn");
+  };
   const show = $("#rShow"); if (show) show.onclick = () => { revealed = true; renderReview(); };
   $$(".grade button").forEach(b => b.onclick = () => grade(+b.dataset.g));
 }
@@ -602,6 +615,10 @@ function renderProfile() {
         <select id="goalSel">${P.GOALS.map(g => `<option value="${g}"${g === progress.goal ? " selected" : ""}>${g} thẻ</option>`).join("")}</select>
       </label>
       <div class="muted-sm">Ôn đủ số thẻ này mỗi ngày để giữ streak.</div>
+      <label class="goalsel">Thứ tự ôn tập
+        <select id="orderSel">${opt(Object.entries(ORDERS), getOrder())}</select>
+      </label>
+      <div class="muted-sm">"Theo hạn" ôn thẻ quá hạn lâu nhất trước. "Ngẫu nhiên" trộn các thẻ cần ôn. Lưu trên thiết bị này.</div>
     </div>`;
 }
 $("#profileDyn").onclick = e => {
@@ -615,6 +632,7 @@ $("#profileDyn").onchange = e => {
     toast(e.target.value === "on" ? "Đã bật hiệu ứng ✨" : e.target.value === "off" ? "Đã tắt hiệu ứng" : "Hiệu ứng: theo hệ thống");
     return;
   }
+  if (e.target.id === "orderSel") { setOrder(e.target.value); toast(e.target.value === "random" ? "🔀 Thứ tự ngẫu nhiên" : "Thứ tự theo hạn ôn"); return; }
   if (e.target.id !== "goalSel") return;
   progress = { ...progress, goal: +e.target.value, updated: Date.now() };
   saveProgress(); renderRewards(); toast(`Mục tiêu: ${progress.goal} thẻ/ngày`);

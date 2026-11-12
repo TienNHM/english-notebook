@@ -45,6 +45,8 @@ Thẻ nằm trong 6 hộp (box 0 đến 5). Sau mỗi lần ôn, chọn **Quên*
 
 Tab Ôn tập chỉ hiện các thẻ **đến hạn** hôm nay, và dùng toàn bộ chiều cao màn hình.
 
+**Thứ tự thẻ:** mặc định ôn thẻ quá hạn lâu nhất trước. Bấm nút **🔀 Ngẫu nhiên** ở đầu màn hình ôn tập (hoặc chọn *Thứ tự ôn tập* trong Profile → Học tập) để trộn ngẫu nhiên các thẻ còn lại. Lựa chọn được nhớ trên thiết bị này.
+
 ## 5. Thưởng, streak và mục tiêu ngày
 
 Tab **Thưởng** có:
