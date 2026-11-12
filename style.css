@@ -243,6 +243,11 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .item .actions{margin-left:auto;display:flex;gap:6px}
 .empty{text-align:center;font-weight:700;padding:34px 16px;background:var(--card);border:var(--bw) dashed var(--ink);border-radius:var(--r)}
 .tools{margin-top:22px;justify-content:center}
+/* the tool buttons sit at the top of the Library: compact, so a long list never hides them */
+.tools.top{margin:0 0 12px;gap:8px;justify-content:flex-start;align-items:center}
+.tools.top button,.tools.top .btn{padding:6px 10px;font-size:.82rem;box-shadow:var(--sh-xs);border-width:var(--bw2);border-radius:var(--rs)}
+.tools.top button:hover,.tools.top .btn:hover{box-shadow:var(--sh)}
+.tools.top button:active,.tools.top .btn:active{transform:var(--press-sm);box-shadow:var(--sh-none)}
 
 /* ---------- review ---------- */
 .progress{font:var(--fw) .78rem var(--mono);text-align:center;margin-bottom:10px}
