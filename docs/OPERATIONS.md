@@ -64,7 +64,7 @@ Then:
 
 1. Check: `curl https://<worker-url>/health` → `{"ok":true,...}`.
 2. Put the Worker URL in `agentApiUrl` (`firebase-config.js`) and in `DEFAULT_API_URL` (`english-notebook-mcp/api-client.mjs`).
-3. Push the app, then try the screen: Library → 🤖 Kết nối AI agent → Tạo token.
+3. Push the app, then try the screen: Profile → 🤖 Kết nối AI agent → Tạo token.
 
 Update the Worker: change the code, run `cd worker && npm test`, then `npx wrangler deploy`. Change a limit: edit `DAILY_LIMIT` in `wrangler.toml` and deploy. Logs: `npx wrangler tail`.
 

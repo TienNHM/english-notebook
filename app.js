@@ -249,27 +249,16 @@ function applyTheme(t) {
   const root = document.documentElement;
   if (t === "system") delete root.dataset.theme; else root.dataset.theme = t;
   try { t === "system" ? localStorage.removeItem(THEME_KEY) : localStorage.setItem(THEME_KEY, t); } catch {}
-  const btn = $("#themeBtn");
-  btn.textContent = THEMES[t][0];
-  btn.title = btn.ariaLabel = `Chế độ màu: ${THEMES[t][1]}`;
   resolveScheme();
 }
 function applyStyle(s) {
   document.documentElement.dataset.style = s;
   try { s === "neo" ? localStorage.removeItem(STYLE_KEY) : localStorage.setItem(STYLE_KEY, s); } catch {}
-  $("#styleBtn").title = $("#styleBtn").ariaLabel = `Phong cách: ${STYLES[s][1]} (bấm để đổi)`;
   syncThemeColor();
 }
-$("#themeBtn").onclick = () => {
-  const order = ["system", "light", "dark"], next = order[(order.indexOf(getTheme()) + 1) % 3];
-  fadeColors(); applyTheme(next); toast(`Chế độ màu: ${THEMES[next][1]}`);
-};
 function chooseStyle(s) {
-  fadeColors(); applyStyle(s); renderRewards(); toast(`${STYLES[s][0]} Phong cách: ${STYLES[s][1]}`);
+  fadeColors(); applyStyle(s); renderProfile(); toast(`${STYLES[s][0]} Phong cách: ${STYLES[s][1]}`);
 }
-$("#styleBtn").onclick = () => {
-  const keys = Object.keys(STYLES); chooseStyle(keys[(keys.indexOf(getStyle()) + 1) % keys.length]);
-};
 darkQuery.addEventListener("change", () => { if (getTheme() === "system") resolveScheme(); });
 applyTheme(getTheme());
 applyStyle(getStyle());
@@ -280,6 +269,7 @@ function showTab(name) {
   $$(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
   if (name === "review") startReview();
   if (name === "library") { listAnim = true; renderList(); }
+  if (name === "profile") renderProfile();
   if (name === "rewards") {
     for (const k of Object.keys(shownCounts)) delete shownCounts[k]; // count up again when the tab is opened
     renderRewards();
@@ -361,7 +351,16 @@ function resetForm() {
   $("#saveBtn").textContent = "Lưu"; $("#cancelEdit").hidden = true;
   toggleSentence();
 }
-$("#cancelEdit").onclick = resetForm;
+$("#cancelEdit").onclick = () => { resetForm(); openAdd(false); };
+
+// The add form lives in the Library, behind a button, so a long list never pushes it out of reach.
+function openAdd(open) {
+  $("#addPanel").hidden = !open;
+  const t = $("#addToggle"); t.setAttribute("aria-expanded", String(open));
+  t.textContent = open ? "▲ Ẩn form thêm" : "➕ Thêm từ / câu mới";
+  if (open) { $("#addPanel").scrollIntoView({ block: "nearest" }); $("#fText").focus(); }
+}
+$("#addToggle").onclick = () => openAdd($("#addPanel").hidden);
 
 function editItem(id) {
   const it = items.find(i => i.id === id); if (!it) return;
@@ -371,7 +370,7 @@ function editItem(id) {
   $("#fOriginal").value = it.original; $("#fExpr").value = "";
   toggleSentence();
   $("#saveBtn").textContent = "Cập nhật"; $("#cancelEdit").hidden = false;
-  showTab("add"); $("#fText").focus();
+  showTab("library"); openAdd(true);
 }
 
 // ---------- library ----------
@@ -544,14 +543,6 @@ function renderRewards() {
   const st = P.stats(progress, t, ctxNow());
   box.innerHTML = dailyHtml() + `
     <button class="primary" id="shareBtn" type="button">📣 Chia sẻ thành tích</button>
-    <div class="daily">
-      <div class="streak-big">🎨 Phong cách giao diện</div>
-      <div class="muted-sm">Chọn kiểu hiển thị. Không phụ thuộc chế độ sáng / tối (nút ${THEMES[getTheme()][0]} ở đầu trang). Lưu trên thiết bị này.</div>
-      <div class="stylepick" id="stylePick">${Object.entries(STYLES).map(([k, [ico, name, desc]]) => `
-        <button type="button" data-style="${k}" aria-pressed="${k === getStyle()}">
-          <span class="sw sw-${k}"><span>Aa</span></span><b>${ico} ${esc(name)}</b><small>${esc(desc)}</small>
-        </button>`).join("")}</div>
-    </div>
     <div class="daily level">
       <div class="daily-top"><div class="streak-big">⭐ Lv <b data-count="${lv.level}" data-k="level">${lv.level}</b> · ${esc(lv.title)}</div><div class="muted-sm"><span data-count="${lv.xp}" data-k="xp">${lv.xp}</span> XP</div></div>
       <div class="bar goal" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${lv.pct}"><i style="width:${lv.pct}%"></i></div>
@@ -564,17 +555,10 @@ function renderRewards() {
       <div class="stat"><b>✅ <span data-count="${st.reviews}" data-k="r-reviews">${st.reviews}</span></b><small>Lần nhớ đúng</small></div>
     </div>
     <div class="daily">
-      <label class="goalsel">Mục tiêu mỗi ngày (số thẻ)
-        <select id="goalSel">${P.GOALS.map(g => `<option value="${g}"${g === progress.goal ? " selected" : ""}>${g} thẻ</option>`).join("")}</select>
-      </label>
+      <div class="streak-big">🎯 Mục tiêu: ${progress.goal} thẻ mỗi ngày</div>
       <div class="muted-sm">Ôn đủ số thẻ này mỗi ngày để giữ streak. Nhớ/Dễ mới được tính; Quên thì không. Cứ ${P.FREEZE_EVERY} ngày streak được 1 băng 🧊 (tối đa ${P.MAX_FREEZES}) tự cứu streak khi bạn lỡ 1 ngày.</div>
       <div class="muted-sm">XP: Quên +1 · Nhớ +3 · Dễ +5 · đạt mục tiêu ngày +${P.GOAL_BONUS_XP}.</div>
-    </div>
-    <div class="daily">
-      <label class="goalsel">Hiệu ứng chuyển động
-        <select id="motionSel">${[["system", "Theo hệ thống"], ["on", "Luôn bật"], ["off", "Tắt"]].map(([v, l]) => `<option value="${v}"${v === getMotion() ? " selected" : ""}>${l}</option>`).join("")}</select>
-      </label>
-      <div class="muted-sm">${systemReducesMotion() ? "Hệ thống của bạn đang bật \"giảm chuyển động\" nên chế độ \"Theo hệ thống\" sẽ không có hiệu ứng. Chọn \"Luôn bật\" để xem hiệu ứng." : "\"Theo hệ thống\" sẽ tự tắt hiệu ứng nếu bạn bật \"giảm chuyển động\" trong hệ điều hành."}</div>
+      <div class="btnrow"><button type="button" class="small" id="goProfile">⚙️ Đổi mục tiêu ở Profile</button></div>
     </div>
     <h3 class="sect">Huy hiệu (${Object.keys(progress.badges).length}/${P.BADGES.length})</h3>
     <div class="trophies">${P.BADGES.map((b, idx) => {
@@ -586,18 +570,51 @@ function renderRewards() {
 }
 $("#rewardsBox").onclick = e => {
   if (e.target.closest("#shareBtn")) openShare();
+  if (e.target.closest("#goProfile")) showTab("profile");
+};
+
+// ---------- profile tab: personal settings (look, motion, daily goal) ----------
+function renderProfile() {
+  const box = $("#profileDyn"); if (!box) return;
+  const opt = (list, cur) => list.map(([v, l]) => `<option value="${v}"${v === cur ? " selected" : ""}>${l}</option>`).join("");
+  box.innerHTML = `
+    <div class="daily pcard">
+      <div class="streak-big">🎨 Giao diện</div>
+      <div class="muted-sm">Phong cách và chế độ màu được lưu trên thiết bị này.</div>
+      <div class="stylepick" id="stylePick">${Object.entries(STYLES).map(([k, [ico, name, desc]]) => `
+        <button type="button" data-style="${k}" aria-pressed="${k === getStyle()}">
+          <span class="sw sw-${k}"><span>Aa</span></span><b>${ico} ${esc(name)}</b><small>${esc(desc)}</small>
+        </button>`).join("")}</div>
+      <label class="goalsel">Chế độ màu
+        <select id="themeSel">${opt(Object.entries(THEMES).map(([k, [ico, name]]) => [k, `${ico} ${name}`]), getTheme())}</select>
+      </label>
+      <label class="goalsel">Hiệu ứng chuyển động
+        <select id="motionSel">${opt([["system", "Theo hệ thống"], ["on", "Luôn bật"], ["off", "Tắt"]], getMotion())}</select>
+      </label>
+      <div class="muted-sm">${systemReducesMotion() ? "Hệ thống của bạn đang bật \"giảm chuyển động\" nên chế độ \"Theo hệ thống\" sẽ không có hiệu ứng. Chọn \"Luôn bật\" để xem hiệu ứng." : "\"Theo hệ thống\" sẽ tự tắt hiệu ứng nếu bạn bật \"giảm chuyển động\" trong hệ điều hành."}</div>
+    </div>
+    <div class="daily pcard">
+      <div class="streak-big">🎯 Học tập</div>
+      <label class="goalsel">Mục tiêu mỗi ngày (số thẻ)
+        <select id="goalSel">${P.GOALS.map(g => `<option value="${g}"${g === progress.goal ? " selected" : ""}>${g} thẻ</option>`).join("")}</select>
+      </label>
+      <div class="muted-sm">Ôn đủ số thẻ này mỗi ngày để giữ streak.</div>
+    </div>`;
+}
+$("#profileDyn").onclick = e => {
   const pick = e.target.closest("#stylePick [data-style]"); // (not just [data-style]: <html> has that attribute too)
   if (pick && pick.dataset.style !== getStyle()) chooseStyle(pick.dataset.style);
 };
-$("#rewardsBox").onchange = e => {
+$("#profileDyn").onchange = e => {
+  if (e.target.id === "themeSel") { fadeColors(); applyTheme(e.target.value); toast(`Chế độ màu: ${THEMES[e.target.value][1]}`); return; }
   if (e.target.id === "motionSel") {
-    applyMotion(e.target.value); renderRewards();
+    applyMotion(e.target.value); renderProfile();
     toast(e.target.value === "on" ? "Đã bật hiệu ứng ✨" : e.target.value === "off" ? "Đã tắt hiệu ứng" : "Hiệu ứng: theo hệ thống");
     return;
   }
   if (e.target.id !== "goalSel") return;
   progress = { ...progress, goal: +e.target.value, updated: Date.now() };
-  saveProgress(); toast(`Mục tiêu: ${progress.goal} thẻ/ngày`);
+  saveProgress(); renderRewards(); toast(`Mục tiêu: ${progress.goal} thẻ/ngày`);
 };
 
 // ---------- celebration ----------
@@ -730,7 +747,7 @@ const isStandalone = () => matchMedia("(display-mode: standalone)").matches || n
 const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 function renderInstall() {
   // Show the button only when installing is possible and the app is not already running as an installed app.
-  $("#installBtn").hidden = isStandalone() || !(installEvent || isIos());
+  $("#installBtn").hidden = $("#installBox").hidden = isStandalone() || !(installEvent || isIos());
 }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvent = e; renderInstall(); });
 window.addEventListener("appinstalled", () => { installEvent = null; renderInstall(); toast("Đã cài app ✓"); });
@@ -748,7 +765,7 @@ renderInstall();
 try {
   if (getMotion() === "system" && systemReducesMotion() && !localStorage.getItem("english-notebook-motion-hint")) {
     localStorage.setItem("english-notebook-motion-hint", "1");
-    setTimeout(() => toast("Hệ thống đang tắt chuyển động. Bật hiệu ứng ở 🏆 Thưởng → Hiệu ứng."), 1200);
+    setTimeout(() => toast("Hệ thống đang tắt chuyển động. Bật hiệu ứng ở 👤 Profile → Giao diện."), 1200);
   }
 } catch {}
 renderAuth();
@@ -757,6 +774,7 @@ renderAll();
 settle();
 renderPills();
 renderRewards();
+renderProfile();
 importInbox();
 // ---------- sharing a vocabulary vault between accounts (see vault.js and vault-ui.js) ----------
 vaultUi = initVault({
@@ -769,4 +787,5 @@ agentUi = initAgent({ getUser: () => user, authKnown: () => authKnown, toast });
 
 // Home-screen shortcuts open a tab directly: /?tab=review, /?tab=add, /?tab=rewards, /?tab=library
 const startTab = new URLSearchParams(location.search).get("tab");
-if (["add", "library", "review", "rewards"].includes(startTab)) showTab(startTab);
+if (startTab === "add") { showTab("library"); openAdd(true); }   // old shortcut: the add form now lives in the Library
+else if (["library", "review", "rewards", "profile"].includes(startTab)) showTab(startTab);

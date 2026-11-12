@@ -92,9 +92,9 @@ Open the live site (or your own deployed copy). It must be served over **HTTPS**
 
 | Device | Steps |
 |---|---|
-| **Android (Chrome, Edge, Samsung Internet)** | Press **📲 Cài app** in the header and confirm. Or use the browser menu **⋮ → Install app** (or **Add to Home screen**). |
-| **iPhone / iPad (Safari)** | Safari has no install prompt. Press **📲 Cài app** to see the steps, or: tap **Share** `⬆︎` → **Add to Home Screen** → **Add**. It must be Safari, not the browser inside another app. |
-| **Windows / macOS / Linux (Chrome, Edge)** | Press **📲 Cài app**, or click the install icon at the right of the address bar. |
+| **Android (Chrome, Edge, Samsung Internet)** | Open **👤 Profile**, press **📲 Cài app** and confirm. Or use the browser menu **⋮ → Install app** (or **Add to Home screen**). |
+| **iPhone / iPad (Safari)** | Safari has no install prompt. Open **👤 Profile** and press **📲 Cài app** to see the steps, or: tap **Share** `⬆︎` → **Add to Home Screen** → **Add**. It must be Safari, not the browser inside another app. |
+| **Windows / macOS / Linux (Chrome, Edge)** | Open **👤 Profile** and press **📲 Cài app**, or click the install icon at the right of the address bar. |
 
 What you get after installing:
 
@@ -109,7 +109,7 @@ The **📲 Cài app** button only appears when installing is possible, and it di
 
 ### Add
 
-1. Open **➕ Thêm** and choose a type: **Từ** (word), **Cụm từ** (phrase) or **Câu** (sentence).
+1. In **📚 Thư viện** press **➕ Thêm từ / câu mới** and choose a type: **Từ** (word), **Cụm từ** (phrase) or **Câu** (sentence).
 2. Fill in the English text and the Vietnamese meaning. Example, note and tags are optional.
 3. For a **sentence**, two extra fields appear:
    - **Câu gốc**: the original sentence, for example the Vietnamese you wanted to say.
@@ -277,7 +277,7 @@ The workflow `.github/workflows/pages.yml` publishes only the app files on every
 
 The MCP server [english-notebook-mcp](https://github.com/TienNHM/english-notebook-mcp) lets Claude Code save words and sentences while you work. It has three tools: `add_vocabulary`, `add_sentence` (with linked expressions) and `list_inbox` (to avoid duplicates).
 
-**Version 2:** in the app press **Library → 🤖 Kết nối AI agent → Tạo token**, then install the plugin and paste only that token. The Worker code is in [`worker/`](worker/README.md) (self-hosters can deploy their own and set `agentApiUrl`). The key mode below still works for self-hosters.
+**Version 2:** in the app press **Profile → 🤖 Kết nối AI agent → Tạo token**, then install the plugin and paste only that token. The Worker code is in [`worker/`](worker/README.md) (self-hosters can deploy their own and set `agentApiUrl`). The key mode below still works for self-hosters.
 
 Short version, using **Firestore mode** so the items show up on every device and on the hosted site:
 

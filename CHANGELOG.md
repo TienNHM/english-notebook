@@ -1,10 +1,14 @@
 # Changelog
 
+## 2.1.0
+
+- Menu merged: **Thêm** is now a button inside **Thư viện**; new **Profile** tab holds personal settings (account, look and theme, motion, daily goal, install app, vault sharing, AI agent token, backup). The old `?tab=add` shortcut still works.
+
 ## 2.0.0
 
 - `worker/`: Cloudflare Worker agent API (personal tokens, save words and sentences, daily limit).
 - Docs: user guide, architecture (10 diagrams), operations guide in `docs/`.
-- New screen **Library → 🤖 Kết nối AI agent**: create, list and revoke personal tokens. Its address is `agentApiUrl` in `firebase-config.js`.
+- New screen **Profile → 🤖 Kết nối AI agent**: create, list and revoke personal tokens. Its address is `agentApiUrl` in `firebase-config.js`.
 
 ## 1.0.0
 

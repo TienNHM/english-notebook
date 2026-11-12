@@ -2,31 +2,38 @@
 
 Dành cho người học. Cài đặt và vận hành xem [OPERATIONS.md](OPERATIONS.md); kiến trúc xem [ARCHITECTURE.md](ARCHITECTURE.md).
 
-Mục lục: [1. Bắt đầu](#1-bắt-đầu) · [2. Thêm từ và câu](#2-thêm-từ-và-câu) · [3. Thư viện](#3-thư-viện) · [4. Ôn tập](#4-ôn-tập-leitner) · [5. Thưởng và streak](#5-thưởng-streak-và-mục-tiêu-ngày) · [6. Giao diện](#6-giao-diện) · [7. Cài lên điện thoại](#7-cài-lên-điện-thoại-pwa) · [8. Chia sẻ kho](#8-chia-sẻ-kho-từ-vựng) · [9. Dùng với AI agent](#9-dùng-với-ai-agent-claude-cursor) · [10. Hỏi đáp](#10-hỏi-đáp)
+Mục lục: [1. Bắt đầu](#1-bắt-đầu) · [2. Thêm từ và câu](#2-thêm-từ-và-câu) · [3. Thư viện và Profile](#3-thư-viện-và-profile) · [4. Ôn tập](#4-ôn-tập-leitner) · [5. Thưởng và streak](#5-thưởng-streak-và-mục-tiêu-ngày) · [6. Giao diện](#6-giao-diện) · [7. Cài lên điện thoại](#7-cài-lên-điện-thoại-pwa) · [8. Chia sẻ kho](#8-chia-sẻ-kho-từ-vựng) · [9. Dùng với AI agent](#9-dùng-với-ai-agent-claude-cursor) · [10. Hỏi đáp](#10-hỏi-đáp)
 
 ## 1. Bắt đầu
 
 1. Mở `https://english-notebook.tiennhm.io.vn`.
 2. Bấm **Đăng nhập Google** để đồng bộ giữa các thiết bị. Không đăng nhập vẫn dùng được, nhưng dữ liệu chỉ nằm trong trình duyệt này.
-3. App có 4 tab: **Thêm**, **Thư viện**, **Ôn tập**, **Thưởng**.
+3. App có 4 tab: **Thư viện** (có nút thêm từ/câu mới), **Ôn tập**, **Thưởng**, **Profile** (cài đặt cá nhân).
 
 ## 2. Thêm từ và câu
+
+Trong tab **Thư viện**, bấm **➕ Thêm từ / câu mới** để mở form (bấm lại để ẩn). Sửa một thẻ cũng mở form này.
 
 - **Từ / cụm từ:** nhập nghĩa tiếng Việt, ví dụ và ghi chú (tùy chọn).
 - **Câu:** nhập câu tiếng Anh, nghĩa, câu gốc (vd tiếng Việt bạn đã gõ) và các **cụm hay** trong câu. Mỗi cụm thành một thẻ riêng, liên kết với câu.
 - **Tag** (vd `work`, `git`, `meeting`) giúp lọc trong Thư viện.
 - Thẻ trùng nội dung (không phân biệt hoa thường) sẽ bị bỏ qua khi thêm bằng AI agent.
 
-## 3. Thư viện
+## 3. Thư viện và Profile
 
-Tìm kiếm, lọc theo loại (từ, cụm, câu) và tag, sửa hoặc xóa thẻ. Cuối trang có các nút:
+**Thư viện:** nút thêm thẻ, ô tìm kiếm, lọc theo loại (từ, cụm, câu) và tag, sửa hoặc xóa thẻ. Nhờ vậy dù có hàng nghìn thẻ bạn vẫn thấy các nút ngay đầu trang.
 
-| Nút | Làm gì |
+**Profile** (cài đặt cá nhân), gồm các nhóm:
+
+| Nhóm | Làm gì |
 |---|---|
-| 🔗 Chia sẻ kho | Tạo link để người khác nhập một bản sao kho của bạn. |
-| 📥 Nhập từ link | Dán link hoặc mã nhận được để xem trước và nhập. |
-| 🤖 Kết nối AI agent | Tạo token để AI agent tự lưu từ và câu vào sổ. |
-| ⬇ Xuất JSON / ⬆ Nhập JSON | Sao lưu hoặc khôi phục toàn bộ sổ. |
+| 👤 Tài khoản | Đăng nhập / đăng xuất (Google, Facebook). |
+| 🎨 Giao diện | 4 phong cách, chế độ màu (hệ thống / sáng / tối), hiệu ứng chuyển động. |
+| 🎯 Học tập | Mục tiêu mỗi ngày (5 đến 30 thẻ). |
+| 📲 Cài app | Cài lên điện thoại hoặc máy tính (chỉ hiện khi cài được). |
+| 🔗 Chia sẻ kho từ vựng | Tạo link để người khác nhập một bản sao kho của bạn, hoặc nhập kho bạn nhận được. |
+| 🤖 AI agent | Tạo token để AI agent tự lưu từ và câu vào sổ. |
+| 💾 Sao lưu dữ liệu | Xuất / nhập toàn bộ sổ bằng file JSON. |
 
 ## 4. Ôn tập (Leitner)
 
@@ -43,20 +50,20 @@ Tab Ôn tập chỉ hiện các thẻ **đến hạn** hôm nay, và dùng toàn
 Tab **Thưởng** có:
 
 - **Streak:** số ngày liên tiếp hoàn thành mục tiêu. Cứ mỗi 7 ngày streak bạn nhận 1 **băng giữ streak** (tối đa 2), tự dùng khi lỡ một ngày.
-- **Mục tiêu ngày:** 5, 10, 15, 20 hoặc 30 thẻ; đạt mục tiêu được thưởng thêm XP.
+- **Mục tiêu ngày:** 5, 10, 15, 20 hoặc 30 thẻ (đổi ở tab Profile); đạt mục tiêu được thưởng thêm XP.
 - **XP:** Quên 1, Nhớ 3, Dễ 5.
 - **Huy hiệu:** mở khóa theo streak (3 đến 100 ngày), số lần nhớ đúng (50, 200, 1000), số thẻ (10, 50, 100), 10 câu đã lưu, thẻ lên box 5…
 - **Chia sẻ thành tích:** tạo ảnh thẻ thành tích để đăng lên mạng xã hội (ảnh tạo ngay trên máy bạn, không tải gì lên).
 
 ## 6. Giao diện
 
-- 🎨 đổi **4 phong cách**: Neo (brutalism), Solid, Glass, Gradient.
-- Nút chủ đề: **sáng / tối / theo hệ thống**.
-- Hiệu ứng chuyển động có công tắc bật/tắt (mặc định theo cài đặt "giảm chuyển động" của hệ điều hành).
+- Vào tab **Profile → 🎨 Giao diện** để đổi **4 phong cách**: Neo (brutalism), Solid, Glass, Gradient.
+- Chế độ màu: **sáng / tối / theo hệ thống** (cùng chỗ trong Profile).
+- Hiệu ứng chuyển động có công tắc bật/tắt trong Profile (mặc định theo cài đặt "giảm chuyển động" của hệ điều hành).
 
 ## 7. Cài lên điện thoại (PWA)
 
-- **Android (Chrome):** bấm **📲 Cài app** hoặc menu ⋮ → *Cài đặt ứng dụng*. Trên Samsung nếu có cảnh báo bảo mật, hãy cài từ Chrome (cảnh báo đến từ Samsung Auto Blocker, không phải lỗi của app).
+- **Android (Chrome):** vào **Profile** bấm **📲 Cài app** hoặc menu ⋮ → *Cài đặt ứng dụng*. Trên Samsung nếu có cảnh báo bảo mật, hãy cài từ Chrome (cảnh báo đến từ Samsung Auto Blocker, không phải lỗi của app).
 - **iPhone / iPad (Safari):** Chia sẻ → *Thêm vào Màn hình chính*.
 - **Máy tính (Chrome/Edge):** biểu tượng cài ở thanh địa chỉ.
 
@@ -64,15 +71,15 @@ App chạy toàn màn hình, dùng được khi không có mạng và tự cập
 
 ## 8. Chia sẻ kho từ vựng
 
-**Người chia sẻ:** Thư viện → 🔗 Chia sẻ kho → chọn loại thẻ và tag → chọn có kèm *câu gốc* và *ghi chú* hay không → chọn thời hạn (7, 30 hoặc 90 ngày) → **Tạo link** → gửi link hoặc mã 22 ký tự. Bạn có thể **thu hồi** link bất cứ lúc nào.
+**Người chia sẻ:** Profile → 🔗 Chia sẻ kho → chọn loại thẻ và tag → chọn có kèm *câu gốc* và *ghi chú* hay không → chọn thời hạn (7, 30 hoặc 90 ngày) → **Tạo link** → gửi link hoặc mã 22 ký tự. Bạn có thể **thu hồi** link bất cứ lúc nào.
 
-**Người nhận:** mở link (hoặc Thư viện → 📥 Nhập từ link), đăng nhập, **xem trước**, rồi nhập. Thẻ được **sao chép** vào sổ của người nhận (box 0, tag `#shared`); sổ của người chia sẻ không đổi và tiến độ học không bị chia sẻ.
+**Người nhận:** mở link (hoặc Profile → 📥 Nhập từ link), đăng nhập, **xem trước**, rồi nhập. Thẻ được **sao chép** vào sổ của người nhận (box 0, tag `#shared`); sổ của người chia sẻ không đổi và tiến độ học không bị chia sẻ.
 
 ## 9. Dùng với AI agent (Claude, Cursor…)
 
 AI agent sẽ: sửa tiếng Anh cho bạn, trả lời bằng tiếng Anh đơn giản kèm tiếng Việt, rồi **tự lưu** câu và cụm hay vào sổ sau mỗi yêu cầu tiếng Việt.
 
-1. Trong app: **Thư viện → 🤖 Kết nối AI agent → Tạo token**. Sao chép token ngay (chỉ hiện một lần, không gửi cho ai).
+1. Trong app: **Profile → 🤖 Kết nối AI agent → Tạo token**. Sao chép token ngay (chỉ hiện một lần, không gửi cho ai).
 2. Trong Claude Code (bản 2.1.275 trở lên):
 
    ```bash
