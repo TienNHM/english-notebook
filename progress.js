@@ -16,21 +16,47 @@ export const MAX_FREEZES = 2;
 export const FREEZE_EVERY = 7; // earn one freeze each time the streak reaches a multiple of 7
 
 export const BADGES = [
+  // getting started and daily goals
   { id: "first",    icon: "🌱", name: "Khởi đầu",       desc: "Ôn thẻ đầu tiên",                  test: s => s.reviews >= 1 },
   { id: "goal1",    icon: "🎯", name: "Đúng mục tiêu",  desc: "Đạt mục tiêu ngày lần đầu",        test: s => s.goalDays >= 1 },
+  { id: "goal7",    icon: "🎖️", name: "Chuyên cần",     desc: "Đạt mục tiêu ngày 7 lần",          test: s => s.goalDays >= 7 },
+  { id: "goal30",   icon: "🏅", name: "Kỷ luật",        desc: "Đạt mục tiêu ngày 30 lần",         test: s => s.goalDays >= 30 },
+  { id: "goal100",  icon: "💪", name: "Bền bỉ",         desc: "Đạt mục tiêu ngày 100 lần",        test: s => s.goalDays >= 100 },
+  { id: "active30", icon: "📅", name: "Người quen",     desc: "Học trong 30 ngày khác nhau",      test: s => s.activeDays >= 30 },
+  // streaks
   { id: "streak3",  icon: "🔥", name: "Nóng máy",       desc: "Streak 3 ngày",                    test: s => s.best >= 3 },
   { id: "streak7",  icon: "⚡", name: "Một tuần",       desc: "Streak 7 ngày",                    test: s => s.best >= 7 },
   { id: "streak14", icon: "🚀", name: "Hai tuần",       desc: "Streak 14 ngày",                   test: s => s.best >= 14 },
   { id: "streak30", icon: "👑", name: "Một tháng",      desc: "Streak 30 ngày",                   test: s => s.best >= 30 },
   { id: "streak100", icon: "💎", name: "Kim cương",     desc: "Streak 100 ngày",                  test: s => s.best >= 100 },
+  { id: "streak365", icon: "🌍", name: "Một năm",       desc: "Streak 365 ngày",                  test: s => s.best >= 365 },
+  { id: "saved",    icon: "🧊", name: "Cứu thua",       desc: "Băng cứu streak đã cứu bạn một lần", test: s => s.saved >= 1 },
+  // reviews and records in one day
   { id: "rev50",    icon: "📖", name: "50 lần ôn",      desc: "Nhớ lại đúng 50 lần",              test: s => s.reviews >= 50 },
   { id: "rev200",   icon: "📘", name: "200 lần ôn",     desc: "Nhớ lại đúng 200 lần",             test: s => s.reviews >= 200 },
   { id: "rev1000",  icon: "🎓", name: "1000 lần ôn",    desc: "Nhớ lại đúng 1000 lần",            test: s => s.reviews >= 1000 },
+  { id: "rev5000",  icon: "🏔️", name: "5000 lần ôn",    desc: "Nhớ lại đúng 5000 lần",            test: s => s.reviews >= 5000 },
+  { id: "day50",    icon: "💥", name: "Ngày bùng nổ",   desc: "Nhớ đúng 50 thẻ trong một ngày",   test: s => s.bigDay >= 50 },
+  { id: "day100",   icon: "⚙️", name: "Cỗ máy",         desc: "Nhớ đúng 100 thẻ trong một ngày",  test: s => s.bigDay >= 100 },
+  // xp and level
+  { id: "xp1000",   icon: "✨", name: "1.000 XP",       desc: "Đạt 1.000 XP",                     test: s => s.xp >= 1000 },
+  { id: "xp5000",   icon: "🌟", name: "5.000 XP",       desc: "Đạt 5.000 XP",                     test: s => s.xp >= 5000 },
+  { id: "lv5",      icon: "🥉", name: "Lên cấp 5",      desc: "Đạt Lv 5",                         test: s => s.level >= 5 },
+  { id: "lv10",     icon: "🥇", name: "Lên cấp 10",     desc: "Đạt Lv 10",                        test: s => s.level >= 10 },
+  // library
   { id: "items10",  icon: "📚", name: "10 thẻ",         desc: "Có 10 thẻ trong thư viện",         test: s => s.items >= 10 },
   { id: "items50",  icon: "🗂️", name: "50 thẻ",         desc: "Có 50 thẻ trong thư viện",         test: s => s.items >= 50 },
   { id: "items100", icon: "🏛️", name: "100 thẻ",        desc: "Có 100 thẻ trong thư viện",        test: s => s.items >= 100 },
+  { id: "items500", icon: "📦", name: "500 thẻ",        desc: "Có 500 thẻ trong thư viện",        test: s => s.items >= 500 },
+  { id: "items1000", icon: "🏰", name: "Kho báu",       desc: "Có 1.000 thẻ trong thư viện",      test: s => s.items >= 1000 },
   { id: "sent10",   icon: "💬", name: "Người kể chuyện", desc: "Lưu 10 câu",                      test: s => s.sentences >= 10 },
+  { id: "sent50",   icon: "✍️", name: "Cây bút",        desc: "Lưu 50 câu",                       test: s => s.sentences >= 50 },
+  { id: "tags5",    icon: "🏷️", name: "Ngăn nắp",       desc: "Dùng 5 tag khác nhau",             test: s => s.tags >= 5 },
+  { id: "agent10",  icon: "🤝", name: "Cộng sự AI",     desc: "10 thẻ do AI agent lưu giúp bạn",  test: s => s.agent >= 10 },
+  // mastery
   { id: "box5",     icon: "🏆", name: "Thuộc lòng",     desc: "Có một thẻ lên box 5",             test: s => s.maxBox >= 5 },
+  { id: "box5x10",  icon: "🧠", name: "Trí nhớ tốt",    desc: "Có 10 thẻ ở box 5",                test: s => s.box5 >= 10 },
+  { id: "box5x100", icon: "🧙", name: "Bậc thầy ghi nhớ", desc: "Có 100 thẻ ở box 5",             test: s => s.box5 >= 100 },
 ];
 
 const TITLES = ["Người mới", "Học viên", "Chăm chỉ", "Thành thạo", "Cao thủ", "Bậc thầy", "Huyền thoại"];
@@ -107,6 +133,9 @@ export function stats(p, today, ctx) {
   return {
     reviews: vals.reduce((a, d) => a + d.n, 0), goalDays: vals.filter(d => d.f).length,
     best: s.best, items: ctx.items || 0, sentences: ctx.sentences || 0, maxBox: ctx.maxBox || 0,
+    activeDays: vals.filter(d => d.n > 0).length, bigDay: vals.reduce((m, d) => Math.max(m, d.n), 0),
+    saved: vals.filter(d => d.z).length, xp: totalXp(p), level: levelInfo(totalXp(p)).level,
+    tags: ctx.tags || 0, agent: ctx.agent || 0, box5: ctx.box5 || 0,
   };
 }
 
@@ -114,7 +143,7 @@ export const effectiveGoal = (p, itemCount) => Math.max(1, Math.min(p.goal, item
 export const todayCount = (p, today) => (p.days[today]?.n || 0);
 
 // ---------- recording one review ----------
-// grade: 0 Quên, 1 Nhớ, 2 Dễ. ctx: { items, sentences, maxBox }.
+// grade: 0 Quên, 1 Nhớ, 2 Dễ. ctx: { items, sentences, maxBox, tags, agent, box5 }.
 // Returns { p, ev } where ev = { xp, goalReached, streak, freeze, levelUp, badges[] }.
 export function recordReview(p0, grade, ctx, now = new Date()) {
   const p = structuredClone(p0), today = dayKey(now);

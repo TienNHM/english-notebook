@@ -69,4 +69,42 @@ ok("normProgress cleans bad data", () => {
   const n = P.normProgress({ days: { "bad": { n: 1 }, "2026-10-01": { n: "3", f: 1 } }, goal: 7, fe: -2 });
   assert.deepEqual(Object.keys(n.days), ["2026-10-01"]); assert.equal(n.days["2026-10-01"].n, 3); assert.equal(n.goal, 10); assert.equal(n.fe, 0);
 });
+ok("badge ids, names and icons are unique, and every badge has a description", () => {
+  for (const k of ["id", "icon", "name"]) assert.equal(new Set(P.BADGES.map(b => b[k])).size, P.BADGES.length, k);
+  assert.ok(P.BADGES.every(b => b.desc && typeof b.test === "function"));
+  assert.ok(P.BADGES.length >= 30);
+});
+ok("a new account has no badge; stats expose every number the badges use", () => {
+  const st = P.stats(P.emptyProgress(), "2026-10-01", {});
+  for (const k of ["reviews", "goalDays", "best", "items", "sentences", "maxBox", "activeDays", "bigDay", "saved", "xp", "level", "tags", "agent", "box5"]) assert.equal(typeof st[k], "number", k);
+  assert.deepEqual(P.BADGES.filter(b => b.test(st)).map(b => b.id), []);
+});
+ok("library badges follow the card counts (items, sentences, tags, AI agent, box 5)", () => {
+  const c = { items: 1000, sentences: 50, maxBox: 5, tags: 5, agent: 10, box5: 100 };
+  const got = P.checkBadges(P.emptyProgress(), c, at("2026-10-01")).badges.map(b => b.id);
+  for (const id of ["items10", "items50", "items100", "items500", "items1000", "sent10", "sent50", "tags5", "agent10", "box5", "box5x10", "box5x100"]) assert.ok(got.includes(id), id);
+  assert.ok(!got.includes("rev50") && !got.includes("goal1"));
+});
+ok("one big day unlocks the daily-record badges", () => {
+  let p = P.emptyProgress();
+  for (let i = 0; i < 100; i++) ({ p } = P.recordReview(p, 2, { items: 500 }, at("2026-10-01")));
+  for (const id of ["first", "goal1", "day50", "day100", "rev50"]) assert.ok(p.badges[id], id);
+  assert.ok(!p.badges.rev200);
+  const st = P.stats(p, "2026-10-01", { items: 500 });
+  assert.equal(st.bigDay, 100); assert.equal(st.activeDays, 1); assert.equal(st.xp, P.totalXp(p));
+});
+ok("goal-day and saved-by-freeze badges count days", () => {
+  let p = P.emptyProgress();
+  for (let i = 1; i <= 7; i++) ({ p } = day(p, `2026-10-${String(i).padStart(2, "0")}`, 10));
+  assert.ok(p.badges.goal7 && p.badges.streak7 && !p.badges.goal30);
+  assert.equal(P.stats(p, "2026-10-07", ctx).saved, 0);
+  p.days["2026-10-08"] = { n: 0, xp: 0, f: false, z: true };
+  assert.equal(P.stats(p, "2026-10-08", ctx).saved, 1);
+  assert.ok(P.checkBadges(p, ctx, at("2026-10-08")).badges.some(b => b.id === "saved"));
+});
+ok("level badges come from total xp", () => {
+  const p = P.emptyProgress(); p.days["2026-10-01"] = { n: 1, xp: 30 * 16, f: false, z: false };
+  const ids = P.checkBadges(p, {}, at("2026-10-01")).badges.map(b => b.id);
+  assert.ok(ids.includes("lv5") && ids.includes("xp1000") === false && !ids.includes("lv10"));
+});
 console.log(`\n${t} tests passed`);

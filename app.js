@@ -109,6 +109,9 @@ const today = () => P.dayKey();
 const ctxNow = () => ({
   items: items.length, sentences: items.filter(i => i.type === "sentence").length,
   maxBox: items.reduce((m, i) => Math.max(m, i.box), 0),
+  tags: new Set(items.flatMap(i => i.tags)).size,
+  agent: items.filter(i => i.source === "claude").length,   // cards saved by an AI agent
+  box5: items.filter(i => i.box >= 5).length,
 });
 function saveProgress() {
   progress = P.prune(progress, today());
