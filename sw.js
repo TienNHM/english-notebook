@@ -1,6 +1,6 @@
-const CACHE = "english-notebook-v19";
+const CACHE = "english-notebook-v20";
 const FILES = [
-  "./", "index.html", "style.css", "app.js", "progress.js", "share.js", "vault.js", "vault-ui.js", "review-order.js", "paging.js", "agent.js", "agent-ui.js", "cloud.js", "firebase-config.js",
+  "./", "index.html", "style.css", "app.js", "progress.js", "share.js", "vault.js", "vault-ui.js", "review-order.js", "paging.js", "mirror.js", "agent.js", "agent-ui.js", "cloud.js", "firebase-config.js",
   "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png",
   ...[500, 600, 700, 800].flatMap(w => ["vietnamese", "latin"].map(s => `fonts/be-vietnam-pro-${w}-${s}.woff2`)),
 ];
@@ -22,6 +22,14 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const r = e.request, url = new URL(r.url);
   if (r.method !== "GET" || (url.origin !== location.origin && !r.url.startsWith(SDK))) return;
+  // The Firebase SDK URLs carry a version number, so the same URL never changes: serve it from the cache first (faster start-up).
+  if (r.url.startsWith(SDK)) {
+    e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(r, copy)); }
+      return res;
+    })));
+    return;
+  }
   // "no-cache" = ask the server every time whether the file changed (a cheap 304 when it did not); the SDK URLs are versioned, so they keep the normal cache
   e.respondWith(
     fetch(r, url.origin === location.origin ? { cache: "no-cache" } : undefined).then(res => {

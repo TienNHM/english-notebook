@@ -3,6 +3,7 @@
 ## 2.1.0
 
 - Performance: the Library draws 40 cards at a time and loads the next page when you scroll near the end (or press **Tải thêm**); search is debounced; the list is not drawn while the Library is hidden; card lookups are indexed (no more O(n²)). With 1,500 cards: 21,000 → 1,000 DOM nodes, and a redraw went from 0.5-1.1 s to about 10 ms.
+- Fast start-up when signed in: the app keeps a local copy of your cards (`mirror.js`) and draws it at once, before Firebase has loaded; the cloud answer then replaces it. Edits made in that short window are sent when the login is confirmed. The copy is deleted on sign-out. The service worker now serves the versioned Firebase SDK from its cache first.
 - Review: **🔀 Ngẫu nhiên** button and a *Thứ tự ôn tập* setting (Profile) to shuffle the cards that are due; default stays oldest-due-first.
 - 20 new trophy badges (35 in total): more daily-goal, streak (up to 365 days), review, XP and level milestones, a one-day record, "saved by a freeze", library size up to 1,000 cards, sentences, tags, AI agent helper, and box 5 mastery.
 

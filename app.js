@@ -5,6 +5,7 @@ import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
 import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./paging.js";
+import { readMirror, writeMirror, clearMirror, newPending, addPending, takePending } from "./mirror.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -73,7 +74,12 @@ function loadProgress() {
   try { return P.normProgress(JSON.parse(localStorage.getItem(PROG_KEY))); } catch { return P.emptyProgress(); }
 }
 
-let items = loadLocal();
+// Signed-in users: draw the mirror of their cloud cards at once (the cloud answers later and replaces it).
+// mirrorUid is set while that mirror is shown but the login is not confirmed yet.
+const mirror = cloud.enabled ? readMirror(localStorage) : null;
+let mirrorUid = mirror ? mirror.uid : null;
+const pending = newPending(); // edits made in that short window; sent as soon as the user is known
+let items = mirror ? mirror.items.map(norm).sort((a, b) => b.created - a.created) : loadLocal();
 let progress = loadProgress();
 let user = null, unsub = null, unsubP = null;
 let authKnown = !cloud.enabled; // false until Firebase has told us whether someone is signed in
@@ -102,8 +108,14 @@ function commit(changed = [], removedIds = []) {
   if (user) {
     changed.forEach(it => cloud.put(user.uid, it).catch(syncErr));
     removedIds.forEach(id => cloud.del(user.uid, id).catch(syncErr));
-  } else saveLocal();
+  } else if (mirrorUid) { addPending(pending, changed, removedIds); writeMirror(localStorage, mirrorUid, items); }
+  else saveLocal();
   renderAll();
+}
+let mirrorTimer;
+function saveMirrorSoon(uidNow) { // after each cloud snapshot; waits a moment so a burst of snapshots writes once
+  clearTimeout(mirrorTimer);
+  mirrorTimer = setTimeout(() => { if (user && user.uid === uidNow) writeMirror(localStorage, uidNow, items); }, 400);
 }
 
 // ---------- progress: streak, xp, badges ----------
@@ -164,9 +176,17 @@ function onUser(u) {
   if (unsubP) { unsubP(); unsubP = null; }
   user = u; authKnown = true; renderAuth(); vaultUi?.onUser(); agentUi?.onUser();
   if (!u) {
+    clearMirror(localStorage); mirrorUid = null; takePending(pending); // signed out: do not keep the cards on this device
     items = loadLocal(); progress = loadProgress(); progressReady = true;
     renderAll(); settle(); renderPills(); renderRewards(); return;
   }
+  if (mirrorUid && mirrorUid !== u.uid) { items = loadLocal(); takePending(pending); renderAll(); } // mirror belonged to someone else
+  else if (mirrorUid) { // same user: send the edits made while waiting
+    const p = takePending(pending);
+    p.put.forEach(it => cloud.put(u.uid, it).catch(syncErr));
+    p.del.forEach(id => cloud.del(u.uid, id).catch(syncErr));
+  }
+  mirrorUid = null;
   progressReady = false;
   cloud.watchProgress(u.uid, doc => {
     progressReady = true;
@@ -186,6 +206,7 @@ function onUser(u) {
       loadLocal().filter(i => !have.has(i.id)).forEach(i => cloud.put(u.uid, i).catch(syncErr));
     }
     items = remote.sort((a, b) => b.created - a.created);
+    saveMirrorSoon(u.uid);
     renderAllSoon();   // snapshots can arrive twice in a row (cache, then server): draw once
     if (progressReady) awardBadges(false);
     // opened straight on the Review tab (shortcut) before the cards arrived: start it now
@@ -570,7 +591,9 @@ function grade(g) {
   c.box = g === 0 ? 0 : Math.min(5, c.box + g);
   c.due = g === 0 ? Date.now() + 10 * 60000 : Date.now() + INTERVALS[c.box] * DAY;
   c.reviews++;
-  if (user) cloud.put(user.uid, c).catch(syncErr); else saveLocal();
+  if (user) cloud.put(user.uid, c).catch(syncErr);
+  else if (mirrorUid) { addPending(pending, [c]); writeMirror(localStorage, mirrorUid, items); }
+  else saveLocal();
   renderStats();
   if (g === 0) queue.push(c); // see it again in this session
   else reviewDone++;
