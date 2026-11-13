@@ -230,6 +230,8 @@ button.small:active{transform:var(--press-sm);box-shadow:var(--sh-none)}
 button.chip{cursor:pointer;color:var(--text);padding:3px 11px;box-shadow:var(--sh-xs)}
 button.chip.on{background:var(--violet);color:var(--on)}
 .list{list-style:none;padding:0;margin:0;display:grid;gap:16px}
+.listfoot{text-align:center;margin:18px 0 6px}
+.listinfo{font:var(--fw) .78rem var(--mono);color:var(--muted);margin-bottom:8px}
 .item{position:relative;background:var(--card);border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px 12px calc(var(--strip) + 12px);overflow:hidden;transition:transform .08s,box-shadow .08s}
 .item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--strip);background:var(--yellow);border-right:var(--bw-div) solid var(--ink)}
 .item[data-type=phrase]::before{background:var(--blue)}
@@ -408,6 +410,7 @@ nav button.active{animation:tabpop .34s var(--bounce)}
 
 #addForm.saved{animation:saved .45s var(--bounce)}
 .list.stagger .item{animation:rise .42s var(--bounce) backwards;animation-delay:calc(min(var(--i,0),10) * 45ms)}
+.list.stagger .item.more{animation:none} /* pages added by scrolling just appear */
 .list .item.new{animation:rise .5s var(--bounce) backwards,flash 1.6s ease-out .1s}
 .list .item.leaving{animation:leave .26s ease-in forwards;pointer-events:none} /* same weight as .list.stagger .item, and later, so it wins */
 

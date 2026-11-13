@@ -21,7 +21,7 @@ Trong tab **Thư viện**, bấm **➕ Thêm từ / câu mới** để mở form
 
 ## 3. Thư viện và Profile
 
-**Thư viện:** nút thêm thẻ, ô tìm kiếm, lọc theo loại (từ, cụm, câu) và tag, sửa hoặc xóa thẻ. Nhờ vậy dù có hàng nghìn thẻ bạn vẫn thấy các nút ngay đầu trang.
+**Thư viện:** nút thêm thẻ, ô tìm kiếm, lọc theo loại (từ, cụm, câu) và tag, sửa hoặc xóa thẻ. Danh sách hiện 40 thẻ một lần và tự tải thêm khi bạn cuộn gần cuối (hoặc bấm **Tải thêm**), nên mở app nhanh dù có hàng nghìn thẻ. Nhờ vậy dù có hàng nghìn thẻ bạn vẫn thấy các nút ngay đầu trang.
 
 **Profile** (cài đặt cá nhân), gồm các nhóm:
 

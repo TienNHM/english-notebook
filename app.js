@@ -4,6 +4,7 @@ import * as S from "./share.js";
 import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
 import { ORDERS, orderQueue, normOrder } from "./review-order.js";
+import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./paging.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -185,7 +186,7 @@ function onUser(u) {
       loadLocal().filter(i => !have.has(i.id)).forEach(i => cloud.put(u.uid, i).catch(syncErr));
     }
     items = remote.sort((a, b) => b.created - a.created);
-    renderAll();
+    renderAllSoon();   // snapshots can arrive twice in a row (cache, then server): draw once
     if (progressReady) awardBadges(false);
     // opened straight on the Review tab (shortcut) before the cards arrived: start it now
     if ($("#tab-review").classList.contains("active") && !current && reviewTotal === 0) startReview();
@@ -272,7 +273,7 @@ function showTab(name) {
   $$("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
   $$(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
   if (name === "review") startReview();
-  if (name === "library") { listAnim = true; renderList(); }
+  if (name === "library") { listAnim = true; resetPaging(); renderList(); }
   if (name === "profile") renderProfile();
   if (name === "rewards") {
     for (const k of Object.keys(shownCounts)) delete shownCounts[k]; // count up again when the tab is opened
@@ -378,22 +379,17 @@ function editItem(id) {
 }
 
 // ---------- library ----------
-function renderList() {
-  const q = $("#q").value.trim().toLowerCase(), ft = $("#fltType").value;
-  const tags = [...new Set(items.flatMap(i => i.tags))].sort();
-  $("#tagBar").innerHTML = tags.map(t => `<button class="chip ${t === activeTag ? "on" : ""}" data-tag="${esc(t)}">#${esc(t)}</button>`).join("");
-  const shown = items.filter(i =>
-    (!ft || i.type === ft) && (!activeTag || i.tags.includes(activeTag)) &&
-    (!q || [i.text, i.meaning, i.example, i.note, i.original].join(" ").toLowerCase().includes(q)));
-  const inLibrary = $("#tab-library").classList.contains("active");
-  const fresh = new Set(justAdded);
-  $("#list").classList.toggle("stagger", listAnim && inLibrary);
-  if (inLibrary) { listAnim = false; justAdded.clear(); }
-  $("#list").innerHTML = shown.length ? shown.map((i, idx) => {
-    const parent = i.sourceId && items.find(p => p.id === i.sourceId);
-    const kids = items.filter(k => k.sourceId === i.id).length;
-    return `
-    <li class="item${fresh.has(i.id) ? " new" : ""}" data-id="${i.id}" data-type="${i.type}" style="--i:${idx}">
+// The list is drawn one page at a time (PAGE_SIZE cards). The next page is added when the reader scrolls near the end
+// (IntersectionObserver) or presses "Tải thêm". Drawing 1,000+ cards at once froze the app.
+let shownCount = PAGE_SIZE;         // how many cards the reader has asked for (kept across data updates)
+let shownList = [], renderedCount = 0, listIndex = buildIndex([]), listDirty = false, lastTagHtml = "";
+const resetPaging = () => { shownCount = PAGE_SIZE; };
+const debounce = (fn, ms) => { let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); }; };
+
+function itemHtml(i, idx, fresh, more) {
+  const parent = i.sourceId && listIndex.byId.get(i.sourceId), kids = listIndex.kids.get(i.id) || 0;
+  return `
+    <li class="item${fresh.has(i.id) ? " new" : ""}${more ? " more" : ""}" data-id="${i.id}" data-type="${i.type}" style="--i:${Math.min(idx, 10)}">
       <div class="en">${esc(i.text)}</div>
       <div class="vi">${esc(i.meaning)}</div>
       ${i.original ? `<div class="note">🇻🇳 Câu gốc: ${esc(i.original)}</div>` : ""}
@@ -413,13 +409,47 @@ function renderList() {
         </span>
       </div>
     </li>`;
-  }).join("") : `<div class="empty">Chưa có mục nào.</div>`;
 }
-$("#q").oninput = renderList;
-$("#fltType").onchange = renderList;
+function renderList() {
+  // Nothing to draw while the Library is hidden (the add form lives there too): draw when it is opened.
+  if (!$("#tab-library").classList.contains("active")) { listDirty = true; return; }
+  listDirty = false;
+  const q = $("#q").value.trim().toLowerCase(), ft = $("#fltType").value;
+  const tagHtml = [...new Set(items.flatMap(i => i.tags))].sort().map(t => `<button class="chip ${t === activeTag ? "on" : ""}" data-tag="${esc(t)}">#${esc(t)}</button>`).join("");
+  if (tagHtml !== lastTagHtml) { $("#tagBar").innerHTML = tagHtml; lastTagHtml = tagHtml; }
+  shownList = filterItems(items, { type: ft, tag: activeTag, query: q });
+  listIndex = buildIndex(items);
+  const fresh = new Set(justAdded);
+  $("#list").classList.toggle("stagger", listAnim);
+  listAnim = false; justAdded.clear();
+  renderedCount = Math.min(shownCount, shownList.length);
+  $("#list").innerHTML = shownList.length ? shownList.slice(0, renderedCount).map((i, idx) => itemHtml(i, idx, fresh, false)).join("") : `<div class="empty">Chưa có mục nào.</div>`;
+  renderListFoot();
+}
+// Footer under the list: "Hiển thị 40 / 1000" + a button. Watching it makes the next page load by itself.
+const listObserver = "IntersectionObserver" in window
+  ? new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) loadMore(); }, { rootMargin: "600px 0px" }) : null;
+function renderListFoot() {
+  const foot = $("#listFoot"), pi = pageInfo(renderedCount, shownList.length);
+  listObserver?.unobserve(foot);
+  foot.innerHTML = !shownList.length ? "" : pi.more
+    ? `<div class="listinfo">Hiển thị ${pi.shown} / ${pi.total} mục</div><button type="button" id="moreBtn">⬇ Tải thêm ${pi.next} mục</button>`
+    : pi.total > PAGE_SIZE ? `<div class="listinfo">Đã hiển thị tất cả ${pi.total} mục</div>` : "";
+  if (pi.more) listObserver?.observe(foot);   // observe() reports the current state at once, so a short page keeps filling
+}
+function loadMore() {
+  if (renderedCount >= shownList.length) return;
+  const to = nextShown(renderedCount, shownList.length), none = new Set();
+  $("#list").insertAdjacentHTML("beforeend", shownList.slice(renderedCount, to).map((i, k) => itemHtml(i, renderedCount + k, none, true)).join(""));
+  renderedCount = shownCount = to;
+  renderListFoot();
+}
+$("#listFoot").onclick = e => { if (e.target.closest("#moreBtn")) loadMore(); };
+$("#q").oninput = debounce(() => { resetPaging(); renderList(); }, 150);
+$("#fltType").onchange = () => { resetPaging(); renderList(); };
 $("#tagBar").onclick = e => {
   const t = e.target.dataset.tag; if (t === undefined) return;
-  activeTag = activeTag === t ? "" : t; renderList();
+  activeTag = activeTag === t ? "" : t; resetPaging(); renderList();
 };
 $("#list").onclick = e => {
   const act = e.target.dataset.act, li = e.target.closest(".item"); if (!act || !li) return;
@@ -736,6 +766,8 @@ function renderStats() {
   $("#dueBadge").textContent = due || "";
 }
 function renderAll() { renderStats(); renderList(); }
+let renderQueued = false;
+function renderAllSoon() { if (renderQueued) return; renderQueued = true; requestAnimationFrame(() => { renderQueued = false; renderAll(); }); }
 
 // ---------- export / import ----------
 $("#exportBtn").onclick = () => {
