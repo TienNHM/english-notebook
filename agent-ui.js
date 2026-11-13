@@ -1,5 +1,5 @@
 // "Kết nối AI agent" screen: create a personal token, see the tokens, revoke them. Logic is in agent.js.
-import { createAgentApi, friendlyError, MAX_TOKENS, PLUGIN_COMMANDS } from "./agent.js";
+import { createAgentApi, friendlyError, MAX_TOKENS, PLUGIN_COMMANDS, installCommand } from "./agent.js";
 import * as cloud from "./cloud.js";
 import { agentApiUrl } from "./firebase-config.js";
 
@@ -27,6 +27,11 @@ export function initAgent(ctx) {
         <div class="muted-sm">Sao chép ngay, sẽ không hiện lại. Đừng gửi cho ai.</div>
         <input id="agentTokenOut" readonly value="${esc(st.fresh.token)}" aria-label="Token mới">
         <div class="btnrow"><button class="primary" type="button" data-copy>📋 Sao chép token</button></div>
+        <h3>Cách nhanh: một lệnh</h3>
+        <div class="muted-sm">Chạy trong terminal (cần Node.js). Lệnh tự thêm MCP server và skill English Coach vào Claude Code; thêm <code>--agent all</code> để cài cả Cursor.</div>
+        <input id="agentCmdOut" readonly value="${esc(installCommand(st.fresh.token))}" aria-label="Lệnh cài nhanh">
+        <div class="btnrow"><button type="button" data-copycmd>📋 Sao chép lệnh cài</button></div>
+        <h3>Hoặc cài plugin</h3>
         <ol class="steps">
           <li>Cài plugin (một lần): <code>${esc(PLUGIN_COMMANDS[0])}</code> rồi <code>${esc(PLUGIN_COMMANDS[1])}</code></li>
           <li>Khi Claude Code hỏi <b>token</b>, dán token này vào, rồi khởi động lại Claude Code.</li>
@@ -72,12 +77,19 @@ export function initAgent(ctx) {
     catch { const i = $("#agentTokenOut"); i?.select(); ctx.toast("Hãy nhấn Ctrl+C để sao chép"); }
   }
 
+  async function copyCmd() {
+    const v = st.fresh ? installCommand(st.fresh.token) : ""; if (!v) return;
+    try { await navigator.clipboard.writeText(v); ctx.toast("Đã sao chép lệnh cài ✓"); }
+    catch { const i = $("#agentCmdOut"); i?.select(); ctx.toast("Hãy nhấn Ctrl+C để sao chép"); }
+  }
+
   const body = $("#agentBody");
   body.addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     if (b.dataset.create !== undefined) create();
     else if (b.dataset.revoke) revoke(b.dataset.revoke);
     else if (b.dataset.copy !== undefined) copy();
+    else if (b.dataset.copycmd !== undefined) copyCmd();
     else if (b.dataset.login !== undefined) cloud.signIn("google").catch(() => {});
   });
   body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "agentLabel") { e.preventDefault(); create(); } });

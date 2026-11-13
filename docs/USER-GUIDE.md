@@ -82,7 +82,9 @@ App chạy toàn màn hình, dùng được khi không có mạng và tự cập
 AI agent sẽ: sửa tiếng Anh cho bạn, trả lời bằng tiếng Anh đơn giản kèm tiếng Việt, rồi **tự lưu** câu và cụm hay vào sổ sau mỗi yêu cầu tiếng Việt.
 
 1. Trong app: **Profile → 🤖 Kết nối AI agent → Tạo token**. Sao chép token ngay (chỉ hiện một lần, không gửi cho ai).
-2. Trong Claude Code (bản 2.1.275 trở lên):
+2. **Cách nhanh:** bấm **Sao chép lệnh cài** ngay dưới token và chạy trong terminal (cần Node.js). Lệnh tự thêm MCP server và skill; thêm `--agent all` để cài cả Cursor. Gỡ bằng `npx github:TienNHM/english-notebook-mcp uninstall --agent all`.
+
+   Hoặc cài plugin trong Claude Code (bản 2.1.275 trở lên):
 
    ```bash
    claude plugin marketplace add TienNHM/english-notebook-mcp

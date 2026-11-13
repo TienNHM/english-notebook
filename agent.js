@@ -6,6 +6,9 @@ export const PLUGIN_COMMANDS = [
   "claude plugin install english-notebook@tiennhm",
 ];
 
+// One-line installer (npm package from GitHub): adds the MCP server + coach skill to Claude Code. Cursor: add --agent all.
+export const installCommand = token => `npx github:TienNHM/english-notebook-mcp --token ${token} --always-on`;
+
 export class AgentApiError extends Error {
   constructor(message, status) { super(message); this.status = status; }
 }

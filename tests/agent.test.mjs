@@ -58,3 +58,9 @@ test("network failure and non-JSON body", async () => {
   const b = createAgentApi({ baseUrl: "https://w.example", getIdToken: async () => "t", fetch: async () => new Response("<html>", { status: 502 }) });
   await assert.rejects(() => b.list(), e => e.status === 502);
 });
+
+test("installCommand builds the one-line npx installer with the token", async () => {
+  const { installCommand } = await import("../agent.js");
+  const cmd = installCommand("enb_abc");
+  assert.match(cmd, /^npx github:TienNHM\/english-notebook-mcp --token enb_abc /);
+});
