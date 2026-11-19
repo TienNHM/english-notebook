@@ -2,6 +2,7 @@
 
 ## 2.1.0
 
+- Footer shows the app version and links to the GitHub repo and the install guide (`version.js` is the single source of the version).
 - Performance: the Library draws 40 cards at a time and loads the next page when you scroll near the end (or press **Tải thêm**); search is debounced; the list is not drawn while the Library is hidden; card lookups are indexed (no more O(n²)). With 1,500 cards: 21,000 → 1,000 DOM nodes, and a redraw went from 0.5-1.1 s to about 10 ms.
 - Fast start-up when signed in: the app keeps a local copy of your cards (`mirror.js`) and draws it at once, before Firebase has loaded; the cloud answer then replaces it. Edits made in that short window are sent when the login is confirmed. The copy is deleted on sign-out. The service worker now serves the versioned Firebase SDK from its cache first.
 - AI agent screen: after you create a token it shows a one-line `npx` installer (copy button) next to the plugin steps.

@@ -5,6 +5,7 @@ import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
 import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./paging.js";
+import { VERSION, REPO_URL, INSTALL_URL } from "./version.js";
 import { readMirror, writeMirror, clearMirror, newPending, addPending, takePending } from "./mirror.js";
 
 const KEY = "english-notebook-v1";
@@ -865,3 +866,8 @@ agentUi = initAgent({ getUser: () => user, authKnown: () => authKnown, toast });
 const startTab = new URLSearchParams(location.search).get("tab");
 if (startTab === "add") { showTab("library"); openAdd(true); }   // old shortcut: the add form now lives in the Library
 else if (["library", "review", "rewards", "profile"].includes(startTab)) showTab(startTab);
+
+// Footer: version and GitHub links (the single source is version.js)
+$("#appVersion").textContent = "v" + VERSION;
+$("#repoLink").href = REPO_URL;
+$("#installLink").href = INSTALL_URL;
