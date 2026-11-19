@@ -2,6 +2,7 @@
 
 ## 2.1.0
 
+- Update check: the app compares its version with `version.json` on the site (at start-up, when you return to the app, or with **Kiểm tra cập nhật** in the footer) and shows a **Có bản mới – Tải lại** bar. When releasing, change `VERSION` in `version.js`, `version.json` and the top of this file together; `tests/version.test.mjs` fails if they differ.
 - Footer shows the app version and links to the GitHub repo and the install guide (`version.js` is the single source of the version).
 - Performance: the Library draws 40 cards at a time and loads the next page when you scroll near the end (or press **Tải thêm**); search is debounced; the list is not drawn while the Library is hidden; card lookups are indexed (no more O(n²)). With 1,500 cards: 21,000 → 1,000 DOM nodes, and a redraw went from 0.5-1.1 s to about 10 ms.
 - Fast start-up when signed in: the app keeps a local copy of your cards (`mirror.js`) and draws it at once, before Firebase has loaded; the cloud answer then replaces it. Edits made in that short window are sent when the login is confirmed. The copy is deleted on sign-out. The service worker now serves the versioned Firebase SDK from its cache first.

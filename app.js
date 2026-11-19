@@ -5,7 +5,7 @@ import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
 import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./paging.js";
-import { VERSION, REPO_URL, INSTALL_URL } from "./version.js";
+import { VERSION, REPO_URL, INSTALL_URL, checkForUpdate } from "./version.js";
 import { readMirror, writeMirror, clearMirror, newPending, addPending, takePending } from "./mirror.js";
 
 const KEY = "english-notebook-v1";
@@ -871,3 +871,30 @@ else if (["library", "review", "rewards", "profile"].includes(startTab)) showTab
 $("#appVersion").textContent = "v" + VERSION;
 $("#repoLink").href = REPO_URL;
 $("#installLink").href = INSTALL_URL;
+
+// Update check: compare VERSION with version.json on the site. Automatic at start-up and when the app comes back to the
+// screen (at most once an hour); the footer button checks right away. "Tải lại" reloads: the service worker is network-first.
+const UPDATE_EVERY = 3600000;
+let lastUpdateCheck = 0, dismissedVer = "";
+try { dismissedVer = sessionStorage.getItem("english-notebook-update-later") || ""; } catch {}
+async function runUpdateCheck(manual) {
+  lastUpdateCheck = Date.now();
+  const r = await checkForUpdate();
+  if (!r) { if (manual) toast("Không kiểm tra được (đang offline?)"); return; }
+  if (!r.newer) { if (manual) toast(`Bạn đang dùng bản mới nhất (v${VERSION})`); return; }
+  if (!manual && r.latest === dismissedVer) return; // "Để sau" is remembered until the tab is closed
+  $("#updateVer").textContent = "v" + r.latest;
+  $("#updateBar").hidden = false;
+  $("#updateBar").dataset.ver = r.latest;
+}
+$("#updateReload").onclick = () => location.reload();
+$("#updateLater").onclick = () => {
+  const v = $("#updateBar").dataset.ver || "";
+  dismissedVer = v; try { sessionStorage.setItem("english-notebook-update-later", v); } catch {}
+  $("#updateBar").hidden = true;
+};
+$("#checkUpdate").onclick = () => runUpdateCheck(true);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && Date.now() - lastUpdateCheck > UPDATE_EVERY) runUpdateCheck(false);
+});
+setTimeout(() => runUpdateCheck(false), 3000);

@@ -163,6 +163,7 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <span>English Notebook <b id="appVersion"></b></span>
     <a id="repoLink" href="https://github.com/TienNHM/english-notebook" target="_blank" rel="noopener">GitHub</a>
     <a id="installLink" href="https://github.com/TienNHM/english-notebook#install-the-app-on-your-phone" target="_blank" rel="noopener">Hướng dẫn cài đặt</a>
+    <button type="button" id="checkUpdate" class="linkbtn">Kiểm tra cập nhật</button>
   </footer>
 </main>
 
@@ -236,6 +237,11 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <p class="muted-sm">Ảnh được vẽ ngay trên máy bạn, không có tên hay email và không được tải lên đâu cả. Nút mạng xã hội chỉ mở trang chia sẻ với chữ và link; hãy đính kèm ảnh đã tải. Menu 📲 trên điện thoại thì đính kèm được ảnh.</p>
     <button class="primary" id="shareClose" type="button">Đóng</button>
   </div>
+</div>
+<div id="updateBar" class="updatebar" role="status" hidden>
+  <span>🆕 Có bản mới <b id="updateVer"></b></span>
+  <button type="button" id="updateReload" class="small primary">Tải lại</button>
+  <button type="button" id="updateLater" class="small">Để sau</button>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script type="module" src="app.js"></script>

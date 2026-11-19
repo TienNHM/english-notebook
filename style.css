@@ -173,6 +173,13 @@ nav button.active{background:var(--yellow);color:var(--on);box-shadow:var(--sh);
 .appfooter{margin-top:auto;padding-top:28px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font:600 .74rem var(--mono);color:var(--muted)}
 .appfooter a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .appfooter a:hover{color:var(--text)}
+.linkbtn{all:unset;cursor:pointer;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.linkbtn:hover{color:var(--text)}
+.linkbtn:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+/* "new version" bar: sits above the bottom menu */
+.updatebar{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:19;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  max-width:calc(100% - 24px);padding:10px 14px;background:var(--card);color:var(--text);border:var(--bw2,2px) solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--shc);font:700 .84rem var(--font)}
+.updatebar[hidden]{display:none}
 main{width:100%;flex:1;display:flex;flex-direction:column;max-width:760px;margin:0 auto;padding:6px 16px 56px}
 .tab{display:none}
 .tab.active{display:block;animation:pop .18s ease-out}
