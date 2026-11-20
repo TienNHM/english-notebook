@@ -1,5 +1,5 @@
 // Thin Firebase wrapper. The SDK is loaded lazily, only when firebase-config.js is filled in.
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, appCheckSiteKey } from "./firebase-config.js";
 
 export const enabled = !!firebaseConfig;
 const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
@@ -13,6 +13,13 @@ async function load() {
     import(BASE + "firebase-firestore.js"),
   ]);
   const a = app.initializeApp(firebaseConfig);
+  // App Check (optional): proves to Firebase that requests come from this app, not a script. Off until a reCAPTCHA key is set.
+  if (appCheckSiteKey) {
+    try {
+      const ac = await import(BASE + "firebase-app-check.js");
+      ac.initializeAppCheck(a, { provider: new ac.ReCaptchaV3Provider(appCheckSiteKey), isTokenAutoRefreshEnabled: true });
+    } catch (e) { console.warn("App Check not started", e); }
+  }
   // IndexedDB cache: reads and writes keep working offline and sync when back online.
   const db = fs.initializeFirestore(a, {
     localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }),
@@ -49,7 +56,7 @@ const col = (s, uid) => s.fs.collection(s.db, "users", uid, "items");
 //  since == null: all cards ("full read"); info = { delta: false, maxUpdated }.
 //  since = ms:    only cards with updated > since (a "delta"); info = { delta: true, maxUpdated, removed: [ids] }.
 // Cards written before the `updated` field existed never match a delta, which is fine: they have not changed since.
-export async function watch(uid, cb, since = null) {
+export async function watch(uid, cb, since = null, onError) {
   const s = await load();
   const target = since == null ? col(s, uid) : s.fs.query(col(s, uid), s.fs.where("updated", ">", since));
   return s.fs.onSnapshot(target, snap => {
@@ -57,7 +64,16 @@ export async function watch(uid, cb, since = null) {
     const maxUpdated = docs.reduce((m, d) => Math.max(m, +d.updated || 0), 0);
     cb(docs, since == null ? { delta: false, maxUpdated }
       : { delta: true, maxUpdated, removed: snap.docChanges().filter(ch => ch.type === "removed").map(ch => ch.doc.id) });
-  });
+  }, onError);
+}
+
+// Deleted cards leave a small marker (users/{uid}/deleted/{id}, with `updated`), so a delta read can learn about deletions
+// made on another device. Calls cb(arrayOfIds) for markers newer than `since`.
+const tombs = (s, uid) => s.fs.collection(s.db, "users", uid, "deleted");
+export async function watchDeleted(uid, since, cb, onError) {
+  const s = await load();
+  return s.fs.onSnapshot(s.fs.query(tombs(s, uid), s.fs.where("updated", ">", since)),
+    snap => cb(snap.docs.map(d => d.id)), onError);
 }
 
 // Every write stamps `updated` (ms), which is what a delta read looks for.
@@ -81,7 +97,9 @@ export async function putProgress(uid, progress) {
 
 export async function del(uid, id) {
   const s = await load();
-  return s.fs.deleteDoc(s.fs.doc(col(s, uid), id));
+  await s.fs.deleteDoc(s.fs.doc(col(s, uid), id));
+  // The marker is best effort and comes second: if the rules for it are not deployed yet, the delete itself still works.
+  s.fs.setDoc(s.fs.doc(tombs(s, uid), id), { id, updated: Date.now() }).catch(() => {});
 }
 
 // ---------- shared vaults: shares/{shareId} and shares/{shareId}/items/{itemId} (see firestore.rules) ----------

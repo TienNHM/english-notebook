@@ -9,6 +9,7 @@ import { buildVocabulary, buildSentence, dropDuplicates, createListCache, Invali
 export const MAX_TOKENS_PER_USER = 5;
 const MAX_BODY = 20_000;
 const DEFAULT_DAILY_LIMIT = 200;
+const LAST_USED_EVERY = 3600_000;
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", ...extra } });
@@ -109,7 +110,8 @@ export function createHandler(deps) {
         await fs.addItems(uid, fresh.map(i => ({ ...i, updated: now() })));   // `updated` lets the app fetch only changed cards
         cache.add(uid, fresh);
         await kv.put(rk, String(used + fresh.length), { expirationTtl: 172800 });
-        await kv.put(`tok:${hash}`, JSON.stringify({ ...rec, lastUsed: now() }));
+        // "last used" is only for display, so write it at most once an hour (KV allows 1,000 writes a day on the free plan)
+        if (!rec.lastUsed || now() - rec.lastUsed > LAST_USED_EVERY) await kv.put(`tok:${hash}`, JSON.stringify({ ...rec, lastUsed: now() }));
       }
       return json({ added: fresh.map(i => i.text), skipped });
     }

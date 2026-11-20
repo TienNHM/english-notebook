@@ -24,6 +24,10 @@
 <meta name="twitter:description" content="Learn English from what you read and write at work.">
 <meta name="twitter:image" content="https://english-notebook.tiennhm.io.vn/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
+<!-- start downloading the Firebase code at once (cloud.js loads the same three files; keep the version in sync with cloud.js) -->
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" crossorigin>
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
@@ -46,6 +50,11 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
   <h1 class="logo">📒 English Notebook</h1>
   <div class="pills"><span id="rewardPills"></span><span id="stats" class="pill"></span></div>
 </header>
+
+<div id="syncBar" class="syncbar" role="alert" hidden>
+  <span id="syncMsg"></span>
+  <button type="button" id="syncClose" class="small" aria-label="Đóng thông báo">✕</button>
+</div>
 
 <nav>
   <button data-tab="library" class="active">📚 Thư viện</button>

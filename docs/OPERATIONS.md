@@ -28,12 +28,21 @@ Current production values: Firebase project `tiennhm-english-notebook`; app `htt
 5. Service account key (needed only by the Worker or key mode): Project settings → Service accounts → **Generate new private key**. Keep the file outside any git repo.
 6. Rules are checked by hand with `tests/rules.test.mjs` against the real project (it makes temporary users and deletes them).
 
+**App Check (optional, recommended once billing is on).** It makes Firebase accept requests only from your real app, so a script using your public key cannot run up reads. The code is already in `cloud.js` and does nothing until you set a key:
+
+1. Create a reCAPTCHA v3 site key at <https://www.google.com/recaptcha/admin> (domains: `english-notebook.tiennhm.io.vn` and `localhost`).
+2. Firebase console → App Check → Apps → your web app → register with reCAPTCHA v3 and the **secret** key.
+3. Put the **site** key (public) in `appCheckSiteKey` in `firebase-config.js`, push, and use the app for a day.
+4. In App Check → Cloud Firestore, watch the metrics. Only when nearly all requests are "verified", press **Enforce**. Before that, enforcing would block the app.
+5. Local testing after enforcing needs an App Check debug token. The Worker and key-mode MCP use the Admin SDK / a service account and are not affected.
+
 ## 3. App on GitHub Pages
 
 - Settings → Pages → **Source: GitHub Actions**. Custom domain in `CNAME`; DNS: a `CNAME` record from your sub-domain to `<user>.github.io`.
 - Every push to `master` runs `.github/workflows/pages.yml` and publishes only the files in its `cp` list.
 - **Adding a new app file:** add it to (1) the `cp` line in `pages.yml`, (2) `FILES` in `sw.js`, and (3) bump `CACHE` in `sw.js`. Forgetting (1) gives a 404 on the live site; forgetting (2) breaks offline mode.
 - After a deploy the CDN can serve old files for a few minutes (`max-age=14400` on Pages; the service worker checks the network first). Hard refresh (Ctrl+F5) or reopen the app.
+- The deploy workflow runs the unit tests first (all of `tests/` except `rules.test.mjs`, plus `worker/` tests); a failing test stops the deploy.
 - Run the unit tests before pushing:
 
   ```bash

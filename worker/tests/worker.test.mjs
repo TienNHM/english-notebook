@@ -350,3 +350,21 @@ test("Firestore quota exhausted (429) gives a clear 503, nothing else leaks", as
   assert.match(text, /quota/i);
   assert.ok(!text.includes("secret"));
 });
+
+// ---- KV writes: "last used" is written at most once an hour
+test("a save writes the token's last-used time at most once an hour", async () => {
+  let t = 1_000_000;
+  const kv = fakeKv(), puts = [];
+  const origPut = kv.put; kv.put = async (k, v, o) => { puts.push(k); return origPut(k, v, o); };
+  const g = fakeGoogle();
+  const tok = "enb_" + "D".repeat(43);
+  await kv.put(`tok:${await hashToken(tok)}`, JSON.stringify({ uid: "user-a", label: "x", created: 1 }));
+  const h = createHandler({ env: { FIREBASE_PROJECT_ID: PROJECT, DAILY_LIMIT: "50" }, kv, fs: firestoreClient({ serviceAccount: SA, projectId: PROJECT, fetch: g.fetch, now: () => t }), fetch: g.fetch, now: () => t });
+  const save = text => h(new Request("https://w.example/v1/vocabulary", { method: "POST", headers: { authorization: "Bearer " + tok }, body: JSON.stringify({ text, meaning: "m" }) }));
+  puts.length = 0;
+  await save("one"); await save("two"); t += 60_000; await save("three");
+  assert.equal(puts.filter(k => k.startsWith("tok:")).length, 1);      // not 3
+  t += 3600_001; await save("four");
+  assert.equal(puts.filter(k => k.startsWith("tok:")).length, 2);      // an hour later: updated again
+  assert.equal(puts.filter(k => k.startsWith("rate:")).length, 4);     // the daily counter still counts every save
+});

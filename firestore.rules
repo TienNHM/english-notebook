@@ -5,6 +5,10 @@ service cloud.firestore {
     match /users/{uid}/items/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // Markers of deleted cards, so other devices can learn about deletions without re-reading everything
+    match /users/{uid}/deleted/{id} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
     // Streak, XP and badges (users/{uid}/meta/progress)
     match /users/{uid}/meta/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;

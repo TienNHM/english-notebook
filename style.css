@@ -300,6 +300,8 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .streak-big b{font-size:1.9rem;letter-spacing:-.03em}
 .muted-sm{font:600 .78rem var(--mono);color:var(--muted);margin-top:6px}
 .daily-top .muted-sm{margin:0}
+.syncbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none;margin:0 auto;max-width:728px;width:calc(100% - 32px);font-weight:var(--fw);color:var(--on);background:var(--red);border:var(--bw2) solid var(--ink);border-radius:var(--rs);padding:6px 10px}
+.syncbar[hidden]{display:none}
 .warn{margin-top:8px;font-weight:var(--fw);color:var(--on);background:var(--red);border:var(--bw2) solid var(--ink);border-radius:var(--rs);padding:4px 10px;display:inline-block}
 .goalrow{display:flex;justify-content:space-between;margin-top:12px;font-weight:700}
 .bar.goal{margin:6px 0 12px;height:18px}

@@ -104,6 +104,8 @@ Gõ **"skip coach"** trong một tin nhắn để tắt coach và việc lưu ch
 
 **Token agent đọc được gì?** Lưu thẻ mới và liệt kê chữ, nghĩa các thẻ trong sổ của bạn. Không đọc được tiến độ, không đụng tới tài khoản khác.
 
+**Thanh đỏ dưới tiêu đề là gì?** App không đồng bộ được với cloud (ví dụ hết quota Firestore hôm nay, hoặc phiên đăng nhập hết hạn). Dữ liệu vẫn nằm trên máy; thanh tự biến mất khi đồng bộ được lại, hoặc bấm ✕ để đóng.
+
 **Mất mạng thì sao?** Vẫn thêm và ôn được; dữ liệu đồng bộ lại khi có mạng. Tạo token, chia sẻ kho và agent cần có mạng.
 
 **Đổi điện thoại?** Đăng nhập cùng tài khoản Google; hoặc dùng Xuất JSON / Nhập JSON.

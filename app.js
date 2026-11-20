@@ -8,6 +8,7 @@ import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./pagin
 import { VERSION, REPO_URL, INSTALL_URL, checkForUpdate } from "./version.js";
 import { readMirror, writeMirror, clearMirror, newPending, addPending, takePending } from "./mirror.js";
 import { readSync, writeSync, clearSync, planSync, nextMarker, mergeDelta } from "./delta.js";
+import { describeSyncError } from "./sync-status.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -83,7 +84,7 @@ let mirrorUid = mirror ? mirror.uid : null;
 const pending = newPending(); // edits made in that short window; sent as soon as the user is known
 let items = mirror ? mirror.items.map(norm).sort((a, b) => b.created - a.created) : loadLocal();
 let progress = loadProgress();
-let user = null, unsub = null, unsubP = null;
+let user = null, unsub = null, unsubP = null, unsubD = null;
 let authKnown = !cloud.enabled; // false until Firebase has told us whether someone is signed in
 let vaultUi = null;             // the share / import screens (set up at the bottom of this file)
 let agentUi = null;             // the "connect an AI agent" screen
@@ -105,7 +106,15 @@ function toast(msg) {
 function saveLocal() {
   try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { alert("Không lưu được dữ liệu (bộ nhớ đầy hoặc bị chặn)."); }
 }
-const syncErr = e => console.warn("Sync error", e);
+const syncErr = e => { console.warn("Sync error", e); showSync(e); };
+// Banner under the header when the cloud refuses us (quota, permission, login). Offline and retries stay silent.
+function showSync(e) {
+  const msg = describeSyncError(e);
+  if (!msg) return;
+  $("#syncMsg").textContent = msg; $("#syncBar").hidden = false;
+}
+function hideSync() { $("#syncBar").hidden = true; }
+$("#syncClose").onclick = hideSync;
 function commit(changed = [], removedIds = []) {
   if (user) {
     changed.forEach(it => cloud.put(user.uid, it).catch(syncErr));
@@ -176,6 +185,7 @@ $("#auth").onclick = async e => {
 function onUser(u) {
   if (unsub) { unsub(); unsub = null; }
   if (unsubP) { unsubP(); unsubP = null; }
+  if (unsubD) { unsubD(); unsubD = null; }
   user = u; authKnown = true; renderAuth(); vaultUi?.onUser(); agentUi?.onUser();
   if (!u) {
     clearMirror(localStorage); clearSync(localStorage); mirrorUid = null; takePending(pending); // signed out: do not keep the cards on this device
@@ -200,7 +210,7 @@ function onUser(u) {
     }
     try { localStorage.setItem(PROG_KEY, JSON.stringify(progress)); } catch {}
     settle(); renderPills(); renderRewards();
-  }, syncErr).then(f => { unsubP = f; }).catch(syncErr);
+  }, syncErr).then(f => { unsubP = f; }).catch(syncErr);   // (progress listener; its callback is cb, then onError)
   // One full read now and then; in between, only the cards that changed since the last sync (see delta.js).
   const startedAt = Date.now(), plan = planSync(readSync(localStorage), u.uid, startedAt, hadMirror);
   cloud.watch(u.uid, (docs, info) => {
@@ -213,12 +223,22 @@ function onUser(u) {
     writeSync(localStorage, nextMarker(readSync(localStorage), { uid: u.uid, mode: plan.mode, startedAt, maxUpdated: info.maxUpdated }));
     items = next.sort((a, b) => b.created - a.created);
     saveMirrorSoon(u.uid);
+    hideSync();        // the cloud answered, so any earlier error is over
     renderAllSoon();   // snapshots can arrive twice in a row (cache, then server): draw once
     if (progressReady) awardBadges(false);
     // opened straight on the Review tab (shortcut) before the cards arrived: start it now
     if ($("#tab-review").classList.contains("active") && !current && reviewTotal === 0) startReview();
     importInbox();
-  }, plan.since).then(f => { unsub = f; }).catch(syncErr);
+  }, plan.since, syncErr).then(f => { unsub = f; }).catch(syncErr);
+  if (plan.mode === "delta") { // learn about cards deleted on other devices (their markers carry `updated`)
+    cloud.watchDeleted(u.uid, plan.since, ids => {
+      if (!ids.length) return;
+      const gone = new Set(ids);
+      if (!items.some(i => gone.has(i.id))) return;
+      items = items.filter(i => !gone.has(i.id));
+      saveMirrorSoon(u.uid); renderAllSoon();
+    }, syncErr).then(f => { unsubD = f; }).catch(syncErr);
+  }
 }
 if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); authKnown = true; progressReady = true; settle(); vaultUi?.onUser(); });
 
