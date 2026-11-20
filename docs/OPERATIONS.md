@@ -133,4 +133,5 @@ Never commit key files (`.gitignore` in the MCP repo blocks `*-firebase-adminsdk
 | `wrangler secret put ... <` fails in PowerShell | PowerShell has no `<` redirect. Use `Get-Content file -Raw \| ...`. |
 | Pasted a multi-line key into the secret prompt | Only the first line was stored and the rest ran as shell commands. Re-upload with the pipe. |
 | Items from the agent do not show | Wrong account (the token belongs to the account that created it), or the app is offline; reload while online. |
+| Agent says "quota used up" (Worker 503, or `RESOURCE_EXHAUSTED` in key mode) | The free Firestore quota (50k reads and 20k writes a day for the whole project) is spent; it resets daily (midnight Pacific time). Check Firebase console → Usage. Reads are the usual cause: each app open reads every card, and each agent save used to read the whole notebook (now cached 10 minutes). |
 | Sharing link says not found | Expired, revoked, or the receiver is not signed in. |

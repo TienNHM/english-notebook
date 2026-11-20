@@ -4,7 +4,7 @@
 // The Firebase service account lives only in the Worker secret SERVICE_ACCOUNT.
 import { verifyIdToken, newAgentToken, hashToken, looksLikeAgentToken, bearer } from "./auth.js";
 import { firestoreClient } from "./firestore.js";
-import { buildVocabulary, buildSentence, dropDuplicates, Invalid, LIMITS } from "./items.js";
+import { buildVocabulary, buildSentence, dropDuplicates, createListCache, Invalid, LIMITS } from "./items.js";
 
 export const MAX_TOKENS_PER_USER = 5;
 const MAX_BODY = 20_000;
@@ -24,6 +24,8 @@ export function createHandler(deps) {
   const { env, kv, fs, now = () => Date.now(), fetch: fetchFn = fetch } = deps;
   const limit = Number(env.DAILY_LIMIT) > 0 ? Number(env.DAILY_LIMIT) : DEFAULT_DAILY_LIMIT;
   const origin = env.ALLOWED_ORIGIN || "";
+  const cache = deps.cache ?? createListCache();
+  const listFor = uid => cache.get(uid, () => fs.listItems(uid), now());
 
   const corsFor = req => {
     const o = req.headers.get("origin");
@@ -90,7 +92,7 @@ export function createHandler(deps) {
     if (req.method === "GET" && url.pathname === "/v1/items") {
       const q = (url.searchParams.get("query") || "").slice(0, LIMITS.query).toLowerCase();
       const n = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "20", 10) || 20, 1), 100);
-      const rows = (await fs.listItems(uid))
+      const rows = [...(await listFor(uid))]
         .sort((a, b) => (a.created ?? 0) - (b.created ?? 0))
         .filter(i => !q || `${i.text} ${i.meaning}`.toLowerCase().includes(q))
         .slice(-n)
@@ -100,11 +102,12 @@ export function createHandler(deps) {
     if (req.method === "POST" && (url.pathname === "/v1/vocabulary" || url.pathname === "/v1/sentence")) {
       const body = await readBody(req);
       const entries = url.pathname === "/v1/vocabulary" ? buildVocabulary(body, now()) : buildSentence(body, now());
-      const { fresh, skipped } = dropDuplicates(entries, await fs.listItems(uid));
+      const { fresh, skipped } = dropDuplicates(entries, await listFor(uid));
       if (fresh.length) {
         const rk = `rate:${uid}:${day(now())}`, used = Number((await kv.get(rk)) || 0);
         if (used + fresh.length > limit) return json({ error: `daily limit of ${limit} items reached` }, 429);
         await fs.addItems(uid, fresh);
+        cache.add(uid, fresh);
         await kv.put(rk, String(used + fresh.length), { expirationTtl: 172800 });
         await kv.put(`tok:${hash}`, JSON.stringify({ ...rec, lastUsed: now() }));
       }
@@ -123,6 +126,7 @@ export function createHandler(deps) {
       return json({ error: "not found" }, 404);
     } catch (e) {
       if (e instanceof Invalid) return json({ error: e.message }, 400, cors);
+      if (e?.status === 429) return json({ error: "Storage quota for today is used up. Try again later (it resets every day)." }, 503, cors);
       return json({ error: "server error" }, 500, cors);   // details are never sent to the client
     }
   };

@@ -67,3 +67,25 @@ export function dropDuplicates(entries, existing) {
   }
   return { fresh, skipped };
 }
+
+// Per-user cache of the card list, so a save does not read the whole notebook from Firestore every time
+// (Firestore bills one read per card, so 600 cards = 600 reads per save). Lives in one Worker isolate, so it is
+// best effort: a new isolate simply reloads. Cards the user adds in the app are seen after the TTL at the latest.
+export function createListCache({ ttlMs = 10 * 60_000, max = 200 } = {}) {
+  const m = new Map();
+  return {
+    async get(uid, load, nowMs) {
+      const e = m.get(uid);
+      if (e && nowMs - e.at < ttlMs) return e.rows;
+      const rows = await load();
+      m.delete(uid); m.set(uid, { at: nowMs, rows });
+      if (m.size > max) m.delete(m.keys().next().value); // forget the least recently loaded user
+      return rows;
+    },
+    add(uid, items) { // remember cards we just saved
+      const e = m.get(uid);
+      if (e) e.rows = [...e.rows, ...items.map(i => ({ type: i.type, text: i.text, meaning: i.meaning, created: i.created }))];
+    },
+    drop(uid) { m.delete(uid); },
+  };
+}

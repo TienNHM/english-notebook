@@ -304,3 +304,49 @@ test("items: builders and de-duplication", () => {
   const { fresh, skipped } = dropDuplicates([{ text: "A" }, { text: "a" }, { text: "B" }], [{ text: "b" }]);
   assert.deepEqual([fresh.map(x => x.text), skipped], [["A"], ["a", "B"]]);
 });
+
+// ---- Firestore read cost: a save must not read the whole notebook every time
+test("the card list is read once, not on every save", async () => {
+  const { call, google } = setup();
+  const tok = (await makeToken(call)).token;
+  for (const w of ["w1", "w2", "w3", "w4"]) await call("POST", "/v1/vocabulary", { token: tok, body: { text: w, meaning: "m" } });
+  assert.equal(google.calls.query, 1);
+  const dup = await call("POST", "/v1/vocabulary", { token: tok, body: { text: "W2", meaning: "m" } });
+  assert.deepEqual((await dup.json()).skipped, ["W2"]);   // cards saved just now are still de-duplicated
+  assert.equal(google.calls.query, 1);
+});
+
+test("the cache is reloaded after its TTL, so cards added in the app are seen", async () => {
+  const { createListCache } = await import("../src/items.js");
+  const c = createListCache({ ttlMs: 1000 });
+  let loads = 0; const load = async () => { loads++; return [{ text: "a" }]; };
+  await c.get("u", load, 0); await c.get("u", load, 999); assert.equal(loads, 1);
+  await c.get("u", load, 1000); assert.equal(loads, 2);
+  c.add("u", [{ type: "word", text: "b", meaning: "x", created: 1 }]);
+  assert.deepEqual((await c.get("u", load, 1001)).map(r => r.text), ["a", "b"]);
+  c.drop("u"); await c.get("u", load, 1002); assert.equal(loads, 3);
+});
+
+test("cache keeps users apart and forgets old users past its size limit", async () => {
+  const { createListCache } = await import("../src/items.js");
+  const c = createListCache({ max: 2 });
+  let loads = 0; const load = id => async () => { loads++; return [{ text: id }]; };
+  await c.get("a", load("a"), 0); await c.get("b", load("b"), 0); await c.get("c", load("c"), 0);
+  assert.equal(loads, 3);
+  assert.deepEqual((await c.get("c", load("x"), 1)).map(r => r.text), ["c"]);
+  await c.get("a", load("a"), 1); assert.equal(loads, 4);   // "a" was dropped
+});
+
+test("Firestore quota exhausted (429) gives a clear 503, nothing else leaks", async () => {
+  const kv = fakeKv(), tok = "enb_" + "C".repeat(43);
+  await kv.put(`tok:${await hashToken(tok)}`, JSON.stringify({ uid: "user-a", label: "x", created: 1 }));
+  const h = createHandler({
+    env: { FIREBASE_PROJECT_ID: PROJECT }, kv,
+    fs: { listItems: async () => { throw Object.assign(new Error("storage error 429 RESOURCE_EXHAUSTED secret"), { status: 429 }); }, addItems: async () => {} },
+  });
+  const res = await h(new Request("https://w.example/v1/items", { headers: { authorization: "Bearer " + tok } }));
+  assert.equal(res.status, 503);
+  const text = await res.text();
+  assert.match(text, /quota/i);
+  assert.ok(!text.includes("secret"));
+});

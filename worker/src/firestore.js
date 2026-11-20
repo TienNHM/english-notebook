@@ -57,7 +57,7 @@ export function firestoreClient({ serviceAccount, projectId, fetch: fetchFn = fe
       headers: { authorization: `Bearer ${await accessToken()}`, "content-type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error(`storage error ${res.status}`);
+    if (!res.ok) throw Object.assign(new Error(`storage error ${res.status}`), { status: res.status });
     return res.json();
   }
 
