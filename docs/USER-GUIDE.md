@@ -23,6 +23,59 @@ Trong tab **Thư viện**, bấm **➕ Thêm từ / câu mới** để mở form
 
 **Thư viện:** nút thêm thẻ, ô tìm kiếm, lọc theo loại (từ, cụm, câu) và tag, sửa hoặc xóa thẻ. Danh sách hiện 40 thẻ một lần và tự tải thêm khi bạn cuộn gần cuối (hoặc bấm **Tải thêm**), nên mở app nhanh dù có hàng nghìn thẻ. Khi đã đăng nhập, app còn giữ một bản sao thẻ trên máy để hiện ngay khi mở (xóa khi đăng xuất), rồi đồng bộ với cloud ở phía sau. Nhờ vậy dù có hàng nghìn thẻ bạn vẫn thấy các nút ngay đầu trang.
 
+### 3.1 Thư viện: lọc, sắp xếp, chế độ xem
+
+- **Ba tab**: **Thư viện** (thẻ đang học), **Mới (n)** (thẻ do AI agent vừa lưu, chờ bạn xem) và **Lưu trữ** (thẻ cất đi, không hiện khi ôn). Số thẻ mới còn hiện thành chấm nhỏ trên nút 📚 Thư viện.
+- **Lọc**: theo loại (từ, cụm, câu), tag, mức độ (Mới, Yếu, Đang học, Đã thuộc), nguồn (AI agent, Thủ công, Chia sẻ). Ô tìm kiếm tô sáng chỗ khớp.
+- **Sắp xếp**: Mới nhất, Cũ nhất, Đến hạn, Mức độ, A–Z.
+- **💾 Lưu chế độ xem**: đặt tên cho bộ lọc đang dùng (ví dụ "Từ yếu về git") rồi bấm lại tên đó để dùng lần sau. Chế độ xem lưu trên thiết bị này.
+- **📊 Tổng quan** (đầu tab Thư viện): tổng số thẻ, số thẻ đến hạn, theo mức độ, theo nguồn và các tag nhiều nhất.
+- **🔥 Thẻ khó**: thẻ bạn đã trả lời "Quên" từ 4 lần trở lên. Mỗi thẻ hiện số lần quên. Trong tab Ôn tập có nút **Ôn thẻ khó**.
+- **💪 Ôn các thẻ đang lọc**: ôn riêng các thẻ đang hiển thị (tối đa 100 thẻ mỗi lần).
+
+### 3.2 Mới (hộp thư AI agent)
+
+Từ nay thẻ do AI agent lưu vào **Mới**, chưa vào phần ôn tập. Với mỗi thẻ bạn bấm **✓ Giữ** (đưa vào Thư viện và phần ôn tập) hoặc **✕ Bỏ** (cất vào Lưu trữ). **Giữ tất cả** và **Bỏ tất cả** làm cùng lúc cho mọi thẻ đang hiện và luôn hỏi lại, có ghi số thẻ. Các thẻ cũ của bạn không bị ảnh hưởng: chúng vẫn nằm trong Thư viện.
+
+### 3.3 Lưu trữ
+
+Thẻ lưu trữ không xuất hiện trong Thư viện, trong ôn tập và trong số thẻ cần ôn, nhưng vẫn được giữ. Vào tab **Lưu trữ** và bấm **↩ Khôi phục** để đưa thẻ về Thư viện.
+
+### 3.4 Sửa hàng loạt
+
+Bấm **☑ Chọn** để hiện ô chọn trên từng thẻ, rồi dùng thanh thao tác ở cuối màn hình: **Chọn tất cả (đang lọc)**, **🏷 Thêm tag**, **Bỏ tag**, **📦 Lưu trữ** (trong tab Lưu trữ là **↩ Khôi phục**) và **🗑 Xóa**. Mọi thao tác phá hủy đều hỏi xác nhận kèm số thẻ, và sau khi xóa hoặc lưu trữ bạn có vài giây để bấm **Hoàn tác**. Bấm **Xong** hoặc phím Esc để thoát chế độ chọn. Đổi bộ lọc sẽ bỏ chọn, nên thao tác không bao giờ chạm tới thẻ bạn không nhìn thấy.
+
+### 3.5 Dọn dẹp
+
+Nút **🧹 Dọn dẹp** mở hộp thoại có hai phần:
+
+- **Thẻ trùng**: tìm các thẻ cùng chữ tiếng Anh (không phân biệt hoa thường và dấu). **Gộp thành 1 thẻ** giữ thẻ có box cao nhất, gộp tag và ghi chú, xóa các thẻ còn lại (có Hoàn tác). **Bỏ qua** để giữ nguyên.
+- **Quản lý tag**: đổi tên một tag trên tất cả thẻ. Nếu tên mới đã có thì hai tag được gộp.
+
+### 3.6 Xuất và nhập
+
+Trong **Profile → 💾 Sao lưu dữ liệu**:
+
+- **⬇ Xuất JSON** / **⬆ Nhập JSON**: sao lưu và khôi phục toàn bộ sổ (như trước).
+- **⬇ Xuất CSV**: file mở được bằng Excel (có dấu tiếng Việt đúng). **⬇ Xuất Anki (TSV)**: file để nhập vào Anki (Tệp → Nhập; cột 1 là mặt trước, cột 2 là mặt sau, cột 3 là tag).
+- CSV và Anki xuất **đúng các thẻ Thư viện đang hiển thị**: nếu bạn đang lọc thì xuất các thẻ đã lọc, nếu không lọc thì xuất toàn bộ Thư viện. Dòng chữ nhỏ dưới các nút cho biết chính xác sẽ xuất bao nhiêu thẻ.
+- **📝 Nhập từ văn bản/CSV**: dán văn bản hoặc chọn file (tối đa 2 MB). Mỗi dòng một thẻ, dạng `english | nghĩa | ví dụ`, `english = nghĩa`, hoặc CSV có cột `text`, `meaning`, `example`, `note`, `tags`. App hiện **bản xem trước**: số thẻ **sẽ thêm**, số thẻ **bỏ qua (trùng)**, số **dòng lỗi** (kèm lý do) và 10 thẻ đầu. Chỉ khi bạn bấm **Nhập** thì thẻ mới được thêm, cả lô một lần, mỗi lần tối đa 2.000 thẻ. Thẻ nhập có tag `imported`, nguồn Thủ công, và có **Hoàn tác** vài giây.
+
+### 3.7 Phím tắt (máy tính)
+
+Các phím này không hoạt động khi bạn đang gõ trong ô nhập hoặc khi có hộp thoại mở. Bấm **?** để xem bảng này trong app.
+
+| Phím | Làm gì |
+|---|---|
+| `/` | Đến ô tìm kiếm của Thư viện |
+| `n` | Mở form thêm thẻ mới |
+| `Esc` | Thoát chế độ chọn, đóng form, đóng hộp thoại |
+| `g` rồi `l` | Đi tới Thư viện |
+| `g` rồi `r` | Đi tới Ôn tập |
+| `g` rồi `t` | Đi tới Thưởng |
+| `g` rồi `p` | Đi tới Profile |
+| `?` | Hiện bảng phím tắt |
+
 **Profile** (cài đặt cá nhân), gồm các nhóm:
 
 | Nhóm | Làm gì |
@@ -33,7 +86,7 @@ Trong tab **Thư viện**, bấm **➕ Thêm từ / câu mới** để mở form
 | 📲 Cài app | Cài lên điện thoại hoặc máy tính (chỉ hiện khi cài được). |
 | 🔗 Chia sẻ kho từ vựng | Tạo link để người khác nhập một bản sao kho của bạn, hoặc nhập kho bạn nhận được. |
 | 🤖 AI agent | Tạo token để AI agent tự lưu từ và câu vào sổ. |
-| 💾 Sao lưu dữ liệu | Xuất / nhập toàn bộ sổ bằng file JSON. |
+| 💾 Sao lưu dữ liệu | Xuất / nhập toàn bộ sổ bằng file JSON; xuất CSV hoặc Anki; nhập từ văn bản/CSV (xem mục 3.6). |
 
 ## 4. Ôn tập (Leitner)
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Cards get two optional fields: `status` (`"inbox"` = saved by an AI agent and not yet triaged, `"archived"` = hidden but kept; absent = active, so every existing card stays active) and `lapses` (times answered "Quên"). New cards saved by the Worker and the MCP server start as `inbox`. Inbox and archived cards are left out of review, the due badge and the card counts.
+- Library: scope tabs (Thư viện, Mới, Lưu trữ), filters (type, tag, level, source), five sort modes, highlighted search hits, saved views, an overview card, hard cards ("Thẻ khó", 4+ lapses) and "Ôn các thẻ đang lọc". Code: `library-view.js`, `inbox.js`, `study.js`.
+- Mới (inbox): per-card Giữ / Bỏ, Giữ tất cả / Bỏ tất cả, with a count in every confirm and a Hoàn tác toast. Archived cards can be restored.
+- Bulk edit: selection mode with add tag, remove tag, archive and delete (`bulk.js`); every destructive action asks first and can be undone for a few seconds. Undo restores deleted cards under new ids so the cloud delete marker cannot hide them on other devices.
+- Clean-up dialog: merge duplicate cards and rename or merge tags (`cleanup.js`).
+- Export / import (`export-import.js`): **Xuất CSV** (UTF-8 BOM, for Excel) and **Xuất Anki (TSV)** export exactly the cards the Library filter shows (the whole Library when there is no filter); **Nhập từ văn bản/CSV** pastes or reads a file, shows a preview (to add / skipped duplicates / bad rows, first 10 cards) and then imports one batch of at most 2,000 cards tagged `imported`, with undo.
+- Desktop keyboard shortcuts (`shortcuts.js`): `/` search, `n` add, `Esc` leave selection or close panels, `g` then `l`/`r`/`t`/`p` switch tab, `?` help. Ignored while typing or when a dialog is open. No swipe gestures.
+- Deploy lists: the new modules are in the `sw.js` precache list and the Pages `cp` line; service worker cache bumped to v26.
+- Docs: user guide (new Library features, export/import, shortcuts) and the data model note in `docs/ARCHITECTURE.md`.
+- Fixes after review: sharing a vault never includes archived or inbox cards; merging duplicates keeps a different meaning (joined with " / ") and the highest `lapses`, and clears a keeper's dangling `sourceId`; CSV export prefixes formula-like text (`= + - @`) with an apostrophe (import removes it) and Anki TSV escapes HTML; `type` is validated in `norm()`; a signed-in device deletes its old local copy once every card is uploaded (it used to re-upload deleted or merged cards on every start); grading uses the live card, so a card archived or edited on another device is not overwritten; dialogs trap Tab and focus moves on after Giữ / Bỏ; one shared definition of tags, duplicate keys, active status, level and source kind (an "AI agent" is any source other than manual or shared); the Worker cuts a tag longer than 40 characters instead of rejecting it, like the MCP server; bottom tabs no longer clip at 375 px (counts sit on the tab corner).
+- Known, transitional: a phone still running an older cached build (service worker v25 or earlier) drops `status` and `lapses` when it saves a card. Archived or inbox cards graded or edited there come back as active cards until that phone updates (the service worker is network-first, so this ends at the next online visit).
+
 ## 2.1.0
 
 - Update check: the app compares its version with `version.json` on the site (at start-up, when you return to the app, or with **Kiểm tra cập nhật** in the footer) and shows a **Có bản mới – Tải lại** bar. When releasing, change `VERSION` in `version.js`, `version.json` and the top of this file together; `tests/version.test.mjs` fails if they differ.

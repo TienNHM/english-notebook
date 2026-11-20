@@ -255,6 +255,96 @@ button.chip.on{background:var(--violet);color:var(--on)}
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
 .item .actions{margin-left:auto;display:flex;gap:6px}
 .empty{text-align:center;font-weight:700;padding:34px 16px;background:var(--card);border:var(--bw) dashed var(--ink);border-radius:var(--r)}
+/* Library toolbar: scope tabs, filters, saved views, selection mode, bulk action bar, clean-up panel */
+.scopetabs{display:flex;gap:8px;margin-bottom:12px}
+.scopetabs button{flex:1;padding:9px 6px;font-size:.9rem}
+.scopetabs button[aria-selected=true]{background:var(--violet);color:var(--on);box-shadow:var(--sh);transform:var(--shift-active)}
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.filters label{margin:0;font-size:.68rem}
+.filters select{margin-top:4px;padding:8px 6px;font-size:.85rem;font-weight:var(--fw);cursor:pointer;text-overflow:ellipsis}
+.libtools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.libtools button[aria-pressed=true]{background:var(--violet);color:var(--on)}
+.svform{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.svform label{flex:1;min-width:150px;margin:0}
+.savedviews{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.savedviews:empty{display:none}
+.svchip{display:inline-flex;align-items:center}
+.svchip .chip{border-radius:999px 0 0 999px}
+.svchip .chip.x{border-radius:0 999px 999px 0;border-left-width:0;padding:3px 9px}
+.svchip .chip[aria-pressed=true]{background:var(--violet);color:var(--on)}
+button.chip{min-height:30px}
+button.danger{background:var(--red);color:var(--on)}
+mark{background:var(--yellow);color:var(--on);border-radius:3px;padding:0 2px}
+.selcb{position:absolute;top:12px;right:12px;width:26px;height:26px;margin:0;padding:0;border:0;background:none;box-shadow:none;accent-color:var(--violet);cursor:pointer;appearance:auto;-webkit-appearance:checkbox}
+.list.selecting .item{cursor:pointer}
+.list.selecting .item .en{padding-right:34px}
+.item.sel{box-shadow:inset 0 0 0 3px var(--violet),var(--sh)}
+.selbar{position:fixed;left:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom));z-index:18;width:min(760px,100%);margin:0 auto;padding:10px 14px;display:grid;gap:8px;
+  background:var(--card);color:var(--text);border:var(--bw) solid var(--ink);border-radius:var(--r) var(--r) 0 0;box-shadow:var(--sh-lg);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass)}
+.selrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.selrow b{font:var(--fw) .85rem var(--mono)}
+.selbtns button{flex:1 1 auto}
+.seltag{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.seltag label{flex:1;min-width:140px;margin:0}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:var(--sh-none)}
+body.selecting main{padding-bottom:calc(var(--selh,120px) + 100px + env(safe-area-inset-bottom))}
+body.selecting #toast,body.selecting .undobar{bottom:calc(var(--selh,0px) + 100px + env(safe-area-inset-bottom))}
+.undobar{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:32;display:flex;align-items:center;gap:12px;justify-content:space-between;
+  width:max-content;max-width:calc(100% - 24px);padding:10px 14px;background:var(--card);color:var(--text);border:var(--bw) solid var(--ink);border-radius:var(--rb);box-shadow:var(--sh);font:var(--fw) .88rem var(--font)}
+.undobar button{white-space:nowrap;flex:none}
+.undobar{-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass)}
+html[data-style=glass] .undobar{background:var(--answer-bg);color:var(--answer-fg)}
+#cleanClose{display:block;width:100%;margin-top:12px}
+#cleanBody .sect{margin:14px 0 6px}
+.dupgroup .prev{margin-bottom:8px}
+.dupgroup .prev li{overflow-wrap:anywhere}
+.dupgroup .prev li.keeper{font-weight:700}
+.dupgroup .btnrow{margin-top:4px}
+.taglist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.taglist li{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.taglist .muted-sm{margin:0;flex:1}
+.tagrename{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;width:100%}
+.tagrename label{flex:1;min-width:150px;margin:0}
+@media (min-width:641px){
+  .filters{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .selbar{bottom:0}
+  body.selecting #toast,body.selecting .undobar{bottom:calc(var(--selh,0px) + 24px)}
+  body.selecting main{padding-bottom:calc(var(--selh,120px) + 40px)}
+}
+/* Mới (inbox) triage bar, "quên n lần" chip, overview card */
+#inboxBadge{background:var(--blue)}
+.inboxbar{margin-bottom:12px}
+.inboxbar .muted-sm{margin:0 0 8px}
+.inboxbar .btnrow{margin-top:0}
+.item .actions{flex-wrap:wrap}
+.chip.lapse{background:var(--red);color:var(--on)}
+.ovcard{background:var(--card);border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass)}
+button.ovhead{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;text-align:left;background:none;color:var(--text);border:0;box-shadow:none;border-radius:var(--r);padding:10px 14px;font:var(--fw) .9rem var(--font);transform:none}
+button.ovhead:hover,button.ovhead:active{transform:none;box-shadow:none}
+.ovchev{flex:none;transition:transform .15s}
+.ovhead[aria-expanded=true] .ovchev{transform:rotate(180deg)}
+.ovbody{padding:0 14px 12px}
+.ovstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;text-align:center}
+.ovstats div{background:var(--field);border:var(--bw2) solid var(--ink);border-radius:var(--rs);padding:6px 2px;min-width:0}
+.ovstats b{display:block;font-size:1.15rem;line-height:1.2}
+.ovstats small{display:block;font:700 .62rem/1.2 var(--mono);color:var(--muted)}
+.ovh{margin:12px 0 6px;font:var(--fw) .72rem var(--mono);text-transform:uppercase;letter-spacing:var(--ls)}
+.lvbar{display:flex;height:16px;background:var(--field);border:var(--bw2) solid var(--ink);border-radius:999px;overflow:hidden}
+.lvbar i,.dotc{background:var(--blue)}
+.lvbar i.lv-mastered,.dotc.lv-mastered{background:var(--green)}
+.lvbar i.lv-learning,.dotc.lv-learning{background:var(--yellow)}
+.lvbar i.lv-weak,.dotc.lv-weak{background:var(--red)}
+.lvbar i.lv-new,.dotc.lv-new{background:var(--blue)}
+.lvbar i+i{border-left:var(--bw2) solid var(--ink)}
+.lvlegend{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 12px;font:600 .78rem var(--mono)}
+.dotc{display:inline-block;width:10px;height:10px;border:var(--bw2) solid var(--ink);border-radius:50%;margin-right:4px}
+.srcrows{display:grid;gap:6px}
+.srow{display:grid;grid-template-columns:76px 1fr 38px;align-items:center;gap:8px;font:600 .78rem var(--mono)}
+.srow b{text-align:right}
+.mini{height:10px;background:var(--field);border:var(--bw2) solid var(--ink);border-radius:999px;overflow:hidden}
+.mini i{display:block;height:100%;background:var(--violet)}
+.ovtags{display:flex;gap:6px;flex-wrap:wrap}
+.ovtags button.chip{box-shadow:none}
 .tools{margin-top:22px;justify-content:center}
 /* Library: the add form is behind a button; Profile: one card per group of personal settings */
 .addbar{margin-bottom:12px}
@@ -470,14 +560,38 @@ html[data-motion=on].theming *{transition:background-color .4s,color .4s,border-
 @media (max-width:640px){
   nav{position:fixed;top:auto;bottom:0;left:0;right:0;max-width:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--nav-bg);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border-top:var(--bw) solid var(--ink);gap:6px}
   nav::before{display:none}
-  nav button{padding:10px 2px;font-size:.78rem;white-space:nowrap}
+  nav button{padding:10px 2px;font-size:.78rem;white-space:nowrap;min-width:0;position:relative} /* min-width:0 lets the four tabs share the bar instead of growing past it */
   .badge{margin-left:2px;min-width:18px;padding:0 4px}
+  nav .badge{position:absolute;top:-7px;right:-3px;margin:0;line-height:1.35} /* a count never widens its tab */
   main{padding-bottom:calc(90px + env(safe-area-inset-bottom))} /* clears the fixed bottom menu (about 70 px) with a small gap */
   #addForm{padding:16px}
   .item .actions{width:100%;justify-content:flex-end}
+}
+@media (max-width:340px){ /* very narrow phones: tighter tabs so every label still fits */
+  nav{padding-left:6px;padding-right:6px;gap:4px}
+  nav button{font-size:.7rem}
 }
 /* Motion switch: "Theo hệ thống" (default) follows the system setting; data-motion="on" forces motion on, "off" forces it off. */
 @media (prefers-reduced-motion:reduce){
   html:not([data-motion=on]) *,html:not([data-motion=on]) *::before,html:not([data-motion=on]) *::after{transition:none!important;animation:none!important}
 }
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{transition:none!important;animation:none!important}
+
+/* ---------- export / import dialog and keyboard help ---------- */
+#exportScope{margin:10px 0 0}
+#impDlg .modal textarea{font:600 .85rem var(--mono);min-height:120px}
+#impDlg .row.tools{align-items:flex-end}
+#impDlg .goalsel{margin:0}
+.imppreview{margin-top:10px}
+.impcounts{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:8px;font:700 .8rem var(--mono)}
+.impcounts b{font-size:1.05rem}
+.imppreview .prev{margin:0 0 8px}
+.imppreview .prev li{overflow-wrap:anywhere}
+.imppreview .prev.errs{border-style:solid}
+#impDlg .btnrow .primary{flex:1}
+.helplist{margin:0;display:grid;gap:6px}
+.helplist div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px dashed var(--ink);padding:4px 0}
+.helplist dt{font:700 .8rem var(--mono);white-space:nowrap}
+.helplist dd{margin:0;text-align:right;font-weight:600}
+.helplist kbd{display:inline-block;border:var(--bw2) solid var(--ink);border-radius:6px;padding:0 6px;font:inherit;background:var(--field)}
+@media (hover:none){.kbdonly{display:none}} /* keyboard help is for desktop */

@@ -177,6 +177,8 @@ test("add a sentence with expressions: items land in the right user's notebook",
   const rows = [...google.docs.values()].map(fromFields);
   const parent = rows.find(r => r.type === "sentence"), kids = rows.filter(r => r.type === "phrase");
   assert.deepEqual(parent.tags, ["work"]);
+  assert.equal(parent.status, "inbox");
+  assert.ok(kids.every(k => k.status === "inbox"), "expressions land in the inbox too");
   assert.ok(kids.every(k => k.sourceId === parent.id));
   assert.equal(parent.box, 0);
   assert.equal(parent.source, "claude");
@@ -303,6 +305,25 @@ test("items: builders and de-duplication", () => {
   assert.equal(s.due, 1000);
   const { fresh, skipped } = dropDuplicates([{ text: "A" }, { text: "a" }, { text: "B" }], [{ text: "b" }]);
   assert.deepEqual([fresh.map(x => x.text), skipped], [["A"], ["a", "B"]]);
+});
+
+test("items: new cards are inbox and tags are normalized", () => {
+  const [v] = buildVocabulary({ text: "rebase", meaning: "x", tags: ["#Git", " git ", "Review", "#", ""] });
+  assert.equal(v.status, "inbox");
+  assert.equal(v.lapses, 0);
+  assert.deepEqual(v.tags, ["git", "review"]);
+  const [s, k] = buildSentence({ text: "Hi", meaning: "Chào", tags: ["#Meeting"], expressions: [{ text: "hi", meaning: "chào" }] });
+  assert.deepEqual([s.status, k.status, k.tags], ["inbox", "inbox", ["meeting"]]);
+  assert.equal(buildVocabulary({ text: "a", meaning: "b", tags: ["x".repeat(41)] })[0].tags[0], "x".repeat(40)); // cut, same as the MCP server
+  assert.equal(buildVocabulary({ text: "a", meaning: "b", tags: ["a".repeat(40)] })[0].tags[0].length, 40);
+});
+
+test("items: the status field survives Firestore field encoding", async () => {
+  const { toFields, fromFields } = await import("../src/firestore.js");
+  const [s] = buildSentence({ text: "Hi", meaning: "Chào" });
+  const f = toFields(s);
+  assert.deepEqual(f.status, { stringValue: "inbox" });
+  assert.equal(fromFields(f).status, "inbox");
 });
 
 // ---- Firestore read cost: a save must not read the whole notebook every time

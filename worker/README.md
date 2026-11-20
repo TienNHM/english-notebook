@@ -23,6 +23,8 @@ Rules: exact duplicates (case-insensitive) are skipped; sizes are limited (text 
 at most `DAILY_LIMIT` (default 200) new items per user per day (soft limit: KV is not atomic); errors never include internal details.
 CORS allows only `ALLOWED_ORIGIN`.
 
+New cards get `status: "inbox"` (they wait in the app's "Mới" tab until the user keeps them) and `lapses: 0`. Tags are lowercased, trimmed, stripped of a leading `#` and de-duplicated (tag max 40 chars).
+
 ## Tests
 
 ```bash

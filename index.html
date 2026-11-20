@@ -57,7 +57,7 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
 </div>
 
 <nav>
-  <button data-tab="library" class="active">📚 Thư viện</button>
+  <button data-tab="library" class="active">📚 Thư viện<span id="inboxBadge" class="badge" title="Thẻ mới đang chờ bạn xem"></span></button>
   <button data-tab="review">🧠 Ôn tập<span id="dueBadge" class="badge"></span></button>
   <button data-tab="rewards">🏆 Thưởng</button>
   <button data-tab="profile">👤 Profile</button>
@@ -109,16 +109,79 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
       </div>
     </form>
     </div>
-    <div class="tools-bar">
-      <input id="q" class="grow" type="search" placeholder="🔎 Tìm kiếm...">
-      <select id="fltType">
-        <option value="">Tất cả</option>
-        <option value="word">Từ</option>
-        <option value="phrase">Cụm từ</option>
-        <option value="sentence">Câu</option>
-      </select>
+    <section id="overview" class="ovcard" aria-label="Tổng quan thư viện" hidden>
+      <button type="button" id="ovToggle" class="ovhead" aria-expanded="false" aria-controls="ovBody"><span id="ovTitle">📊 Tổng quan</span><span class="ovchev" aria-hidden="true">▾</span></button>
+      <div id="ovBody" class="ovbody" hidden></div>
+    </section>
+    <div id="scopeTabs" class="scopetabs" role="tablist" aria-label="Phạm vi thẻ">
+      <button type="button" role="tab" data-scope="library" id="scopeLibrary" aria-selected="true">Thư viện</button>
+      <button type="button" role="tab" data-scope="inbox" id="scopeInbox" aria-selected="false" tabindex="-1">Mới (0)</button>
+      <button type="button" role="tab" data-scope="archived" id="scopeArchived" aria-selected="false" tabindex="-1">Lưu trữ</button>
     </div>
-    <div id="tagBar" class="tags"></div>
+    <div class="tools-bar">
+      <input id="q" class="grow" type="search" placeholder="🔎 Tìm kiếm..." aria-label="Tìm kiếm thẻ">
+    </div>
+    <div class="filters">
+      <label>Loại
+        <select id="fltType">
+          <option value="">Tất cả</option>
+          <option value="word">Từ</option>
+          <option value="phrase">Cụm từ</option>
+          <option value="sentence">Câu</option>
+        </select>
+      </label>
+      <label>Tag
+        <select id="fltTag"><option value="">Tất cả</option></select>
+      </label>
+      <label>Mức độ
+        <select id="fltLevel">
+          <option value="">Tất cả</option>
+          <option value="new">Mới</option>
+          <option value="weak">Yếu</option>
+          <option value="learning">Đang học</option>
+          <option value="mastered">Đã thuộc</option>
+        </select>
+      </label>
+      <label>Nguồn
+        <select id="fltSource">
+          <option value="">Tất cả</option>
+          <option value="agent">AI agent</option>
+          <option value="manual">Thủ công</option>
+          <option value="shared">Chia sẻ</option>
+        </select>
+      </label>
+      <label>Sắp xếp
+        <select id="fltSort">
+          <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
+          <option value="due">Đến hạn</option>
+          <option value="level">Mức độ</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+    </div>
+    <div class="libtools">
+      <button type="button" class="small" id="selToggle" aria-pressed="false">☑ Chọn</button>
+      <button type="button" class="small" id="saveViewBtn" aria-expanded="false" aria-controls="svForm">💾 Lưu chế độ xem</button>
+      <button type="button" class="small" id="cleanBtn" aria-haspopup="dialog">🧹 Dọn dẹp</button>
+      <button type="button" class="small" id="leechChip" aria-pressed="false" title="Các thẻ bạn hay quên (quên từ 4 lần)">🔥 Thẻ khó (0)</button>
+      <button type="button" class="small" id="practiceViewBtn" title="Ôn các thẻ đang hiển thị (tối đa 100 thẻ)">💪 Ôn các thẻ đang lọc</button>
+    </div>
+    <div id="inboxBar" class="inboxbar" hidden>
+      <div class="muted-sm">Thẻ do AI agent lưu. Giữ để đưa vào Thư viện và phần ôn tập; Bỏ để cất vào Lưu trữ (khôi phục được).</div>
+      <div class="btnrow">
+        <button type="button" class="small primary" id="keepAll">✓ Giữ tất cả</button>
+        <button type="button" class="small" id="dropAll">✕ Bỏ tất cả</button>
+      </div>
+    </div>
+    <form id="svForm" class="svform" hidden>
+      <label>Tên chế độ xem
+        <input id="svName" maxlength="24" autocomplete="off" placeholder="vd: Từ yếu về git">
+      </label>
+      <button type="submit" class="small primary">Lưu</button>
+      <button type="button" class="small" id="svCancel">Hủy</button>
+    </form>
+    <div id="savedViews" class="savedviews" aria-label="Chế độ xem đã lưu"></div>
     <ul id="list" class="list"></ul>
     <div id="listFoot" class="listfoot"></div>
   </section>
@@ -152,10 +215,16 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     </div>
     <div class="daily pcard">
       <div class="streak-big">💾 Sao lưu dữ liệu</div>
-      <div class="muted-sm">Xuất toàn bộ sổ ra file JSON hoặc khôi phục từ file đã xuất.</div>
+      <div class="muted-sm">Xuất toàn bộ sổ ra file JSON hoặc khôi phục từ file đã xuất. CSV và Anki dùng để mở bằng Excel hoặc nhập vào Anki.</div>
       <div class="row tools">
         <button id="exportBtn">⬇ Xuất JSON</button>
         <label class="btn">⬆ Nhập JSON<input id="importFile" type="file" accept="application/json" hidden></label>
+      </div>
+      <div class="muted-sm" id="exportScope" aria-live="polite"></div>
+      <div class="row tools">
+        <button id="exportCsvBtn" type="button">⬇ Xuất CSV</button>
+        <button id="exportAnkiBtn" type="button">⬇ Xuất Anki (TSV)</button>
+        <button id="textImportBtn" type="button" aria-haspopup="dialog">📝 Nhập từ văn bản/CSV</button>
       </div>
     </div>
   </section>
@@ -173,6 +242,7 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <a id="repoLink" href="https://github.com/TienNHM/english-notebook" target="_blank" rel="noopener">GitHub</a>
     <a id="installLink" href="https://github.com/TienNHM/english-notebook#install-the-app-on-your-phone" target="_blank" rel="noopener">Hướng dẫn cài đặt</a>
     <button type="button" id="checkUpdate" class="linkbtn">Kiểm tra cập nhật</button>
+    <button type="button" id="helpBtn" class="linkbtn kbdonly" aria-haspopup="dialog">Phím tắt (?)</button>
   </footer>
 </main>
 
@@ -251,6 +321,75 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
   <span>🆕 Có bản mới <b id="updateVer"></b></span>
   <button type="button" id="updateReload" class="small primary">Tải lại</button>
   <button type="button" id="updateLater" class="small">Để sau</button>
+</div>
+<datalist id="tagList"></datalist>
+
+<div id="selBar" class="selbar" role="region" aria-label="Thao tác hàng loạt" hidden>
+  <div class="selrow">
+    <b id="selCount" aria-live="polite">Đã chọn 0</b>
+    <button type="button" class="small" id="selAll">Chọn tất cả (đang lọc)</button>
+  </div>
+  <form id="selTagForm" class="seltag" hidden>
+    <label id="selTagLabel">Tag
+      <input id="selTagInput" list="tagList" maxlength="41" autocomplete="off" placeholder="tên tag">
+    </label>
+    <button type="submit" class="small primary" id="selTagOk">Thêm</button>
+    <button type="button" class="small" id="selTagCancel">Hủy</button>
+  </form>
+  <div class="selrow selbtns">
+    <button type="button" class="small" id="selAddTag">🏷 Thêm tag</button>
+    <button type="button" class="small" id="selRemoveTag">Bỏ tag</button>
+    <button type="button" class="small" id="selArchive">📦 Lưu trữ</button>
+    <button type="button" class="small danger" id="selDelete">🗑 Xóa</button>
+    <button type="button" class="small primary" id="selDone">Xong</button>
+  </div>
+</div>
+
+<div id="cleanDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="cleanTitle">
+    <h2 id="cleanTitle">🧹 Dọn dẹp thư viện</h2>
+    <div id="cleanBody"></div>
+    <button class="primary" id="cleanClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<div id="impDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+    <h2 id="impTitle">📝 Nhập từ văn bản / CSV</h2>
+    <p class="muted-sm">Dán văn bản hoặc chọn file. Mỗi dòng một thẻ: <code>english | nghĩa | ví dụ</code>, <code>english = nghĩa</code>, hoặc dòng CSV (cột <code>text</code>, <code>meaning</code>, <code>example</code>, <code>note</code>, <code>tags</code>).</p>
+    <label>Văn bản
+      <textarea id="impText" rows="6" spellcheck="false" placeholder="find out = tìm ra&#10;look into | xem xét | I'll look into it"></textarea>
+    </label>
+    <div class="row tools">
+      <label class="btn">📂 Chọn file<input id="impFile" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden></label>
+      <label class="goalsel">Định dạng
+        <select id="impMode">
+          <option value="auto">Tự nhận</option>
+          <option value="csv">CSV</option>
+          <option value="lines">Mỗi dòng một thẻ</option>
+        </select>
+      </label>
+    </div>
+    <div id="impPreview" class="imppreview" aria-live="polite"></div>
+    <div class="btnrow">
+      <button class="primary" id="impOk" type="button" disabled>Nhập</button>
+      <button id="impCancel" type="button">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<div id="helpDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <h2 id="helpTitle">⌨ Phím tắt</h2>
+    <p class="muted-sm">Dùng trên máy tính, khi bạn không đang gõ trong ô nhập và không có hộp thoại mở.</p>
+    <dl id="helpList" class="helplist"></dl>
+    <button class="primary" id="helpClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<div id="undoBar" class="undobar" role="status" aria-live="polite" hidden>
+  <span id="undoMsg"></span>
+  <button type="button" class="small" id="undoBtn">Hoàn tác</button>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script type="module" src="app.js"></script>

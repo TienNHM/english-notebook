@@ -1,5 +1,5 @@
 // Builds notebook items from agent requests. Same item shape as the app and the MCP server.
-export const LIMITS = { text: 500, meaning: 500, example: 500, note: 500, original: 1000, expressions: 5, tags: 8, tag: 30, query: 100 };
+export const LIMITS = { text: 500, meaning: 500, example: 500, note: 500, original: 1000, expressions: 5, tags: 8, tag: 40, query: 100 };
 
 const clean = s => String(s ?? "").trim();
 const rid = () => Date.now().toString(36) + [...crypto.getRandomValues(new Uint8Array(3))].map(b => b.toString(16).padStart(2, "0")).join("");
@@ -18,17 +18,21 @@ function tagList(t) {
   if (t == null) return [];
   if (!Array.isArray(t)) throw new Invalid("tags must be an array");
   if (t.length > LIMITS.tags) throw new Invalid(`too many tags (max ${LIMITS.tags})`);
-  return t.map(x => {
+  const out = [];
+  for (const x of t) {
     if (typeof x !== "string") throw new Invalid("tags must be strings");
-    const s = clean(x).toLowerCase();
-    if (s.length > LIMITS.tag) throw new Invalid("a tag is too long");
-    return s;
-  }).filter(Boolean);
+    // "#Git" -> "git"; a tag longer than the limit is cut, like the app and the MCP server do
+    const s = clean(x).replace(/^#+/, "").trim().toLowerCase().slice(0, LIMITS.tag).trim();
+    if (s && !out.includes(s)) out.push(s);
+  }
+  return out;
 }
 
 const mk = (o, now) => ({
   id: rid(), example: "", note: "", original: "", sourceId: "", source: "claude", tags: [],
-  box: 0, due: now, created: now, reviews: 0, ...o,
+  box: 0, due: now, created: now, reviews: 0, lapses: 0,
+  status: "inbox", // new agent saves wait in the app's "Mới" inbox until the user keeps them
+  ...o,
 });
 
 export function buildVocabulary(body, now = Date.now()) {

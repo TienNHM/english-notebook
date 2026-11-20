@@ -93,3 +93,14 @@ ok("expiresAt only allows the offered lifetimes", () => {
   assert.throws(() => V.expiresAt(365));
 });
 console.log(`\n${t} tests passed`);
+
+ok("archived and inbox cards are never picked, counted or shared", () => {
+  const items = [
+    item({ id: "a", tags: ["x"] }),
+    item({ id: "b", tags: ["x", "y"], status: "archived" }),
+    item({ id: "c", tags: ["z"], status: "inbox" }),
+  ];
+  assert.deepEqual(V.pickItems(items).map(i => i.id), ["a"]);
+  assert.deepEqual(V.pickItems(items, { tags: ["y"] }), []);
+  assert.deepEqual(V.tagCounts(items), [["x", 1]]);
+});

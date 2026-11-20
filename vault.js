@@ -32,8 +32,12 @@ export const shareLink = (base, id) => `${base}${base.includes("?") ? "&" : "?"}
 
 // ---------- choosing and cleaning what to share ----------
 // filter = { types: ["word", ...], tags: [..] }. An empty list means "all".
+// Only active cards: archived cards were hidden on purpose and inbox cards are not reviewed yet, so they are never shared.
+const isShareable = i => i.status !== "inbox" && i.status !== "archived";
+
 export function pickItems(items, { types = [], tags = [] } = {}) {
   return items.filter(i =>
+    isShareable(i) &&
     (!types.length || types.includes(i.type)) &&
     (!tags.length || (i.tags || []).some(t => tags.includes(t))));
 }
@@ -64,7 +68,7 @@ export function toShared(items, { original = false, note = false } = {}) {
 
 export function tagCounts(items) {
   const m = new Map();
-  for (const i of items) for (const t of i.tags || []) m.set(t, (m.get(t) || 0) + 1);
+  for (const i of items) if (isShareable(i)) for (const t of i.tags || []) m.set(t, (m.get(t) || 0) + 1);
   return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 
