@@ -45,15 +45,25 @@ export async function signOut() {
 
 const col = (s, uid) => s.fs.collection(s.db, "users", uid, "items");
 
-// Calls cb(arrayOfItems) on every change; resolves to an unsubscribe function.
-export async function watch(uid, cb) {
+// Calls cb(docs, info) on every change; resolves to an unsubscribe function.
+//  since == null: all cards ("full read"); info = { delta: false, maxUpdated }.
+//  since = ms:    only cards with updated > since (a "delta"); info = { delta: true, maxUpdated, removed: [ids] }.
+// Cards written before the `updated` field existed never match a delta, which is fine: they have not changed since.
+export async function watch(uid, cb, since = null) {
   const s = await load();
-  return s.fs.onSnapshot(col(s, uid), snap => cb(snap.docs.map(d => d.data())));
+  const target = since == null ? col(s, uid) : s.fs.query(col(s, uid), s.fs.where("updated", ">", since));
+  return s.fs.onSnapshot(target, snap => {
+    const docs = snap.docs.map(d => d.data());
+    const maxUpdated = docs.reduce((m, d) => Math.max(m, +d.updated || 0), 0);
+    cb(docs, since == null ? { delta: false, maxUpdated }
+      : { delta: true, maxUpdated, removed: snap.docChanges().filter(ch => ch.type === "removed").map(ch => ch.doc.id) });
+  });
 }
 
+// Every write stamps `updated` (ms), which is what a delta read looks for.
 export async function put(uid, item) {
   const s = await load();
-  return s.fs.setDoc(s.fs.doc(col(s, uid), item.id), item);
+  return s.fs.setDoc(s.fs.doc(col(s, uid), item.id), { ...item, updated: Date.now() });
 }
 
 // Streak / XP / badges live in one document: users/{uid}/meta/progress

@@ -106,7 +106,7 @@ export function createHandler(deps) {
       if (fresh.length) {
         const rk = `rate:${uid}:${day(now())}`, used = Number((await kv.get(rk)) || 0);
         if (used + fresh.length > limit) return json({ error: `daily limit of ${limit} items reached` }, 429);
-        await fs.addItems(uid, fresh);
+        await fs.addItems(uid, fresh.map(i => ({ ...i, updated: now() })));   // `updated` lets the app fetch only changed cards
         cache.add(uid, fresh);
         await kv.put(rk, String(used + fresh.length), { expirationTtl: 172800 });
         await kv.put(`tok:${hash}`, JSON.stringify({ ...rec, lastUsed: now() }));

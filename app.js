@@ -7,6 +7,7 @@ import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 import { PAGE_SIZE, buildIndex, filterItems, nextShown, pageInfo } from "./paging.js";
 import { VERSION, REPO_URL, INSTALL_URL, checkForUpdate } from "./version.js";
 import { readMirror, writeMirror, clearMirror, newPending, addPending, takePending } from "./mirror.js";
+import { readSync, writeSync, clearSync, planSync, nextMarker, mergeDelta } from "./delta.js";
 
 const KEY = "english-notebook-v1";
 const PROG_KEY = "english-notebook-progress";
@@ -177,7 +178,7 @@ function onUser(u) {
   if (unsubP) { unsubP(); unsubP = null; }
   user = u; authKnown = true; renderAuth(); vaultUi?.onUser(); agentUi?.onUser();
   if (!u) {
-    clearMirror(localStorage); mirrorUid = null; takePending(pending); // signed out: do not keep the cards on this device
+    clearMirror(localStorage); clearSync(localStorage); mirrorUid = null; takePending(pending); // signed out: do not keep the cards on this device
     items = loadLocal(); progress = loadProgress(); progressReady = true;
     renderAll(); settle(); renderPills(); renderRewards(); return;
   }
@@ -187,6 +188,7 @@ function onUser(u) {
     p.put.forEach(it => cloud.put(u.uid, it).catch(syncErr));
     p.del.forEach(id => cloud.del(u.uid, id).catch(syncErr));
   }
+  const hadMirror = !!mirrorUid && items.length > 0;
   mirrorUid = null;
   progressReady = false;
   cloud.watchProgress(u.uid, doc => {
@@ -199,21 +201,24 @@ function onUser(u) {
     try { localStorage.setItem(PROG_KEY, JSON.stringify(progress)); } catch {}
     settle(); renderPills(); renderRewards();
   }, syncErr).then(f => { unsubP = f; }).catch(syncErr);
-  cloud.watch(u.uid, docs => {
-    const remote = docs.map(norm);
+  // One full read now and then; in between, only the cards that changed since the last sync (see delta.js).
+  const startedAt = Date.now(), plan = planSync(readSync(localStorage), u.uid, startedAt, hadMirror);
+  cloud.watch(u.uid, (docs, info) => {
+    const next = info.delta ? mergeDelta(items, docs.map(norm), info.removed) : docs.map(norm);
     if (!migrated.has(u.uid)) { // first login: upload local items that the cloud does not have yet
       migrated.add(u.uid);
-      const have = new Set(remote.map(i => i.id));
+      const have = new Set(next.map(i => i.id));
       loadLocal().filter(i => !have.has(i.id)).forEach(i => cloud.put(u.uid, i).catch(syncErr));
     }
-    items = remote.sort((a, b) => b.created - a.created);
+    writeSync(localStorage, nextMarker(readSync(localStorage), { uid: u.uid, mode: plan.mode, startedAt, maxUpdated: info.maxUpdated }));
+    items = next.sort((a, b) => b.created - a.created);
     saveMirrorSoon(u.uid);
     renderAllSoon();   // snapshots can arrive twice in a row (cache, then server): draw once
     if (progressReady) awardBadges(false);
     // opened straight on the Review tab (shortcut) before the cards arrived: start it now
     if ($("#tab-review").classList.contains("active") && !current && reviewTotal === 0) startReview();
     importInbox();
-  }, syncErr).then(f => { unsub = f; }).catch(syncErr);
+  }, plan.since).then(f => { unsub = f; }).catch(syncErr);
 }
 if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); authKnown = true; progressReady = true; settle(); vaultUi?.onUser(); });
 

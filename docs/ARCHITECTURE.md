@@ -64,6 +64,8 @@ Module map of the PWA:
 
 <sub>[PNG](diagrams/data-model.png) · [editable HTML](diagrams/data-model.html)</sub>
 
+**Delta sync (cuts Firestore reads).** Firestore bills one read per card, so reading every card on every open does not scale. Each card write (app, Worker, key-mode MCP) stamps `updated` (ms). The app keeps a local copy of the cards (`mirror.js`) and a marker `{uid, cursor, fullAt}` (`delta.js`). It does one **full read** when there is no copy, when the marker is older than 24 hours, or after sign-in as another user. In between it listens only to `updated > cursor - 10 min`, so an open costs about the number of changed cards. The 10-minute look-back covers clock differences between devices. Deletions made on another device only reach this device at the next full read (within 24 hours) or while a delta listener is open. Cards created before the `updated` field existed never match a delta, which is fine because they have not changed.
+
 Worker storage (Cloudflare KV, not Firestore):
 
 | Key | Value | Notes |
