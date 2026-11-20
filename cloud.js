@@ -1,5 +1,6 @@
 // Thin Firebase wrapper. The SDK is loaded lazily, only when firebase-config.js is filled in.
 import { firebaseConfig, appCheckSiteKey } from "./firebase-config.js";
+import { MAX_ITEMS } from "./vault.js";
 
 export const enabled = !!firebaseConfig;
 const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
@@ -128,8 +129,8 @@ export async function getShare(id) {
   const { fs, db } = await load();
   const snap = await fs.getDocFromServer(fs.doc(db, "shares", id));
   if (!snap.exists()) return null;
-  // limit: a share is capped at 1000 cards, but nothing in the rules counts the cards, so never download more than that
-  const q = fs.query(fs.collection(db, "shares", id, "items"), fs.limit(1001));
+  // limit: a share is capped at MAX_ITEMS cards, but nothing in the rules counts the cards, so never download more than that
+  const q = fs.query(fs.collection(db, "shares", id, "items"), fs.limit(MAX_ITEMS + 1));
   const items = (await fs.getDocsFromServer(q)).docs.map(d => d.data());
   return { id, ...snap.data(), items };
 }

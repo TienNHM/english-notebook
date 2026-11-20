@@ -73,7 +73,7 @@ App chạy toàn màn hình, dùng được khi không có mạng và tự cập
 
 ## 8. Chia sẻ kho từ vựng
 
-**Người chia sẻ:** Profile → 🔗 Chia sẻ kho → chọn loại thẻ và tag → chọn có kèm *câu gốc* và *ghi chú* hay không → chọn thời hạn (7, 30 hoặc 90 ngày) → **Tạo link** → gửi link hoặc mã 22 ký tự. Bạn có thể **thu hồi** link bất cứ lúc nào.
+**Người chia sẻ:** Profile → 🔗 Chia sẻ kho → chọn loại thẻ và tag → chọn có kèm *câu gốc* và *ghi chú* hay không → chọn thời hạn (7, 30 hoặc 90 ngày) → **Tạo link** → gửi link hoặc mã 22 ký tự. Mỗi link chứa tối đa **3000 thẻ** (nếu nhiều hơn, chọn theo loại hoặc tag). Bạn có thể **thu hồi** link bất cứ lúc nào.
 
 **Người nhận:** mở link (hoặc Profile → 📥 Nhập từ link), đăng nhập, **xem trước**, rồi nhập. Thẻ được **sao chép** vào sổ của người nhận (box 0, tag `#shared`); sổ của người chia sẻ không đổi và tiến độ học không bị chia sẻ.
 

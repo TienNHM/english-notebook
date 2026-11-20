@@ -3,7 +3,7 @@
 // How it works: the owner publishes a snapshot of some of their cards under an unguessable id (a "share").
 // Another signed-in user opens the link, previews it and imports a COPY. Learning progress is never part of a share.
 
-export const MAX_ITEMS = 1000;          // cards per share (also enforced by the Firestore rules)
+export const MAX_ITEMS = 3000;          // cards per share (also enforced by the Firestore rules: keep both in sync, a test checks it)
 export const EXPIRY_DAYS = [7, 30, 90]; // allowed lifetimes of a link
 export const TYPES = ["word", "phrase", "sentence"];
 const LIMITS = { text: 500, meaning: 1000, example: 1000, note: 1000, original: 1000, tag: 40, tags: 10 };
