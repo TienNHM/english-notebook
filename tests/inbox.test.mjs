@@ -21,6 +21,7 @@ test("sourceKind: one rule for manual / shared / agent", () => {
   assert.equal(sourceKind(card({ source: "" })), "manual");
   assert.equal(sourceKind(card({ source: "manual" })), "manual");
   assert.equal(sourceKind(card({ source: "shared" })), "shared");
+  assert.equal(sourceKind(card({ source: "community" })), "shared"); // copied from Cộng đồng: works like a shared card
   assert.equal(sourceKind(card({ source: "claude" })), "agent");
   assert.equal(sourceKind(card({ source: "gemini" })), "agent");
   assert.equal(sourceKind(null), "manual");

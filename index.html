@@ -56,11 +56,12 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
   <button type="button" id="syncClose" class="small" aria-label="Đóng thông báo">✕</button>
 </div>
 
+<!-- icon and label are separate spans so a 5-tab bar (with Cộng đồng, added by community-ui.js) can stack them on a phone -->
 <nav>
-  <button data-tab="library" class="active">📚 Thư viện<span id="inboxBadge" class="badge" title="Thẻ mới đang chờ bạn xem"></span></button>
-  <button data-tab="review">🧠 Ôn tập<span id="dueBadge" class="badge"></span></button>
-  <button data-tab="rewards">🏆 Thưởng</button>
-  <button data-tab="profile">👤 Profile</button>
+  <button data-tab="library" class="active"><span class="ni" aria-hidden="true">📚</span> <span class="nl">Thư viện</span><span id="inboxBadge" class="badge" title="Thẻ mới đang chờ bạn xem"></span></button>
+  <button data-tab="review"><span class="ni" aria-hidden="true">🧠</span> <span class="nl">Ôn tập</span><span id="dueBadge" class="badge"></span></button>
+  <button data-tab="rewards"><span class="ni" aria-hidden="true">🏆</span> <span class="nl">Thưởng</span></button>
+  <button data-tab="profile"><span class="ni" aria-hidden="true">👤</span> <span class="nl">Profile</span></button>
 </nav>
 
 <main>
@@ -279,6 +280,23 @@ d.dataset.scheme=(t==="light"||t==="dark")?t:(matchMedia("(prefers-color-scheme:
     <h2 id="agentTitle">🤖 Kết nối AI agent</h2>
     <div id="agentBody"></div>
     <button id="agentClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<!-- Cộng đồng (community-ui.js): only used when the feature flag is on -->
+<div id="comDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="comDlgTitle">
+    <h2 id="comDlgTitle">🌐 Cộng đồng</h2>
+    <div id="comDlgBody"></div>
+    <button id="comDlgClose" type="button">Đóng</button>
+  </div>
+</div>
+
+<div id="comPubDlg" class="overlay" hidden>
+  <div class="modal share" role="dialog" aria-modal="true" aria-labelledby="comPubTitle">
+    <h2 id="comPubTitle">➕ Đăng bộ thẻ công khai</h2>
+    <div id="comPubBody"></div>
+    <button id="comPubClose" type="button">Đóng</button>
   </div>
 </div>
 

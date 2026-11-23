@@ -28,6 +28,25 @@ Current production values: Firebase project `tiennhm-english-notebook`; app `htt
 5. Service account key (needed only by the Worker or key mode): Project settings → Service accounts → **Generate new private key**. Keep the file outside any git repo.
 6. Rules are checked by hand with `tests/rules.test.mjs` against the real project (it makes temporary users and deletes them).
 
+**Community collections (Cộng đồng).** The tab is behind a feature flag, so the rules and indexes can go live first.
+
+1. Run the rules test against the local emulator (Java 21 and Node 22; a `demo-` project never touches production):
+
+   ```bash
+   cd tests/emulator && npm install && npm test
+   ```
+
+2. Deploy the rules **and** the indexes together (the browse and "Bộ của tôi" queries fail with `failed-precondition` until the indexes are built, which can take a few minutes):
+
+   ```bash
+   npx firebase-tools deploy --only firestore:rules,firestore:indexes --project tiennhm-english-notebook
+   ```
+
+3. Preview in one browser while the flag is still off: open the app, then in the DevTools console run `localStorage.setItem("english-notebook-community", "1")` and reload. Undo with `localStorage.removeItem("english-notebook-community")`.
+4. Turn it on for everyone: set `communityEnabled = true` in `firebase-config.js` and push (the Pages workflow publishes it).
+5. **Hide a collection** (spam, abuse, a report you agree with): Firebase console → Firestore → `collections/{cid}` → change `status` from `public` to `hidden`. It disappears from the list and from the detail view at once; the owner still sees it in "Bộ của tôi" with a "hidden by admin" note. Set it back to `public` to restore it. Reports are in the `reports` collection (`cid`, `reason`, `note`, `by`, `at`); delete them by hand when handled.
+6. Each person who opens a collection reads its doc and pack `0` (the preview); "Học bộ này" reads every pack (at most 50 docs). These reads count against the project's Firestore quota.
+
 **App Check (optional, recommended once billing is on).** It makes Firebase accept requests only from your real app, so a script using your public key cannot run up reads. The code is already in `cloud.js` and does nothing until you set a key:
 
 1. Create a reCAPTCHA v3 site key at <https://www.google.com/recaptcha/admin> (domains: `english-notebook.tiennhm.io.vn` and `localhost`).

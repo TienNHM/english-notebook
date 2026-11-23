@@ -130,6 +130,24 @@ App chạy toàn màn hình, dùng được khi không có mạng và tự cập
 
 **Người nhận:** mở link (hoặc Profile → 📥 Nhập từ link), đăng nhập, **xem trước**, rồi nhập. Thẻ được **sao chép** vào sổ của người nhận (box 0, tag `#shared`); sổ của người chia sẻ không đổi và tiến độ học không bị chia sẻ.
 
+### 8.1 Cộng đồng
+
+> Tính năng đang thử nghiệm: tab **🌐 Cộng đồng** chỉ hiện khi chủ app bật nó. Cần đăng nhập Google và có mạng.
+
+**Khám phá:** mở tab 🌐 Cộng đồng, chọn **⭐ Nhiều sao** hoặc **🆕 Mới nhất**, lọc theo tag (bấm một tag hoặc gõ tag rồi bấm **Lọc**), bấm **Tải thêm** để xem tiếp. Bấm vào một bộ để xem mô tả, chủ bộ, số thẻ và **30 thẻ đầu tiên**.
+
+**Trong một bộ:**
+
+- **☆ Gắn sao**: mỗi tài khoản gắn một sao cho một bộ; bấm lần nữa để bỏ sao.
+- **📥 Học bộ này**: chép các thẻ vào sổ của bạn (box 0, đến hạn ôn ngay, có tag `#community`). Mặc định bỏ qua thẻ đã có trong sổ. Thẻ đã chép là của bạn: sửa hay xoá đều không ảnh hưởng tới bộ gốc.
+- **🚩 Báo cáo**: chọn lý do (spam, nội dung xúc phạm, vi phạm bản quyền, sai nhiều, khác), thêm ghi chú nếu muốn, rồi gửi. Quản trị viên sẽ xem và có thể ẩn bộ đó.
+
+**Đăng bộ của bạn:** bấm **➕ Đăng bộ của bạn** → chọn loại thẻ và tag → đặt tên bộ, mô tả, tag (tối đa 8) và **tên hiển thị** (mặc định là tên Google; email không bao giờ hiện) → chọn có kèm *câu gốc* và *ghi chú* hay không (mặc định **không**) → đánh dấu ô *“Mình có quyền chia sẻ những thẻ này và chúng không chứa thông tin riêng tư”* → **🌐 Đăng công khai**. Bộ được công khai ngay cho mọi người đã đăng nhập. Mỗi bộ tối đa **3000 thẻ**, mỗi người tối đa **20 bộ** công khai. Chỉ thẻ đang hoạt động được đăng (không có thẻ trong *Mới* hay *Lưu trữ*), và tiến độ học không bao giờ được chia sẻ.
+
+> ⚠ Thẻ do AI agent lưu (từ các cuộc trò chuyện công việc) có thể chứa thông tin công việc. App sẽ cảnh báo khi bạn chọn những thẻ này: hãy xem lại trước khi đăng.
+
+**Bộ của tôi:** xem các bộ bạn đã đăng và số sao. Nếu thấy *“Đã bị quản trị viên ẩn”*, người khác không còn thấy bộ đó. **🗑 Gỡ bộ** xoá bộ khỏi Cộng đồng (cùng các sao của nó); thẻ người khác đã chép vẫn nằm trong sổ của họ.
+
 ## 9. Dùng với AI agent (Claude, Cursor…)
 
 AI agent sẽ: sửa tiếng Anh cho bạn, trả lời bằng tiếng Anh đơn giản kèm tiếng Việt, rồi **tự lưu** câu và cụm hay vào sổ sau mỗi yêu cầu tiếng Việt.

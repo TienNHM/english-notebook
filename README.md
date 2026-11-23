@@ -36,6 +36,7 @@ An installable PWA in plain HTML, CSS and JavaScript. No build step, works offli
 - **Daily goal, streak and rewards**: review N cards a day to keep your 🔥 streak. Earn XP and levels, 15 badges, 🧊 freezes that save your streak, and confetti when you reach the goal.
 - **Share your achievements**: a share card image (streak, level, recalls, badges) plus ready-made posts for Facebook, X, LinkedIn and Telegram, or the phone's share sheet. The image is drawn on your device and has no name or email.
 - **Share your vocabulary with another account**: create a link, and the other person signs in with Google, previews the cards and imports a copy. Your study progress is never shared, links expire, and you can delete them at any time.
+- **Community collections** (*Cộng đồng*, behind a feature flag, off for now): publish a public set of your cards, browse other people's sets, star them, report them, and copy a set into your notebook with one tap ("Học bộ này"). Your email and study progress are never shown.
 - **Lively motion**: bouncy page, card and reward animations (count-up numbers, flickering 🔥, floating "+XP", shaking card on Quên, confetti). It follows your system "reduce motion" setting, and you can force it on or off in the app.
 - **4 visual styles** (Neo-brutalism, Solid, Glass, Gradient), each in light and dark, plus a system mode. Bottom tab bar on phones.
 - **Installable PWA**: install it on your phone or PC like a normal app (own icon, full screen, home-screen shortcuts), and it opens without internet.

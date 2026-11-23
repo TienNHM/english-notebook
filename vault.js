@@ -42,7 +42,8 @@ export function pickItems(items, { types = [], tags = [] } = {}) {
     (!tags.length || (i.tags || []).some(t => tags.includes(t))));
 }
 
-const clip = (v, n) => String(v ?? "").trim().slice(0, n);
+// slice() can cut an emoji in half: drop a lone high surrogate left at the end (Firestore and hashes need valid text)
+const clip = (v, n) => String(v ?? "").trim().slice(0, n).replace(/[\uD800-\uDBFF]$/, "");
 
 // What leaves the account: card content only. Never box, due, reviews, created, source or any other field.
 // opts.original / opts.note decide whether the (possibly private) source sentence and note are included.
