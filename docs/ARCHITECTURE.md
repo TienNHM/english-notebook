@@ -70,6 +70,19 @@ Pure modules behind the Library (no DOM, each with a `tests/*.test.mjs`): `libra
 
 **Delta sync (cuts Firestore reads).** Firestore bills one read per card, so reading every card on every open does not scale. Each card write (app, Worker, key-mode MCP) stamps `updated` (ms). The app keeps a local copy of the cards (`mirror.js`) and a marker `{uid, cursor, fullAt}` (`delta.js`). It does one **full read** when there is no copy, when the marker is older than 24 hours, or after sign-in as another user. In between it listens only to `updated > cursor - 10 min`, so an open costs about the number of changed cards. The 10-minute look-back covers clock differences between devices. Deleting a card also writes a small marker `users/{uid}/deleted/{id}` (with `updated`); a delta listener on those markers removes the card on other devices. The marker is best effort (written after the delete), so the daily full read stays as the safety net. Cards created before the `updated` field existed never match a delta, which is fine because they have not changed.
 
+**Community collections (Cộng đồng, behind a feature flag).** Public sets of cards that other signed-in users browse, star, report and copy. Pure logic in `community.js` (tests in `tests/community.test.mjs`), Firestore calls in `cloud.js`, screens in `community-ui.js`, rules in `firestore.rules` (emulator test: `tests/emulator/rules.test.mjs`).
+
+| Path | Fields | Notes |
+|---|---|---|
+| `collections/{cid}` | `owner, ownerName, title, description, tags[], count, packs, status, stars, createdAt, updatedAt, includes{original, note}` | `cid` = 22 random URL-safe characters. Readable while `status == "public"` (or by the owner). The admin hides one by setting `status: "hidden"` in the console. `stars` changes only by ±1 together with a star doc and never goes below 0. `createdAt`/`updatedAt` must be within 5 minutes of the server clock (`updatedAt` never goes back). |
+| `collections/{cid}/meta/manifest` | `packRevs{"0": n, …}, publishedAt` | What a later sync phase will listen to (stars stay on the collection doc, so a star does not wake listeners). One entry per pack: `packRevs` has exactly `packs` entries. |
+| `collections/{cid}/packs/{n}` | `cards[], bytes` | At most 1000 cards and 200,000 bytes (UTF-8 JSON) per pack, at most 50 packs. Each card: `cardId, rev, type, text, meaning, example, note, original, sourceId, tags`. No indexes on `cards`. The rules cannot look inside cards and `bytes` is only what the client says, so readers check and clip every card with `community.cleanCard` before showing or copying it. |
+| `collections/{cid}/stars/{uid}` | `at` | One star per account. Only that user can delete it (unstar); star docs stay behind after an unpublish (harmless). |
+| `users/{uid}/meta/community` | `pubCount, lastCid` | Number of public collections (max 20). Moves by exactly ±1 in the same batch that creates or deletes `collections/{lastCid}`. |
+| `reports/{rid}` | `cid, reason, note, by, at` | Create only; the admin reads them in the console. `rid` = `<uid>_<cid>`, so one report per user and collection. |
+
+A card copied with "Học bộ này" is a normal card in `users/{uid}/items` with `source: "community"`, the tag `community`, box 0 / due now, and `src: { cid, cardId, rev, hash }` (`hash` = FNV-1a of the published content), so a later phase can offer updates. `norm()` in `app.js` keeps `src`; `inbox.sourceKind` counts `community` as "shared". Queries need the composite indexes in `firestore.indexes.json` (status + stars / updatedAt, with and without a tag, and owner + updatedAt). With `communityEnabled = false` (and no `localStorage["english-notebook-community"] = "1"`) the tab is not added and no community request is made.
+
 Worker storage (Cloudflare KV, not Firestore):
 
 | Key | Value | Notes |

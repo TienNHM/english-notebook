@@ -1,6 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
+    // ----- small helpers (used by the community rules) -----
+    function signedIn() { return request.auth != null; }
+    function colPath(cid) { return /databases/$(db)/documents/collections/$(cid); }
+    function communityPath(uid) { return /databases/$(db)/documents/users/$(uid)/meta/community; }
+    function starPath(cid, uid) { return /databases/$(db)/documents/collections/$(cid)/stars/$(uid); }
+    function manifestPath(cid) { return /databases/$(db)/documents/collections/$(cid)/meta/manifest; }
+    // a time stamp (ms) set by the client: at most 5 minutes away from the server clock
+    function nearNow(t) { return t is int && t >= request.time.toMillis() - 300000 && t <= request.time.toMillis() + 300000; }
+    // how many public collections the user had before this request (0 when the counter does not exist yet)
+    function oldPubCount(uid) { return exists(communityPath(uid)) ? get(communityPath(uid)).data.pubCount : 0; }
+    // a collection can be read by any signed-in user while it is public, and always by its owner
+    function canReadCollection(cid) {
+      return signedIn() && (get(colPath(cid)).data.status == 'public' || get(colPath(cid)).data.owner == request.auth.uid);
+    }
+    function exactKeys(d, keys) { return d.keys().hasAll(keys) && d.keys().hasOnly(keys); }
+    // tag number i is fine (or missing): a lowercase string of 1..30 characters
+    function tagOk(tags, i) {
+      return tags.size() <= i
+        || (tags[i] is string && tags[i].size() >= 1 && tags[i].size() <= 30 && tags[i].lower() == tags[i]);
+    }
+    // the fields of a collection that its owner may set (on create and on update)
+    function validCollection(d) {
+      return d.ownerName is string && d.ownerName.size() >= 1 && d.ownerName.size() <= 40
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 80
+        && d.description is string && d.description.size() <= 500
+        && d.tags is list && d.tags.size() <= 8
+        && tagOk(d.tags, 0) && tagOk(d.tags, 1) && tagOk(d.tags, 2) && tagOk(d.tags, 3)
+        && tagOk(d.tags, 4) && tagOk(d.tags, 5) && tagOk(d.tags, 6) && tagOk(d.tags, 7)
+        && d.count is int && d.count >= 1 && d.count <= 3000
+        && d.packs is int && d.packs >= 1 && d.packs <= 50
+        && d.packs <= d.count && d.count <= d.packs * 1000
+        && d.updatedAt is int
+        && d.includes is map && exactKeys(d.includes, ['original', 'note'])
+        && d.includes.original is bool && d.includes.note is bool;
+    }
+
     // Each signed-in user can only read and write their own data.
     match /users/{uid}/items/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
@@ -9,9 +45,129 @@ service cloud.firestore {
     match /users/{uid}/deleted/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    // Streak, XP and badges (users/{uid}/meta/progress)
+    // Streak, XP and badges (users/{uid}/meta/progress). meta/community is a counter with its own rule below.
     match /users/{uid}/meta/{id} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid && id != 'community';
+    }
+    // How many public collections the user has (at most 20). It only moves by one, together with creating (+1) or
+    // deleting (-1) the collection named in lastCid, in the same batch. So it always equals the real number.
+    match /users/{uid}/meta/community {
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && exactKeys(request.resource.data, ['pubCount', 'lastCid'])
+        && request.resource.data.pubCount is int
+        && request.resource.data.lastCid is string && request.resource.data.lastCid.size() == 22
+        && (
+          (request.resource.data.pubCount == oldPubCount(uid) + 1 && request.resource.data.pubCount <= 20
+            && !exists(colPath(request.resource.data.lastCid))
+            && existsAfter(colPath(request.resource.data.lastCid))
+            && getAfter(colPath(request.resource.data.lastCid)).data.owner == uid)
+          || (request.resource.data.pubCount == oldPubCount(uid) - 1 && request.resource.data.pubCount >= 0
+            && exists(colPath(request.resource.data.lastCid))
+            && get(colPath(request.resource.data.lastCid)).data.owner == uid
+            && !existsAfter(colPath(request.resource.data.lastCid)))
+        );
+    }
+
+    // Community collections: public sets of cards. Every signed-in user can read public ones (a list query must
+    // filter on status == "public" or on the caller's own uid). The admin hides one by setting status "hidden" in the console.
+    match /collections/{cid} {
+      allow get, list: if signedIn()
+        && (resource.data.status == 'public' || resource.data.owner == request.auth.uid);
+      allow create: if signedIn()
+        && cid.size() == 22
+        && exactKeys(request.resource.data, ['owner', 'ownerName', 'title', 'description', 'tags', 'count', 'packs',
+                                             'status', 'stars', 'createdAt', 'updatedAt', 'includes'])
+        && request.resource.data.owner == request.auth.uid
+        && validCollection(request.resource.data)
+        && request.resource.data.status == 'public'
+        && request.resource.data.stars == 0
+        && nearNow(request.resource.data.updatedAt)
+        && request.resource.data.createdAt == request.resource.data.updatedAt
+        && getAfter(manifestPath(cid)).data.packRevs.size() == request.resource.data.packs
+        && getAfter(communityPath(request.auth.uid)).data.pubCount == oldPubCount(request.auth.uid) + 1
+        && getAfter(communityPath(request.auth.uid)).data.lastCid == cid;
+      // the owner edits the description fields (never owner, stars, status or createdAt). updatedAt never goes back and
+      // is never in the future (it orders "Mới nhất"); a new number of packs must match the manifest written with it.
+      allow update: if signedIn() && resource.data.owner == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['title', 'description', 'tags', 'ownerName', 'count', 'packs', 'updatedAt', 'includes'])
+        && validCollection(request.resource.data)
+        && request.resource.data.updatedAt >= resource.data.updatedAt
+        && request.resource.data.updatedAt <= request.time.toMillis() + 300000
+        && (request.resource.data.packs == resource.data.packs
+            || getAfter(manifestPath(cid)).data.packRevs.size() == request.resource.data.packs);
+      // another user stars (+1, creating their star doc) or unstars (-1, deleting it) in the same batch
+      allow update: if signedIn() && resource.data.owner != request.auth.uid
+        && resource.data.status == 'public'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stars'])
+        && (
+          (request.resource.data.stars == resource.data.stars + 1
+            && !exists(starPath(cid, request.auth.uid)) && existsAfter(starPath(cid, request.auth.uid)))
+          || (request.resource.data.stars == resource.data.stars - 1 && request.resource.data.stars >= 0
+            && exists(starPath(cid, request.auth.uid)) && !existsAfter(starPath(cid, request.auth.uid)))
+        );
+      allow delete: if signedIn() && resource.data.owner == request.auth.uid
+        && getAfter(communityPath(request.auth.uid)).data.pubCount == oldPubCount(request.auth.uid) - 1
+        && getAfter(communityPath(request.auth.uid)).data.lastCid == cid;
+
+      // Pack revisions that learners listen to (stars stay on the collection doc, so a star does not wake them up).
+      // One entry per pack: the map is as long as the collection's `packs` (getAfter of the collection is already cached).
+      match /meta/manifest {
+        allow get, list: if canReadCollection(cid);
+        allow create, update: if signedIn() && getAfter(colPath(cid)).data.owner == request.auth.uid
+          && exactKeys(request.resource.data, ['packRevs', 'publishedAt'])
+          && request.resource.data.packRevs is map
+          && request.resource.data.packRevs.size() <= 50
+          && request.resource.data.packRevs.size() == getAfter(colPath(cid)).data.packs
+          && nearNow(request.resource.data.publishedAt);
+        allow delete: if signedIn() && get(colPath(cid)).data.owner == request.auth.uid;
+      }
+
+      // The cards, in packs "0".."49" of at most 1000 cards / 200000 bytes each.
+      // The rules cannot look inside each card, and `bytes` is only what the client says: it is advisory.
+      // The real defence is on the reader's side: community.cleanCard checks and clips every card before it is shown or copied.
+      match /packs/{n} {
+        allow get, list: if canReadCollection(cid);
+        allow create, update: if signedIn() && getAfter(colPath(cid)).data.owner == request.auth.uid
+          && n.matches('^([0-9]|[1-4][0-9])$')
+          && exactKeys(request.resource.data, ['cards', 'bytes'])
+          && request.resource.data.cards is list
+          && request.resource.data.cards.size() >= 1 && request.resource.data.cards.size() <= 1000
+          && request.resource.data.bytes is int
+          && request.resource.data.bytes >= 0 && request.resource.data.bytes <= 200000;
+        allow delete: if signedIn() && get(colPath(cid)).data.owner == request.auth.uid;
+      }
+
+      // One star per account: the doc id is the uid of the user who starred.
+      match /stars/{starUid} {
+        allow get: if signedIn()
+          && (request.auth.uid == starUid || get(colPath(cid)).data.owner == request.auth.uid);
+        allow list: if signedIn() && get(colPath(cid)).data.owner == request.auth.uid;
+        allow create: if signedIn() && request.auth.uid == starUid
+          && exactKeys(request.resource.data, ['at'])
+          && request.resource.data.at is int
+          && get(colPath(cid)).data.status == 'public'
+          && getAfter(colPath(cid)).data.stars == get(colPath(cid)).data.stars + 1;
+        // only the user unstars (the counter goes down in the same batch). The owner may NOT delete star docs: that would
+        // let a second account star again and again. Star docs left behind after an unpublish are harmless.
+        allow delete: if signedIn() && request.auth.uid == starUid
+          && getAfter(colPath(cid)).data.stars == get(colPath(cid)).data.stars - 1;
+      }
+    }
+
+    // Reports about a collection. Write-only: the admin reads them in the Firebase console.
+    // One report per user and collection: the doc id is "<uid>_<cid>", and a second write would be an update (denied).
+    match /reports/{rid} {
+      allow create: if signedIn()
+        && rid == request.auth.uid + '_' + request.resource.data.cid
+        && exactKeys(request.resource.data, ['cid', 'reason', 'note', 'by', 'at'])
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.reason in ['spam', 'offensive', 'copyright', 'wrong', 'other']
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300
+        && nearNow(request.resource.data.at)
+        && request.resource.data.cid is string && request.resource.data.cid.size() == 22
+        && exists(colPath(request.resource.data.cid));
     }
 
     // Shared vaults: a snapshot of vocabulary cards that its owner publishes under an unguessable id (22 random characters).

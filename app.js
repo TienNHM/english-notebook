@@ -3,6 +3,7 @@ import * as P from "./progress.js";
 import * as S from "./share.js";
 import { initVault } from "./vault-ui.js";
 import { initAgent } from "./agent-ui.js";
+import { initCommunity } from "./community-ui.js";
 import { ORDERS, orderQueue, normOrder } from "./review-order.js";
 import { PAGE_SIZE, buildIndex, nextShown, pageInfo } from "./paging.js";
 import { applyView, normView, countsByScope, highlightParts, normSavedViews, addSavedView, removeSavedView, SAVED_VIEWS_KEY } from "./library-view.js";
@@ -68,16 +69,20 @@ function flashForm() {
 // id, type(word|phrase|sentence), text, meaning, example, note, original (source sentence in Vietnamese),
 // sourceId (parent sentence id, for expressions taken from a sentence), source (manual|claude|...),
 // tags[], box, due, created, reviews, and the optional status ("inbox" | "archived"; absent = active) and lapses (times answered "Quên")
+// and src (a card copied from Cộng đồng: { cid, cardId, rev, hash } of the published card, kept for a later sync of updates)
+const validSrc = s => !!s && typeof s === "object" && typeof s.cid === "string" && !!s.cid && typeof s.cardId === "string" && !!s.cardId
+  && Number.isInteger(s.rev) && s.rev > 0 && typeof s.hash === "string";
 function norm(d) {
   const c = {
     id: d.id || uid(), type: ["word", "phrase", "sentence"].includes(d.type) ? d.type : "word", text: String(d.text || ""), meaning: String(d.meaning || ""),
     example: d.example || "", note: d.note || "", original: d.original || "", sourceId: d.sourceId || "",
-    source: d.source || "manual", tags: Array.isArray(d.tags) ? d.tags : [],
+    source: d.source || "manual", tags: Array.isArray(d.tags) ? d.tags.filter(t => typeof t === "string") : [], // a non-string tag breaks sorting
     box: +d.box || 0, due: +d.due || Date.now(), created: +d.created || Date.now(), reviews: +d.reviews || 0,
   };
   if (d.status === "inbox" || d.status === "archived") c.status = d.status; // active cards carry no status field
   const lapses = Math.floor(+d.lapses);
   if (lapses > 0) c.lapses = lapses;
+  if (validSrc(d.src)) c.src = { cid: d.src.cid, cardId: d.src.cardId, rev: d.src.rev, hash: d.src.hash };
   return c;
 }
 function loadLocal() {
@@ -99,6 +104,7 @@ let user = null, unsub = null, unsubP = null, unsubD = null;
 let authKnown = !cloud.enabled; // false until Firebase has told us whether someone is signed in
 let vaultUi = null;             // the share / import screens (set up at the bottom of this file)
 let agentUi = null;             // the "connect an AI agent" screen
+let communityUi = null;         // the Cộng đồng tab (does nothing while its feature flag is off)
 const migrated = new Set(), migratedP = new Set();
 let queue = [], current = null, revealed = false, reviewTotal = 0, reviewDone = 0;
 let listAnim = true, cardFx = "slide"; // one-shot flags for the animations
@@ -193,7 +199,7 @@ function onUser(u) {
   if (unsub) { unsub(); unsub = null; }
   if (unsubP) { unsubP(); unsubP = null; }
   if (unsubD) { unsubD(); unsubD = null; }
-  user = u; authKnown = true; renderAuth(); vaultUi?.onUser(); agentUi?.onUser();
+  user = u; authKnown = true; renderAuth(); vaultUi?.onUser(); agentUi?.onUser(); communityUi?.onUser();
   if (!u) {
     clearMirror(localStorage); clearSync(localStorage); mirrorUid = null; takePending(pending); // signed out: do not keep the cards on this device
     items = loadLocal(); progress = loadProgress(); progressReady = true;
@@ -250,7 +256,7 @@ function onUser(u) {
     }, syncErr).then(f => { unsubD = f; }).catch(syncErr);
   }
 }
-if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); authKnown = true; progressReady = true; settle(); vaultUi?.onUser(); });
+if (cloud.enabled) cloud.onUser(onUser).catch(e => { syncErr(e); authKnown = true; progressReady = true; settle(); vaultUi?.onUser(); communityUi?.onUser(); });
 
 // ---------- inbox.json (filled by the MCP server, e.g. from Claude Code) ----------
 const IMPORTED_KEY = "english-notebook-imported";
@@ -333,6 +339,7 @@ function showTab(name, keepSession) { // keepSession: the caller starts its own 
   if (name === "library") { listAnim = true; resetPaging(); renderList(); }
   else renderSelBar();   // the bulk action bar belongs to the Library only
   if (name === "profile") renderProfile();
+  if (name === "community") communityUi?.render();
   if (name === "rewards") {
     for (const k of Object.keys(shownCounts)) delete shownCounts[k]; // count up again when the tab is opened
     renderRewards();
@@ -1432,18 +1439,23 @@ renderRewards();
 renderProfile();
 importInbox();
 // ---------- sharing a vocabulary vault between accounts (see vault.js and vault-ui.js) ----------
+const addNewCards = list => { items.unshift(...list); commit(list); awardBadges(false); }; // imported / copied cards are new cards for this account
 vaultUi = initVault({
   getItems: () => items, getUser: () => user, authKnown: () => authKnown,
-  addItems: list => { items.unshift(...list); commit(list); awardBadges(false); }, // imported cards are new cards for this account
-  toast, goLibrary: () => showTab("library"),
+  addItems: addNewCards, toast, goLibrary: () => showTab("library"),
 });
 vaultUi.handleUrl(); // a link like /?import=CODE opens the import screen
 agentUi = initAgent({ getUser: () => user, authKnown: () => authKnown, toast }); // "Kết nối AI agent": personal tokens for the MCP plugin
+// "Cộng đồng": public collections (see community.js and community-ui.js). Adds its tab only when the feature flag is on.
+communityUi = initCommunity({
+  getItems: () => items, getUser: () => user, authKnown: () => authKnown,
+  addItems: addNewCards, toast, goLibrary: () => showTab("library"), showTab,
+});
 
-// Home-screen shortcuts open a tab directly: /?tab=review, /?tab=add, /?tab=rewards, /?tab=library
+// Home-screen shortcuts open a tab directly: /?tab=review, /?tab=add, /?tab=rewards, /?tab=library (and /?tab=community when it is on)
 const startTab = new URLSearchParams(location.search).get("tab");
 if (startTab === "add") { showTab("library"); openAdd(true); }   // old shortcut: the add form now lives in the Library
-else if (["library", "review", "rewards", "profile"].includes(startTab)) showTab(startTab);
+else if (["library", "review", "rewards", "profile"].includes(startTab) || (startTab === "community" && communityUi.enabled)) showTab(startTab);
 
 // Footer: version and GitHub links (the single source is version.js)
 $("#appVersion").textContent = "v" + VERSION;

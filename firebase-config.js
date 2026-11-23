@@ -10,5 +10,9 @@ export const firebaseConfig = {
 // App Check (reCAPTCHA v3) site key, a public identifier. Empty = App Check off. Steps to turn it on: docs/OPERATIONS.md.
 export const appCheckSiteKey = "";
 
+// "Cộng đồng" tab (public collections). Keep false until the Firestore rules and indexes are deployed (docs/OPERATIONS.md).
+// To preview it in one browser while this is false: localStorage.setItem("english-notebook-community", "1") in the console.
+export const communityEnabled = false;
+
 // Address of the agent API Worker (see worker/). Empty = not deployed: the "Connect an AI agent" screen says so.
 export const agentApiUrl = "https://english-notebook-agent-api.tiennhm-it.workers.dev";

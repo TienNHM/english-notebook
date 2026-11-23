@@ -11,10 +11,10 @@ const list = items => (Array.isArray(items) ? items : []);
 const reviewable = items => list(items).filter(isActive);
 
 // One definition of where a card came from, shared by the library filter, the overview and the badges:
-// "manual", "shared", or "agent" (any other source, e.g. "claude").
+// "manual", "shared" (from a share link or copied from Cộng đồng: source "community"), or "agent" (any other source, e.g. "claude").
 export function sourceKind(c) {
   const s = (c && c.source) || "manual";
-  return s === "manual" ? "manual" : s === "shared" ? "shared" : "agent";
+  return s === "manual" ? "manual" : s === "shared" || s === "community" ? "shared" : "agent";
 }
 
 // Copy of the card without the status field (back to active). Also used to restore an archived card.
